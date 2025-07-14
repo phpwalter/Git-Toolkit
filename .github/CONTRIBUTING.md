@@ -108,7 +108,7 @@ Ensure automation is robust and clearly logs output/errors.
    ```bash
    git clone <repo>
    git checkout -b feature/my-change
-````
+   ````
 
 2. Keep your fork updated:
 
