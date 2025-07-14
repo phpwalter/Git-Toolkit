@@ -20,7 +20,7 @@ Built on **GitPython**, driven by **YAML** config, with a structured hook/plugin
 1. **Add as a Git submodule**  
    ```bash
    git submodule add https://github.com/yourorg/git-toolkit.git tools/git-toolkit
-````
+   ````
 
 2. **Install locally**
 
@@ -114,15 +114,40 @@ Or publish a plugin package with an entry-point under `git_toolkit.plugins`.
 │       ├── test_auth.py
 │       ├── test_git_actions.py
 │       └── test_hooks.py
-└── docs/
-    ├── es/
-    │   ├── README.md
-    │   ├── quickstart.md
-    │   └── PROPOSAL.md
-    └── fr/
-        ├── README.md
-        ├── quickstart.md
-        └── PROPOSAL.md
+├── docs/
+│   ├── en/
+│   │   ├── contributing.md       ← Optional mirror of GitHub-facing files
+│   │   ├── code-of-conduct.md
+│   │   ├── governance.md
+│   │   └── security.md
+│   ├── es/
+│   │   ├── README.md
+│   │   ├── quickstart.md
+│   │   ├── PROPOSAL.md
+│   │   ├── cómo-contribuir.md     ← CONTRIBUTING translated
+│   │   ├── código-de-conducta.md  ← CODE_OF_CONDUCT translated
+│   │   ├── gobernanza.md          ← GOVERNANCE translated
+│   │   └── seguridad.md           ← SECURITY translated
+│   └── fr/
+│       ├── README.md
+│       ├── quickstart.md
+│       ├── PROPOSAL.md
+│       ├── contribuer.md          ← CONTRIBUTING translated
+│       ├── code-de-conduite.md    ← CODE_OF_CONDUCT translated
+│       ├── gouvernance.md         ← GOVERNANCE translated
+│       └── sécurité.md            ← SECURITY translated
+└── .github/
+    ├── CONTRIBUTING.md            ← Primary GitHub-linked version
+    ├── CODE_OF_CONDUCT.md
+    ├── GOVERNANCE.md
+    ├── SECURITY.md
+    ├── ISSUE_TEMPLATE/
+    │   ├── bug_report.yml
+    │   ├── feature_request.yml
+    │   └── config.yml
+    ├── PULL_REQUEST_TEMPLATE.md
+    └── workflows/
+        └── ci.yml                 ← GitHub Actions for CI/lint/test
 ```
 
 ---
@@ -161,5 +186,5 @@ This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for d
 
 ---
 
-_Last Updated: 2025-07-12_
+_Last Updated: 2025-07-12_<br>
 _Next Review: 2026-07-01_
