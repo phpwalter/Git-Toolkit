@@ -39,18 +39,20 @@ gt push
 
 ## 📋 Features
 
-✅ Git-native commands: `clone`, `checkout`, `status`, `commit`, `push`, `submodule update`
-✅ Cross-platform: Windows / macOS / Linux
-✅ Configurable via `.git-toolkit.yaml` or global `~/.git-toolkit/config.yaml`
-✅ Auth options:
+✅ Git-native commands: `clone`, `checkout`, `status`, `commit`, `push`, `submodule update`<br>
+✅ Cross-platform: Windows / macOS / Linux<br>
+✅ Configurable via `.git-toolkit.yaml` or global `~/.git-toolkit/config.yaml`<br>
+✅ Auth options:<br>
 
-* Git Credential Manager (default)
-* Personal Access Token (PAT) with OS keyring
-* (Coming soon) OAuth for GitHub/GitLab/Bitbucket
-  ✅ Hooks system with lifecycle events:
-* `pre_clone`, `post_clone`, `pre_push`, `post_push`, etc.
-  ✅ Plugin support via Python entry points
-  ✅ Docs localization (`docs/<lang>/`), CI/CD enforcement, and sync tooling
+* Git Credential Manager (default)<br>
+* Personal Access Token (PAT) with OS keyring<br>
+* (Coming soon) OAuth for GitHub/GitLab/Bitbucket<br>
+
+✅ Hooks system with lifecycle events:<br>
+* `pre_clone`, `post_clone`, `pre_push`, `post_push`, etc.<br>
+
+✅ Plugin support via Python entry points<br>
+✅ Docs localization (`docs/<lang>/`), CI/CD enforcement, and sync tooling<br>
 
 ---
 
