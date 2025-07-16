@@ -1,37 +1,56 @@
-[![PyPI version](https://img.shields.io/pypi/v/git-toolkit.svg)](https://pypi.org/project/git-toolkit/)
-[![Build Status](https://github.com/phpwalter/git-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/yourorg/git-toolkit/actions)
-[![Coverage Status](https://img.shields.io/codecov/c/github/yourorg/git-toolkit.svg)](https://codecov.io/gh/yourorg/git-toolkit)
-[![Downloads](https://img.shields.io/pypi/dm/git-toolkit.svg)](https://pypi.org/project/git-toolkit/)
-[![License](https://img.shields.io/github/license/phpwalter/git-toolkit.svg)](./LICENSE)
-[![Python Versions](https://img.shields.io/pypi/pyversions/git-toolkit.svg)](https://pypi.org/project/git-toolkit/)
 
+<!-- PROPOSAL.md Badge Block -->
+![Version](https://img.shields.io/github/v/release/phpwalter/Git-Toolkit?label=version&logo=semantic-release&logoColor=white)
+![CI](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/ci.yml?label=ci&logo=githubactions&logoColor=white)
+![Release](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/release.yml?label=release&logo=rocket&logoColor=white)
+![License](https://img.shields.io/github/license/phpwalter/Git-Toolkit?logo=opensourceinitiative&logoColor=white)
+![Last Commit](https://img.shields.io/github/last-commit/phpwalter/Git-Toolkit?label=%F0%9F%97%93%20Last%20Commit&color=007ec6)
+![Maintenance](https://img.shields.io/badge/%F0%9F%9B%A0%EF%B8%8F%20Maintenance-active-brightgreen)
 
+![toolkit-logo-banner.png](docs/assets/toolkit-logo-banner.png)
 
 # Project Proposal: Git-Toolkit
 
-## 1. Executive Summary  
+## 1. 📝Executive Summary  
 We propose **Git-Toolkit**, a lightweight, cross-platform Python CLI “sub-module” for standardizing and automating common Git workflows across Windows, macOS, and Linux. By packaging GitPython wrappers, YAML-based config, and a structured hook/plugin system—with first-class support for Git Credential Manager and OAuth—Git-Toolkit will:  
 - **Eliminate** ad-hoc, platform-specific scripts  
 - **Simplify** authentication and credential management  
-- **Empower** both new and experienced developers with an extensible, plugin-driven CLI  
+- **Empower** new and experienced developers with an extensible, plugin-driven CLI  
 
-## 2. Existing Solutions & Gaps  
-| Project        | Strengths                                              | Gaps                                                              |
-|----------------|--------------------------------------------------------|-------------------------------------------------------------------|
-| **Gitless**    | Python “porcelain” with simplified commands            | Standalone VCS; no plugin API; no YAML config; not submodule-friendly |
-| **git-extras** | Rich set of helper commands (`git summary`, etc.)      | Shell scripts; no unified Python backend; no hooks API           |
-| **pre-commit** | Manages Git hooks via YAML; extensible linters/tests   | Focused on hooks/quality checks; not general Git actions         |
-| **GitHub CLI** | First-class GitHub integration and workflows           | GitHub-specific; closed plugin model; not submodule-centric       |
+---
 
-**Gap to fill**:  
-1. **Python-first** wrappers around core Git operations.  
-2. **argparse-driven** minimal CLI.  
-3. **YAML config** for defaults, auth, branch conventions.  
-4. **Structured hook/plugin API** discoverable both in-repo and via entry-points.  
-5. **GCM + optional OAuth** for major Git hosts.  
-6. **Submodule integration** plus `pip install` from path.
+## 2. 👥 Stakeholders  
+This project delivers value to:  
+- **Development Teams**  
+  Quickly onboard standardized Git workflows with minimal setup.  
+- **DevOps Engineers**  
+  Consume a zero-touch CI/CD and release pipeline that “just works.”  
+- **Release Managers**  
+  Gain full traceability of version bumps, changelogs, and deployment cadence.  
+- **Open-Source Contributors**  
+  Understand project goals, contribution flow, and quality expectations from Day 1.  
 
-## 3. Problem Statement & Objectives  
+---
+
+## 3. 🔍 Existing Solutions & Gaps  
+| Project        | Strengths                                            | Gaps                                                                  |
+|----------------|------------------------------------------------------|-----------------------------------------------------------------------|
+| **Gitless**    | Python “porcelain” with simplified commands          | Standalone VCS; no plugin API; no YAML config; not submodule-friendly |
+| **git-extras** | Rich set of helper commands (`git summary`, etc.)    | Shell scripts; no unified Python backend; no hooks API                |
+| **pre-commit** | Manages Git hooks via YAML; extensible linters/tests | Focused on hooks/quality; not general Git actions                     |
+| **GitHub CLI** | First-class GitHub integration and workflows         | GitHub-specific; closed plugin model; not submodule-centric           |
+
+**Gap to fill:**  
+1. Python-first wrappers around core Git operations  
+2. Minimal `argparse`-driven CLI  
+3. YAML config for defaults, auth, branch conventions  
+4. Structured hook/plugin API discoverable in-repo and via entry-points  
+5. GCM + optional OAuth for major Git hosts  
+6. Submodule integration + `pip install` from path  
+
+---
+
+## 4. ❗Problem Statement & Objectives  
 **Pain Points**  
 - Inconsistent, scattered scripts per project  
 - Manual credential/configuration work on each platform  
@@ -41,65 +60,57 @@ We propose **Git-Toolkit**, a lightweight, cross-platform Python CLI “sub-modu
 1. **Core CLI**: `gt clone`, `gt checkout`, `gt status`, `gt push`, `gt submodule update`.  
 2. **YAML config**: `.git-toolkit.yaml` or `~/.git-toolkit/config.yaml`.  
 3. **Auth**: GCM (default) + PAT; OAuth extensibility.  
-4. **Hooks/Plugins**: Python API for lifecycle events.
+4. **Hooks/Plugins**: Python API for lifecycle events.  
 
-## 4. Scope & Deliverables  
+---
+
+## 5. 🚧 Scope & Deliverables  
+
 **In-Scope (MVP)**  
 - Python 3.8+ CLI using **argparse**  
-- **GitPython** wrappers for clone/check-out/status/push/submodule  
+- **GitPython** wrappers for clone/checkout/status/push/submodule  
 - YAML config schema (remote, branch, auth method)  
 - Hook points: `pre_clone`, `post_clone`, `pre_push`, `post_push`  
-- Git Credential Manager integration via `credential.helper = manager-core`  
+- Git Credential Manager integration via `credential.helper=manager-core`  
 
 **Out-of-Scope (Phase 1)**  
 - Full OAuth web-flow (defer to PAT + keyring)  
 - GUI or non-Git VCS support  
 - Publishing to PyPI (install via path/pip)  
-- Advanced process watchers
+- Advanced process watchers  
 
-## 5. Technical Architecture & Project Layout  
+---
+
+## 6. 🏗️Technical Architecture & Project Layout  
 ```
-
 .
-├── README.md                # English front-door
-├── PROPOSAL.md              # English canonical proposal
-├── config\_default.yaml     # YAML schema & defaults
-├── git\_toolkit/            # source code + tests
+├── README.md
+├── PROPOSAL.md
+├── config\_default.yaml
+├── git\_toolkit/
 │   ├── **init**.py
-│   ├── cli.py               # argparse entry point
-│   ├── config.py            # load & validate YAML
-│   ├── auth.py              # GCM + PAT + keyring helpers
-│   ├── git\_actions.py      # GitPython command wrappers
-│   ├── hooks.py             # hook registry & executor
-│   └── tests/               # unit tests co-located with code
+│   ├── cli.py
+│   ├── config.py
+│   ├── auth.py
+│   ├── git\_actions.py
+│   ├── hooks.py
+│   └── tests/
 │       ├── test\_cli.py
 │       ├── test\_config.py
 │       ├── test\_auth.py
 │       ├── test\_git\_actions.py
 │       └── test\_hooks.py
-└── docs/                    # localized docs
-├── es/                      # Spanish translations
-│   ├── README.md
-│   ├── quickstart.md
-│   └── PROPOSAL.md          # Spanish translation
-├── fr/                      # French translations
-│   ├── README.md
-│   ├── quickstart.md
-│   └── PROPOSAL.md          # French translation
-└── …                        # other languages
+└── docs/
+├── assets/
+└── en/, es/, fr/, …
 
 ````
 
-- **CLI (`cli.py`)** loads config, initializes auth, dispatches commands.  
-- **Config (`config.py`)** merges defaults, local override, validates schema.  
-- **Auth (`auth.py`)** configures GCM, reads PAT or keyring.  
-- **Git Actions (`git_actions.py`)** wrap GitPython for core operations.  
-- **Hooks (`hooks.py`)** support `@hook(event)` registration and dynamic discovery (in-repo or via entry-points).  
-- **Tests** live inside the package to stay close to the code they verify.  
-- **Docs** for each locale under `docs/<lang>/`, with canonical English files at the root.
+---
 
-## 6. YAML Configuration & Plugin Model  
-### YAML Schema (`.git-toolkit.yaml`)
+## 7. 📜 YAML Configuration & Plugin Model  
+
+### Schema (`.git-toolkit.yaml`)
 ```yaml
 default_remote: origin
 branch_prefix: feature/
@@ -129,65 +140,73 @@ def enforce_commit_prefix(ctx):
         raise RuntimeError("Commit message must start with 'FEATURE:'")
 ```
 
-## 7. Authentication Strategy
+---
+
+## 8. 🔒 Authentication Strategy
 
 1. **Phase 1: Git Credential Manager**
-
-   * `repo.git.config("credential.helper", "manager-core")`
-   * Leverage OS-native credential UI.
 2. **Phase 1: PAT via Keyring**
+3. **Phase 2: OAuth Flows** (GitHub/GitLab via `requests-oauthlib`)
 
-   * Store token in OS keyring; read into HTTP headers if needed.
-3. **Phase 2: OAuth Flows**
+---
 
-   * GitHub/GitLab OAuth via `requests-oauthlib`; tokens in keyring.
-
-## 8. Integration & Installation
-
-**Downstream Setup**
+## 9. ⚙️ Integration & Installation
 
 ```bash
-# 1. Add submodule
-git submodule add https://github.com/you/git-toolkit.git tools/git-toolkit
-
-# 2. Install
+git submodule add https://github.com/phpwalter/Git-Toolkit.git tools/git-toolkit
 pip install --upgrade ./tools/git-toolkit
-
-# 3. Init config
-gt init-config   # copies config_default.yaml → .git-toolkit.yaml
-
-# 4. Use
-gt clone https://github.com/org/repo.git
+gt init-hooks      # bootstrap scripts and hooks
+gt clone <repo>    # use core CLI
 ```
 
-A bootstrap script (`tools/git-toolkit/bootstrap.py`) will automate these steps.
+---
 
-## 9. Timeline & Milestones
+## 10. 🚀 Roadmap & Milestones
 
-| Phase              | Duration | Deliverables                                            |
-| ------------------ | -------- | ------------------------------------------------------- |
-| **Planning**       | 3 days   | Final YAML schema, hook list, auth approach             |
-| **MVP Dev**        | 1 week   | Core CLI + config + GitPython actions + GCM integration |
-| **Hooks System**   | 3 days   | Hook registry + sample plugins                          |
-| **Testing & Docs** | 4 days   | pytest tests, README, quickstart guide                  |
-| **Release v0.1**   | 2 days   | Tagged repo; bootstrap script; install instructions     |
+| Milestone                                                                   | Due Date    | Deliverables                                       |
+|-----------------------------------------------------------------------------|-------------|----------------------------------------------------|
+| [v0.1.0 (“Hooks”)](https://github.com/phpwalter/Git-Toolkit/milestone/4)    | Aug 15 2025 | `gt init-hooks`, pre-commit & pre-push scripts     |
+| [v0.2.0 (“CI”)](https://github.com/phpwalter/Git-Toolkit/milestone/5)       | Sep 15 2025 | GitHub Actions workflows (`ci.yml`, `release.yml`) |
+| [v0.2.1 (“Releases”)](https://github.com/phpwalter/Git-Toolkit/milestone/6) | Oct 1 2025  | semantic-release setup, CHANGELOG automation       |
+| [v0.3.0 (“Quality”)](https://github.com/phpwalter/Git-Toolkit/milestone/7)  | Nov 1 2025  | Coverage ≥ 80%, flake8/black, bandit scans         |
+| [v1.0.0 (“Monthly”)](https://github.com/phpwalter/Git-Toolkit/milestone/8)  | Dec 1 2025  | Monthly release job, dashboard & metrics report    |
 
-## 10. Risks & Mitigations
+---
 
-* **Platform quirks**: use `pathlib` to abstract OS differences.
-* **Missing GCM**: detect at runtime, fallback to PAT mode with clear guidance.
-* **Plugin API churn**: version hook interfaces; deprecate with warnings.
+## 11. 🎯 Success Criteria & Metrics
 
-## 11. Success Criteria
+| Category            | Metric                                | Target                        |
+| ------------------- | ------------------------------------- | ----------------------------- |
+| **Pipeline Health** | CI pass rate on `main` (7-day window) | ≥ 99%                         |
+| **Release Cadence** | Merge→release lead time (median, p95) | Median ≤ 2 days; p95 ≤ 5 days |
+| **Code Quality**    | Test coverage (%) overall & by module | No module < 80%               |
+|                     | Lint errors per commit                | Zero on `main`                |
+| **Security**        | High-severity alerts per month        | ≤ 1                           |
+| **Adoption**        | Downstream updates via Dependabot     | ≥ 90%                         |
 
-* ✅ Core commands functional on Windows/macOS/Linux in sample repos
-* ✅ Seamless auth via GCM or PAT without manual prompts
-* ✅ Two community-authored plugins demonstrating hook usage
-* ✅ ≥ 80% test coverage; clear documentation; zero paid dependencies
+---
+
+## 12. 🗺️ Mapping Goals to Deliverables
+
+| High-Level Goal                             | Milestone & Deliverable                           |
+|---------------------------------------------|---------------------------------------------------|
+| Rapid Git infra onboarding                  | v0.1.0 – `gt init-hooks` + local hooks            |
+| Zero-touch CI/CD                            | v0.2.0 – GitHub Actions (`ci.yml`, `release.yml`) |
+| Automated semantic versioning & releases    | v0.2.1 – semantic-release & changelog             |
+| Quality gates & security scans              | v0.3.0 – coverage ≥ 80%, flake8/black, bandit     |
+| Monthly release cadence & metrics reporting | v1.0.0 – monthly releases + dashboards            |
+
+---
+
+## 13. ⚠️ Risks & Mitigations
+
+* **Platform quirks:** use `pathlib` to abstract OS differences.
+* **Missing GCM:** detect at runtime, fallback to PAT with clear guidance.
+* **Plugin API churn:** version hook interfaces; deprecate with warnings.
 
 ---
 
 *End of Proposal*
 
-_Last Update: 2025-07-12_<br>
+_Last Update: 2025-07-16_<br>
 _Next Review: 2026-07-01_
