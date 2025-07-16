@@ -1,39 +1,60 @@
+<!-- Badge Block -->
+![CI](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/ci.yml?label=ci&logo=githubactions&logoColor=white)
+![Release](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/release.yml?label=release&logo=rocket&logoColor=white)
+![Version](https://img.shields.io/github/v/release/phpwalter/Git-Toolkit?label=version&logo=semantic-release&logoColor=white)
+![Coverage](https://img.shields.io/codecov/c/github/phpwalter/Git-Toolkit?logo=codecov&logoColor=white)
+![Security](https://img.shields.io/badge/security-passing-brightgreen?logo=auth0&logoColor=white)
+![License](https://img.shields.io/github/license/phpwalter/Git-Toolkit?logo=opensourceinitiative&logoColor=white)
+![Python](https://img.shields.io/pypi/pyversions/git-toolkit?logo=python&logoColor=white)
+![Last Commit](https://img.shields.io/github/last-commit/phpwalter/Git-Toolkit?label=%F0%9F%97%93%20Last%20Commit&color=007ec6)
+![Maintenance](https://img.shields.io/badge/%F0%9F%9B%A0%EF%B8%8F%20Maintenance-active-brightgreen)
 
-[![PyPI version](https://img.shields.io/pypi/v/git-toolkit.svg)](https://pypi.org/project/git-toolkit/)
-[![Build Status](https://github.com/phpwalter/git-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/phpwalter/git-toolkit/actions)
-[![Coverage Status](https://img.shields.io/codecov/c/github/phpwalter/git-toolkit.svg)](https://codecov.io/gh/phpwalter/git-toolkit)
-[![Downloads](https://img.shields.io/pypi/dm/git-toolkit.svg)](https://pypi.org/project/git-toolkit/)
-[![License](https://img.shields.io/github/license/phpwalter/git-toolkit.svg)](./LICENSE)
-[![Python Versions](https://img.shields.io/pypi/pyversions/git-toolkit.svg)](https://pypi.org/project/git-toolkit/)
 
-# 🧰 Git-Toolkit
+---
+![toolkit-logo-banner.png](docs/assets/toolkit-logo-banner.png)
+
 
 A lightweight, cross-platform Python CLI toolkit to **standardize** and **automate** common Git workflows for development teams.  
 Built on **GitPython**, powered by **YAML** config, and extensible via hooks, plugins, and multi-language docs.
+
+Automate your GitHub workflow from day one—hooks, CI/CD, versioning, releases, quality gates—all zero-touch.
+
 
 > 🔍 See the full project design in [PROPOSAL.md](./PROPOSAL.md)  
 > 📚 Learn about the team process in [`WORKFLOW.md`](.github/WORKFLOW.md)
 
 ---
 
+## 📑 Table of Contents
+- [Quick Start](#-quick-start)
+- [Features](#-features)
+- [Configuration](#⚙️-Configuration)
+- [Hooks & Plugins](#-hooks--plugins)
+- [Project Layout](#-project-layout)
+- [Documentation](#-documentation)
+- [Roadmap & Milestones](#-roadmap--milestones)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
 ## 🚀 Quick Start
 
 ```bash
-# Step 1: Add as Git submodule
-git submodule add https://github.com/yourorg/git-toolkit.git tools/git-toolkit
+# 1. Install
+pip install git-toolkit
 
-# Step 2: Install locally
-pip install ./tools/git-toolkit
+# 2. Bootstrap your repo
+git clone https://github.com/phpwalter/Git-Toolkit.git
+cd your-repo
+gt init-hooks
 
-# Step 3: Initialize config
-gt init-config
-# → creates .git-toolkit.yaml based on config_default.yaml
-
-# Step 4: Run Git commands
-gt clone https://github.com/org/repo.git
-gt status
-gt push
-````
+# 3. Work as normal
+git add .
+git commit -m "feat: your change"
+git push
+# CI, hooks, versioning & release all run automatically!
+```
 
 ---
 
@@ -118,6 +139,13 @@ For plugins: expose via `entry_points` under `git_toolkit.plugins`.
 
 ---
 
+## 📖 Documentation
+
+* **Proposal**: [PROPOSAL.md](https://github.com/phpwalter/Git-Toolkit/blob/main/PROPOSAL.md)
+* **Phase 2 Architecture**: [docs/phase-2-architecture.md](https://github.com/phpwalter/Git-Toolkit/blob/main/docs/phase-2-architecture.md)
+
+---
+
 ## 🌍 Localization Strategy
 
 * Canonical docs live in `docs/en/`
@@ -125,7 +153,7 @@ For plugins: expose via `entry_points` under `git_toolkit.plugins`.
 * Structure synced via `git_toolkit/tools/i18n/sync_docs_structure.py`
 * Auto-injected headers, language bars, and nav parity enforced
 
-🔁 Learn more in [DOCS\_SYNC.md](.github/DOCS_SYNC.md)
+🔁 Learn more in [DOC SYNC](.github/DOC_SYNC.md)
 
 ---
 
@@ -133,23 +161,26 @@ For plugins: expose via `entry_points` under `git_toolkit.plugins`.
 
 1. Fork this repo
 2. Create a feature branch: `git checkout -b feature/my-fix`
-3. Write tests under `git_toolkit/tests/`
+3. Write tests under `git_toolkit/scripts/tests/`
 4. Implement and document
 5. Open a Pull Request
+6. All checks (CI, lint, tests, versioning) must pass
+7. Merge once approved
 
 📘 Contributor guide: [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 📑 Governance and behavior: [CODE\_OF\_CONDUCT.md](.github/CODE_OF_CONDUCT.md)
 
 ---
 
-## 📅 Roadmap
+## 🚀 Roadmap & Milestones
 
-| Version | Milestones                                        |
-| ------- | ------------------------------------------------- |
-| `v0.1`  | CLI + config + hooks + GCM auth                   |
-| `v0.2`  | PAT support, full test coverage, i18n             |
-| `v0.3`  | OAuth auth, plugin registry                       |
-| `v1.0`  | Production-ready, PyPI badges, release automation |
+| Milestone                                                                   | Due Date    | Deliverables                                       |
+|-----------------------------------------------------------------------------|-------------|----------------------------------------------------|
+| [v0.1.0 (“Hooks”)](https://github.com/phpwalter/Git-Toolkit/milestone/4)    | Aug 15 2025 | `gt init-hooks`, pre-commit & pre-push scripts     |
+| [v0.2.0 (“CI”)](https://github.com/phpwalter/Git-Toolkit/milestone/5)       | Sep 15 2025 | GitHub Actions workflows (`ci.yml`, `release.yml`) |
+| [v0.2.1 (“Releases”)](https://github.com/phpwalter/Git-Toolkit/milestone/6) | Oct 1 2025  | semantic-release setup, CHANGELOG automation       |
+| [v0.3.0 (“Quality”)](https://github.com/phpwalter/Git-Toolkit/milestone/7)  | Nov 1 2025  | Coverage threshold, flake8/black, bandit scans     |
+| [v1.0.0 (“Monthly”)](https://github.com/phpwalter/Git-Toolkit/milestone/8)  | Dec 1 2025  | Monthly release job, dashboard & metrics report    |
 
 ---
 
@@ -169,4 +200,3 @@ Licensed under the [MIT License](./LICENSE)
 
 _LastUpdate: 2025-07-14_<br>
 _Next Review: 2026-07-01_
-
