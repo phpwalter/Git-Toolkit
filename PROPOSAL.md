@@ -6,9 +6,10 @@
 ![Last Commit](https://img.shields.io/github/last-commit/phpwalter/Git-Toolkit?label=%F0%9F%97%93%20Last%20Commit&color=007ec6)
 ![Maintenance](https://img.shields.io/badge/%F0%9F%9B%A0%EF%B8%8F%20Maintenance-active-brightgreen)
 
-![toolkit-logo-banner.png](docs/assets/toolkit-logo-banner.png)
+---
 
-# Project Proposal: Git Toolkit
+![toolkit-logo-banner.png](./docs/assets/toolkit-logo-banner.png)
+# <img src="./docs/assets/toolkit-icon.png" alt="Description" width="30"/> Project Proposal: Git Toolkit
 
 ---
 

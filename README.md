@@ -9,7 +9,12 @@
 ![Last Commit](https://img.shields.io/github/last-commit/phpwalter/Git-Toolkit?label=%F0%9F%97%93%20Last%20Commit&color=007ec6)
 ![Maintenance](https://img.shields.io/badge/%F0%9F%9B%A0%EF%B8%8F%20Maintenance-active-brightgreen)
 
-![toolkit-logo-banner.png](docs/assets/toolkit-logo-banner.png)
+---
+
+![toolkit-logo-banner.png](./docs/assets/toolkit-logo-banner.png)
+# <img src="./docs/assets/toolkit-icon.png" alt="Description" width="30"/> README
+
+---
 
 **Git Toolkit** is a lightweight, per-project CLI utility for automating and standardizing Git workflows across development teams and repositories.
 
@@ -20,6 +25,7 @@ Built with **Python** using **GitPython**, and configured via **YAML**, Git Tool
 ---
 ## 📑 Table of Contents
 
+- [📜 About This Project](#-about-this-project)
 - [🚀 Features](#-features)
   - [🧠 Workflow Automation](#-workflow-automation)
   - [⚙️ Configuration & Extensibility](#️-configuration--extensibility)
@@ -40,6 +46,13 @@ Built with **Python** using **GitPython**, and configured via **YAML**, Git Tool
 - [📄 License](#-license)
 - [👤 Author](#-author)
 
+---
+
+## 📜 About This Project
+
+See the [Project Charter](./CHARTER.md) for mission, scope, and long-term goals.
+
+---
 
 ## 🚀 Features
 
@@ -236,9 +249,9 @@ You can extend Git Toolkit through:
 
 More documentation coming soon. For now:
 
-* [Sample configuration](docs/en/sample-config.yml)
-* [Extending Git Toolkit](docs/en/extending.md)
-* [Built-in command reference](docs/en/commands.md)
+* [Sample configuration](./docs/en/sample-config.yml)
+* [Extending Git Toolkit](./docs/en/extending.md)
+* [Built-in command reference](./docs/en/commands.md)
 
 ---
 
