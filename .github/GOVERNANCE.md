@@ -1,117 +1,137 @@
-# Governance
+![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 
-This governance model outlines how decisions are made, roles are defined, and responsibilities are assigned in our project. It balances clarity with flexibility to scale as our community grows.
+# 🏛️ Project Governance
 
----
+This document defines how **Git Toolkit** is governed, how decisions are made, who participates, and how contributors grow into leadership roles.
 
-## 1. Principles
-
-We strive for:
-
-- **Openness & Transparency**: All discussions and decisions are public and documented.  
-- **Meritocracy**: Contributions earn trust and roles, not credentials.  
-- **Fairness & Inclusivity**: Roles and decisions reflect community diversity.  
-- **Sustainability**: Governance adapts over time to project needs.
+Our governance model emphasizes **transparency**, **inclusion**, and **shared responsibility**.
 
 ---
 
-## 2. Roles & Leadership
+## 📑 Table of Contents
 
-### 🤝 Contributors
-Anyone who submits issues, PRs, documentation, or supports the community.
-
-### 👥 Maintainers
-Contributors who have demonstrated sustained, quality work over time, empowered to merge PRs, label issues, and enforce processes.
-
-- Selection: A contributor becomes eligible after ≥ 3 merged PRs and consistent positive engagement.
-- Maintainers nominate and approve new Maintainers by consensus.
-
-### 🛡️ Steering Council (optional, for large teams)
-A group of trusted Maintainers (typically 3–7) responsible for strategic decisions.
-
-- Members serve staggered 1-year terms.
-- They guide project scope, major releases, and community health.
-
-### 🧑‍⚖️ Chair
-One Steering Council member appointed annually to lead meetings and break ties if consensus stalls.
+1. [📜 Guiding Principles](#-guiding-principles)
+2. [👥 Roles & Responsibilities](#-roles--responsibilities)
+3. [🗳️ Decision-Making Process](#️-decision-making-process)
+4. [📈 Role Progression](#-role-progression)
+5. [📅 Communication Channels](#-communication-channels)
+6. [⚖️ Conflict Resolution](#-conflict-resolution)
+7. [🛠️ Steering Council (Optional)](#️-steering-council-optional)
+8. [✏️ Amendments](#️-amendments)
+9. [🧰 Reference Materials & Models](#-reference-materials--models)
+10. [🔗 Related Policies & Docs](#-related-policies--docs)
 
 ---
 
-## 3. Decision Making
+## 📜 Guiding Principles
 
-### ☮️ Consensus-seeking
-Default approach: discuss major proposals in issues/discussions, aim for consensus.
+- The project is built on **openness, collaboration, and kindness**.
+- Contributors are encouraged to **share ideas early**, ask questions, and assume positive intent.
+- We strive for **consensus first**, but escalate when needed.
+- Governance is a **living process**, adaptable to the project's size and maturity.
 
-### 🗳️ Voting fallback
-If consensus cannot be reached within 7 days, Steering Council calls a vote:
-
-- 🗳️ Simple majority wins.
-- If tied, Chair casts deciding vote.
-
-### 🧩 Minor changes
-Routine maintenance—bug fixes, docs, minor refactors—can be merged by any Maintainer if CI checks pass.
+>For our mission, scope, and long-term vision, see the [CHARTER.md](../CHARTER.md).
 
 ---
 
-## 4. Onboarding & Role Advancement
+## 👥 Roles & Responsibilities
 
-- **Contributor → Maintainer**: After ≥ 3 merged PRs over 3 months and positive review feedback.
-- **Maintainer → Council**: Self-nomination or peer-nomination; confirmed by ⅔ Council vote.
-- **Chair selection**: Among Council via simple majority vote.
+| Role            | Description                                                                                  |
+|-----------------|----------------------------------------------------------------------------------------------|
+| **User**        | Anyone using Git Toolkit — including feedback providers and issue reporters.                 |
+| **Contributor** | Anyone who contributes via issues, docs, tests, discussions, or PRs.                         |
+| **Maintainer**  | Active contributor with write access, reviewing PRs, triaging issues, and shaping direction. |
+| **Owner**       | Repository admin(s) who hold GitHub permissions and final escalation rights.                 |
 
-All transitions, demotions, or removals are communicated openly via GitHub.
-
----
-
-## 5. Meetings & Communication
-
-- Project discussions happen in GitHub Issues, Discussions, or Slack/Discord.
-- Steering Council meets monthly (virtual, recorded in minutes).
-- Governance discussions take place in `#governance` label on GitHub.
+> 💡 Roles are earned by action, not assigned by title.
 
 ---
 
-## 6. Conflict Resolution
+## 🗳️ Decision-Making Process
 
-- Start by raising concerns in relevant Issue/Discussion.
-- If unresolved, escalate to Steering Council.
-- In extenuating circumstances, Chair may intervene to enforce resolution.
+We use a **consensus-seeking model**:
 
----
+1. Default to discussion in issues or GitHub Discussions
+2. Label proposals with `#governance`, `#decision-needed`, or `#rfc`
+3. Use 👍 reactions and comments to gauge alignment
+4. If consensus isn’t clear, escalate to maintainers
+5. Maintainers may call a majority vote on contentious proposals
 
-## 7. Amendments
-
-- Any community member can propose governance changes via PR.
-- Process: open proposal → discuss in public → consensus → Council review and ratification.
-- Approved amendments become effective once merged in the main branch.
+All decisions are documented with links to the relevant issues or PRs.
 
 ---
 
-## 8. Sunset & Forking
+## 📈 Role Progression
 
-- If project becomes inactive (no CI, PRs, or posts for 12 months), Steering Council may vote to archive.
-- Community members are free to fork at any time if they disagree with direction.
+| From → To                    | Requirements                                                                       |
+|------------------------------|------------------------------------------------------------------------------------|
+| **User → Contributor**       | Open a meaningful issue or PR with thoughtful feedback or improvement.             |
+| **Contributor → Maintainer** | ≥3 merged PRs over ≥3 months + consistent positive collaboration.                  |
+| **Maintainer → Owner**       | Invitation from existing owners, based on stewardship and cross-domain experience. |
 
----
-
-## 9. Resources & Templates
-
-- Governance templates: CNCF project-template :contentReference[oaicite:1]{index=1}  
-- Hierarchical vs consensus models: Adobe open-development-template :contentReference[oaicite:2]{index=2}  
-- Concrete example from Open Data Cube: Steering Council model :contentReference[oaicite:3]{index=3}  
-- Contributor roles structure inspired by Astro: levels and promotion paths :contentReference[oaicite:4]{index=4}  
+> Inactive maintainers may be asked to step down if nonresponsive for ≥ 6 months.
 
 ---
 
-## 10. Related Docs
+## 📅 Communication Channels
 
-- [CONTRIBUTING.md](CONTRIBUTING.md)  
-- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)  
-- [SECURITY.md](SECURITY.md)  
+- 💬 GitHub Discussions (preferred)
+- 🐞 GitHub Issues: [#governance](https://github.com/phpwalter/Git-Toolkit/labels/governance), [#meta](https://github.com/phpwalter/Git-Toolkit/labels/meta)
+- 📨 Private Contact: [conduct@bluewatermvc.org](mailto:conduct@bluewatermvc.org)
+- 🔄 Sync meetings: (future placeholder, if ever needed)
 
 ---
 
-### 📅 Document History
+## ⚖️ Conflict Resolution
 
-_LastUpdate: 2025-07-14_<br>
-_Next Review: 2026-07-01_
+1. **Talk First**: Try direct communication with the other party
+2. **Escalate**: If unresolved, tag a maintainer or open a confidential thread
+3. **Moderation**: Maintainers act based on the [Code of Conduct](./CODE_OF_CONDUCT.md)
+4. **Appeals**: Escalate to owners or a future Steering Council
+
+---
+
+## 🛠️ Steering Council (Optional)
+
+If the project grows significantly, a small rotating council (e.g. 3–5 people) may be established to:
+
+- Oversee direction, major refactors, or breaking changes
+- Help resolve disagreements between maintainers
+- Act as a tie-breaker or escalation path
+
+> The council will operate transparently, with all decisions recorded via public issues or announcements.
+
+---
+
+## ✏️ Amendments
+
+Governance may be changed via:
+
+- A PR with a detailed rationale
+- Review and approval by at least 2 maintainers (or full vote, if contested)
+- Version updates listed in changelog and governance section
+
+---
+
+## 🧰 Reference Materials & Models
+
+- [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/)
+- [Django Governance](https://www.djangoproject.com/foundation/governance/)
+- [Rust RFC Process](https://github.com/rust-lang/rfcs)
+- [Node.js Org Model](https://github.com/nodejs/admin)
+
+---
+
+## 🔗 Related Policies & Docs
+
+- [📄 CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+- [🤝 CONTRIBUTING.md](./CONTRIBUTING.md)
+- [🛡️ SECURITY.md](./SECURITY.md)
+- [SYNC_PROCESS.md](./SYNC_PROCESS.md)
+- [WORKFLOW.md](./WORKFLOW.md)
+- [LICENSE](../LICENSE)
+
+---
+
+_Last updated: 2025-07-16_  
+_Next review: 2026-07-01_

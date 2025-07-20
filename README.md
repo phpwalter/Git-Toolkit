@@ -249,9 +249,9 @@ You can extend Git Toolkit through:
 
 More documentation coming soon. For now:
 
-* [Sample configuration](./docs/en/sample-config.yml)
-* [Extending Git Toolkit](./docs/en/extending.md)
-* [Built-in command reference](./docs/en/commands.md)
+* Sample configuration *(coming soon)*
+* Extending Git Toolkit *(coming soon)*
+* Built-in command reference *(coming soon)*
 
 ---
 
