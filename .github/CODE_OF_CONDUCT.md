@@ -1,6 +1,11 @@
-# 🌊 Code of Conduct
+![Contributor Covenant v2.1](https://img.shields.io/badge/Contributor%20Covenant-2.1-brightgreen.svg)
 
-## Our Pledge
+![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
+# <img src="../docs/assets/toolkit-icon.png" alt="Description" width="30"/> Code of Conduct
+
+---
+
+## ✋ Our Pledge
 
 We, as members, contributors, and leaders of this community, pledge to make participation in our project a harassment-free experience for everyone—regardless of age, body size, disability, ethnicity, gender identity or expression, level of experience, nationality, race, religion, or sexual orientation.
 
@@ -13,7 +18,7 @@ We pledge to act and interact in ways that build an open, welcoming, diverse, in
 
 ---
 
-## Our Standards
+## 🧭 Our Standards
 
 Examples of behavior that contributes to a positive environment:
 - Showing empathy and kindness to others  
@@ -33,13 +38,13 @@ Examples of unacceptable behavior:
 
 ---
 
-## Scope
+## 🌐 Scope
 
 This Code of Conduct applies in all project spaces—both online and offline—including GitHub repositories, discussion forums, virtual meetings, chatrooms, and social media when representing the project.
 
 ---
 
-## Enforcement Responsibilities
+## 🛡️ Enforcement Responsibilities
 
 Project maintainers are responsible for upholding and enforcing this Code of Conduct fairly and consistently.
 
@@ -47,7 +52,7 @@ They may remove, edit, or reject comments, commits, issues, and contributions th
 
 ---
 
-## Enforcement Process
+## 🚨 Enforcement Process
 
 ### 1. Correction  
 **Impact:** Minor offense or unintentional behavior  
@@ -67,7 +72,7 @@ They may remove, edit, or reject comments, commits, issues, and contributions th
 
 ---
 
-## Reporting Violations
+## 📣 Reporting Violations
 
 If you experience or witness unacceptable behavior, report it via:
 
@@ -78,16 +83,9 @@ All maintainers are obligated to respect the privacy of reporters.
 
 ---
 
-## Attribution
+## 📝 Attribution
 
 This Code of Conduct is based on the [Contributor Covenant v2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html) and adapted with original language from the Bluewater project’s contributor policy.
-
----
-
-## 🌍 Translations
-
-- 🇪🇸 [Código de conducta](../docs/es/código-de-conducta.md)  
-- 🇫🇷 [Code de conduite](../docs/fr/code-de-conduite.md)
 
 ---
 
@@ -96,9 +94,10 @@ This Code of Conduct is based on the [Contributor Covenant v2.1](https://www.con
 - [CONTRIBUTING.md](./CONTRIBUTING.md)  
 - [GOVERNANCE.md](./GOVERNANCE.md)  
 - [SECURITY.md](./SECURITY.md)  
-- [Translation Status Policy](/docs/en/architecture/translation-status-policy.md)  
-- [Header and Metadata Policy](/docs/en/architecture/header-policy.md)  
-- [Notification and Team Assignment Policy](/docs/en/architecture/notification-policy.md)  
+- Translation Status Policy *(coming soon)*
+- Header and Metadata Policy *(coming soon)*
+* [SYNC\_PROCESS.](./SYNC_PROCESS.md) 
+- Notification and Team Assignment Policy *(coming soon)*  
 - [SYNC_PROCESS.md](./SYNC_PROCESS.md)
 
 ---

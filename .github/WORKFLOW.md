@@ -1,150 +1,126 @@
-# 🛠️ Developer Workflow & CI/CD Guide
+# ⚙️ Project Workflow
 
-This document outlines how contributors should work with the Bluewater repositories. It covers source management, branching strategy, coding standards, documentation rules, translations, review flow, CI/CD, and project coordination.
-
-> For multilingual documentation and translation publishing, see [`DOCS_SYNC.md`](../docs/DOCS_SYNC.md).  
-> For shared tool and automation sync, see [`SYNC_PROCESS.md`](./SYNC_PROCESS.md).
+This document outlines the official development workflow for the **Git Toolkit** project, including branching strategy, pull request process, release automation, CI/CD policies, and contributor roles.
 
 ---
 
-## 🧭 Workflow Summary (At a Glance)
+## 📑 Table of Contents
 
-| Area                 | Standard / Source           |
-|----------------------|-----------------------------|
-| Code Branching       | Trunk-based (`main`)        |
-| Docs Directory       | `/docs/{lang}`              |
-| Translation Sync     | `sync_docs_structure.py`    |
-| Commit Style         | Conventional Commits        |
-| Doc Metadata         | Auto-generated header block |
-| CI/CD                | GitHub Actions              |
-| Issue Tracking       | GitHub Projects + Labels    |
+- [🚧 Workflow Overview](#-workflow-overview)
+- [🌲 Branching Strategy](#-branching-strategy)
+- [🔁 Pull Request Process](#-pull-request-process)
+- [🚀 Release Process](#-release-process)
+- [🔄 CI/CD Integration](#-cicd-integration)
+- [🛠️ Tools Used](#️tools-used)
+- [👥 Roles & Responsibilities](#-roles--responsibilities)
+- [🔗 Related Policies](#-related-policies)
 
 ---
 
-## 📦 Codebase Structure
+## 🚧 Workflow Overview
 
-| Path                 | Description                       |
-|----------------------|-----------------------------------|
-| `/technical/`        | Internal dev & system design docs |
-| `/docs/en/`          | Primary English content           |
-| `/docs/<lang>/`      | Synced translations               |
-| `/git_toolkit/`      | Dev scripts and utilities         |
-| `/tools/`            | Helper scripts for CI/Docs/etc.   |
+We follow a **trunk-based development model**:
+
+- All work starts from the `main` branch
+- Contributors create topic branches (`feat/*`, `fix/*`, etc.)
+- Pull requests (PRs) must pass all checks and reviews before merging
+- Releases are driven by commit history and managed automatically
+
+This model encourages small, frequent, and verifiable contributions.
 
 ---
 
 ## 🌲 Branching Strategy
 
-We follow a **trunk-based model**:
+All branches are created from `main`. Work should be isolated, specific, and short-lived.
 
-- `main`: Always stable and CI-verified
-- `feature/*`: Short-lived for features/fixes
-- `hotfix/*`: Urgent/emergency patches
+### 🏷️ Branch Naming
 
----
+Branch names **must begin with an approved prefix** to support automation and enforce consistent practices. Examples include:
 
-## 🧾 Commit Naming Conventions
+- `feat/`: New features
+- `fix/`: Bug fixes
+- `docs/`: Documentation changes
+- `ci/`, `test/`, `sync/`, etc.
 
-Use **Conventional Commits**:
-
-```
-
-<type>(optional-scope): description
-
-Types: feat, fix, chore, docs, refactor, test, build, ci
-Example: feat(i18n): add new language banners to sync script
-
-````
+📘 For the full list of accepted prefixes, best practices, and enforcement plans, see:  
+👉 [`Branch Naming Guidelines`](../docs/en/branch-naming-guidelines.md)
+[//]: # (auto-link-to-branch-naming-guidelines)
 
 ---
 
-## 📄 Documentation Rules
+## 🔁 Pull Request Process
 
-- All Markdown requires a **metadata block**:
-  ```markdown
-  ---
-  title: Quickstart
-  description: Guide to get started with the CLI
-  ---
-  ````
-
-* Use only approved directory structure
-* All new English docs go in `docs/en/`
-* Run:
-
-  ```bash
-  python3 git_toolkit/tools/i18n/sync_docs_structure.py
-  ```
+1. Create a new branch from `main` using an approved prefix
+2. Use semantic commit messages (e.g., `feat:`, `fix:`)
+3. Push and open a PR with a clear title and body
+4. PR must pass:
+   - ✅ Linting (`black`, `flake8`)
+   - ✅ Tests (`pytest`)
+   - ✅ Review by at least one maintainer
+5. Follow the preferred merge strategy (squash, rebase, or merge — see [GOVERNANCE.md](./GOVERNANCE.md))
 
 ---
 
-## 🌍 Translations
+## 🚀 Release Process
 
-See [`DOCS_SYNC.md`](../docs/DOCS_SYNC.md) for the full translation + publishing pipeline. Key rules:
-
-* Don’t touch `/docs/` — it’s auto-generated
-* Sync via `git_toolkit`
-* Metadata and language bars are injected automatically
-* Navigation must be updated across **all** languages
+- All merges to `main` are versioned automatically using semantic-release
+- PRs tagged with `feat:` or `fix:` will increment version numbers accordingly
+- `release.yml` handles tagging, changelog updates, and distribution
+- Monthly release cadence with exceptions for urgent fixes
 
 ---
 
-## ✅ PR Process
+## 🔄 CI/CD Integration
 
-1. Open PR early; mark WIP if needed
-2. Fill out PR template (auto-generated in `.github`)
-3. CI runs:
+Our CI/CD is powered by **GitHub Actions** and includes:
 
-   * Lint, tests, doc header checks, translation validation
-4. Get approval from at least 1 reviewer
-5. Merge; GitHub deletes the branch
+| Trigger                | Actions                                  |
+|------------------------|------------------------------------------|
+| PR to `main`           | Lint, test, coverage check               |
+| Push to branch         | Branch validation, testing               |
+| Tag creation           | Release pipeline, changelog, packaging   |
+| Nightly/monthly runs   | Auto-sync docs, stale branch cleanup     |
 
----
-
-## 🔐 CI Rules
-
-* Runs on every push & PR to `main`
-* Validates:
-
-  * Markdown lint
-  * Metadata headers
-  * Sync structure (via `git_toolkit`)
-  * No changes to protected paths (e.g. `/docs/`)
+We use `release.yml`, `ci.yml`, and `docs-sync.yml` under `.github/workflows/`.
 
 ---
 
-## 🛡️ Protected Branches
+<a id="tools-used"></a>
+### 🛠️ Tools Used
 
-* `main` is protected by:
-
-  * ✅ Required reviews
-  * ✅ Status checks (CI)
-  * ✅ No force-push
-* All PRs must pass validation before merge
-
----
-
-## 🗃️ Project Management
-
-We use:
-
-* GitHub Projects for roadmap and tracking
-* Labels:
-
-  * `needs-docs`, `needs-i18n`, `needs-review`
-* Milestones: Only for major feature blocks
+| Tool           | Purpose                     |
+|----------------|-----------------------------|
+| Git Toolkit    | CLI wrapper & config runner |
+| GitPython      | Git automation layer        |
+| black          | Python formatter            |
+| flake8         | Linting and static analysis |
+| pytest         | Test runner                 |
+| Codecov        | Coverage reporting          |
+| GitHub Actions | CI/CD automation            |
 
 ---
 
-## 🔗 Related Documents
+## 👥 Roles & Responsibilities
 
-* [CONTRIBUTING.md](./CONTRIBUTING.md)
-* [SYNC\_PROCESS.md](./SYNC_PROCESS.md)
-* [DOCS\_SYNC.md](../docs/DOCS_SYNC.md)
-* [SECURITY.md](./SECURITY.md)
-* [GOVERNANCE.md](./GOVERNANCE.md)
+| Role         | Responsibilities                                          |
+|--------------|-----------------------------------------------------------|
+| Maintainers  | Review/merge PRs, manage roadmap, enforce standards       |
+| Contributors | Submit PRs, follow all guidelines, participate in reviews |
+| CI Bot       | Run all validation, format/lint, sync, and release flows  |
 
 ---
 
-_LastUpdate: 2025-07-14_<br>
-_Next Review: 2026-07-01_
+## 🔗 Related Policies
+
+- [CONTRIBUTING](./CONTRIBUTING.md)
+- [CODE of CONDUCT](./CODE_OF_CONDUCT.md)
+- [GOVERNANCE](./GOVERNANCE.md)
+- [Branch Naming Guidelines](../docs/en/branch-naming-guidelines.md)
+- [DOC SYNC](./DOC_SYNC.md)
+- [SYNC PROCESS](./SYNC_PROCESS.md)
+
+---
+
+_Last updated: 2025-07-16_  
+_Next review: 2026-07-01_

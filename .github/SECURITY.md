@@ -1,131 +1,124 @@
-# 🛡️ Security Policy
+![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
+
+# 🛡️ Security Policy – Git Toolkit
+
+We take the security of our users and contributors seriously. This document outlines the official policy for reporting vulnerabilities and how they are handled by the Git Toolkit maintainers.
 
 ---
 
-## 🔒 Supported Versions
+## 📦 Supported Versions
 
-We actively provide security fixes for:
+We currently support **only the `main` branch** and the latest tagged release of Git Toolkit.
 
-| Version     | Supported | Security Updates |
-|-------------|-----------|------------------|
-| `main`      | ✅ Yes    | ✅ Yes           |
-| Stable (1.x)| ✅ Yes    | ✅ Yes           |
-| Legacy (0.x)| ❌ No     | ❌ No            |
-
-Please use the most recent version to ensure you benefit from all security patches and safe automation practices.
+| Version               | Supported? |
+|-----------------------|------------|
+| `main`                | ✅          |
+| Latest tagged release | ✅          |
+| Older versions        | ❌          |
 
 ---
 
-## 🕵️ Reporting a Vulnerability
+## 🕵️‍♂️ Reporting a Vulnerability
 
-⚠️ **DO NOT open public issues or pull requests for security concerns**.
+If you discover a potential security issue in Git Toolkit, please **report it privately and responsibly.**  
+Do **not** disclose it publicly until it has been reviewed and fixed.
 
-To report a vulnerability in Bluewater Scripts, automation, onboarding tools, or Git hooks, please **email**:
+### 🔐 GitHub (Preferred)
 
-📧 **security@bluewaterphp.org**
+If available, please use GitHub’s [Private Vulnerability Reporting](https://github.com/phpwalter/Git-Toolkit/security/advisories).
 
-You may also use GitHub’s [Private Vulnerability Reporting](https://docs.github.com/en/code-security/security-advisories) if available.
+### 📧 Email
+
+Alternatively, contact the **Git Toolkit Security Team**:
+
+**Email:** [security@bluewatermvc.org](mailto:security@bluewatermvc.org)
+
+> We commit to responding within **5 working days** to any valid security issue.
 
 ---
 
-### ✉️ Email Report Template
+## 📝 Suggested Email Template
 
 ```
 
-Subject: \[Security] Vulnerability Report – Bluewater Scripts
+Subject: \[SECURITY] Vulnerability Report for Git Toolkit
 
-Hello Bluewater Security Team,
+Git Toolkit version: \[e.g. 0.3.0]
+Environment: \[OS, Python version, context]
 
-I’d like to report a security issue in one of your scripts, onboarding tools, or workflows.
+Issue Summary:
+\[A concise but clear summary of the issue.]
 
-## Summary
+Steps to Reproduce:
+\[Optional — only if reproduction is non-obvious.]
 
-## Affected Scripts / Flows
+Impact:
+\[What could an attacker do? Is this high/medium/low severity?]
 
-## Reproduction Steps
+Suggested Fix (if known):
+\[Any recommendation or PR idea.]
 
-## Impact
-
-## Suggested Fix (optional)
-
-## Disclosure Preference
-
-* [ ] You may credit me
-* [ ] I wish to remain anonymous
-
-## Contact Info
-
-Thanks!
+Reporter Info:
+\[Name, GitHub handle (optional), contact email]
 
 ```
 
 ---
 
-## 🔄 What Happens Next
+## 🔄 What Happens Next?
 
-- ⏱️ **Acknowledgment**: We'll confirm within 72 hours.
-- 🧪 **Investigation**: Maintainers will review and assess the issue.
-- 🤝 **Coordination**: You’ll be updated during triage/fix.
-- 🔐 **Resolution**: We'll issue a fix and advisory.
-- 🧾 **Credit**: If you choose, you’ll be publicly credited in the advisory.
+- You will receive confirmation of your report within 1–2 business days.
+- The maintainers will investigate and verify the issue.
+- A fix will be proposed, tested, and merged privately (if possible).
+- A CVE will be requested (if needed).
+- The issue will be publicly disclosed only **after the patch is released.**
 
 ---
 
 ## ⚖️ Coordinated Disclosure
 
-We ask security researchers to:
+We believe in responsible disclosure.
 
-- Report responsibly and give us up to **30 days** to fix before public disclosure.
-- Avoid unauthorized data access, service disruption, or destructive testing.
-- Respect our users and infrastructure.
+We aim to resolve all critical vulnerabilities within **14 days**.  
+Please avoid public disclosure until we confirm a fix is deployed or communicate otherwise.
 
 ---
 
-## 🔍 Scope
+## 🎯 Scope
 
-This policy applies to:
-- Automation scripts  
-- Git hooks  
-- CI/CD workflows  
-- Setup tooling in Bluewater projects
-
-> Framework-specific or external repo vulnerabilities should be reported to their maintainers.
+Security issues include (but are not limited to):
+- Arbitrary code execution via Git Toolkit commands or config
+- Unsafe default behavior or YAML injection vectors
+- Permission escalation when running tool commands
+- Remote command execution via hooks/plugins
 
 ---
 
 ## 🛡️ Preventive Practices
 
-We enforce security best practices including:
-- 🔐 **Multi-Factor Authentication** for maintainers
-- 🔎 Secret scanning via GitHub and CI
-- 🧪 Dependency scanning (Dependabot/SCA)
-- ⚙️ Supply-chain hardening and SBOM generation
-- ✅ Parameter validation and input safety in all scripts
+Git Toolkit enforces:
+- Protected branch rules and no-force-push defaults
+- Isolation of plugins and restricted shell execution
+- Regular dependency checks and code scans via CI/CD
+- Code linting, bandit scans, and automated tests with ≥80% coverage (target)
 
 ---
 
 ## 📘 Licensing
 
-All security content in this repo is under the  
-[Creative Commons CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)
-
----
-
-## 🌍 Translations
-
-- 🇪🇸 [Seguridad (Español)](../docs/es/seguridad.md)  
-- 🇫🇷 [Sécurité (Français)](../docs/fr/sécurité.md)
+Git Toolkit is licensed under the [MIT License](../LICENSE).
 
 ---
 
 ## 🔗 Related Policies
 
-- [CONTRIBUTING.md](CONTRIBUTING.md)  
-- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)  
-- [GOVERNANCE.md](GOVERNANCE.md)
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)  
+- [CONTRIBUTING.md](./CONTRIBUTING.md)  
+- [GOVERNANCE.md](./GOVERNANCE.md)  
+- [CHARTER.md](../CHARTER.md)  
+- [SYNC_PROCESS.md](./SYNC_PROCESS.md)
 
 ---
 
-_LastUpdate: 2025-07-12_<br>
-_Next Review: 2026-07-01_
-
+_Last updated: 2025-07-16_  
+_Next review: 2026-07-01_

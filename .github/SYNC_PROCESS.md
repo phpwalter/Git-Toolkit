@@ -1,126 +1,142 @@
-# 🔄 Script & Tool Synchronization Process
+![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 
-This document defines how we synchronize shared scripts, Git hooks, workflows, and reusable automation components across Bluewater repositories.
+# 🔄 Git Toolkit Sync Process
 
-> For multilingual documentation and translation publishing workflows, see [`DOCS_SYNC.md`](../docs/DOCS_SYNC.md).
+This document outlines how the **Git Toolkit** project manages code, documentation, and workflow synchronization across downstream repositories. It defines what gets synced, how syncing is performed (manually and automatically), and which policies govern these operations.
 
 ---
 
 ## 📦 What Gets Synced?
 
-The following items are synced from source repositories (typically `bluewater-scripts` or `bluewater-framework`) into downstream projects:
+The following project components are maintained **upstream** (in the Git Toolkit canonical repo) and are periodically synchronized downstream into client and dependent repositories:
 
-| Path / File             | Purpose                               |
-|-------------------------|----------------------------------------|
-| `git_toolkit/`          | Shared CLI tools, Git hook logic       |
-| `.github/`              | GitHub workflows, issue templates      |
-| `config_default.yaml`   | Baseline config for onboarding scripts |
+### From `.github/`
+
+- GitHub Actions workflows (`ci.yml`, `release.yml`, `lint.yml`, etc.)
+- Issue templates and community files
+- Security, contributing, governance, and charter docs
+
+### From `git_toolkit/`
+
+- Shared CLI logic, plugin structure, and base hooks
+- Default configuration schema
+- Safety and automation scaffolding
+
+### From `docs/en/`
+
+- Canonical English documentation pages
+- Code of Conduct, Security Policy, Governance, Charter
+- Translation stubs and sync policies
 
 ---
 
-## 🧰 Manual Sync Steps
+## 🧰 Manual Sync Process
 
-Recommended for low-frequency changes or ad hoc updates:
+Downstream repositories can be updated from the Git Toolkit upstream by performing the following:
 
 ```bash
-cd ~/code/target-repo
-
-# Sync scripts
-rsync -av --exclude '__pycache__' ../bluewater-scripts/git_toolkit/ ./git_toolkit/
-rsync -av ../bluewater-scripts/.github/ ./.github/
-
-# Commit
-git add .
-git commit -m "chore(sync): update shared scripts from bluewater-scripts"
+git remote add upstream https://github.com/phpwalter/git-toolkit.git
+git fetch upstream
+git checkout -b sync-upstream
+git checkout upstream/main -- .github/
+git checkout upstream/main -- git_toolkit/
+git checkout upstream/main -- docs/en/
 ````
 
-> 🧠 Always review diffs before pushing to prevent overwriting repo-specific changes.
+> 📘 You may exclude or restore specific files using `git restore`, `git rm`, or `.syncignore` rules.
+
+Once complete:
+
+```bash
+git commit -m "🔄 Sync from git-toolkit upstream"
+git push origin sync-upstream
+```
+
+Open a pull request titled:
+
+```
+🔄 Sync with Upstream: .github/, git_toolkit/, docs/
+```
 
 ---
 
 ## 🤖 Automated Sync via GitHub Actions
 
-You can automate weekly or on-demand updates using a workflow like this:
+All repositories that wish to **auto-sync** from Git Toolkit can enable the scheduled `sync.yml` GitHub Action:
 
 ```yaml
-name: Sync Shared Tooling
-
+name: Sync from Upstream
 on:
   schedule:
-    - cron: '0 4 * * 1'  # Mondays at 4am UTC
+    - cron: '0 12 * * 1'  # Every Monday
   workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          repository: org/bluewater-scripts
-          token: ${{ secrets.GH_PAT }}
-          path: bluewater-scripts
 
-      - name: Checkout Target
-        uses: actions/checkout@v4
-        with:
-          path: target
-
-      - name: Perform Sync
+      - name: Pull upstream content
         run: |
-          rsync -av bluewater-scripts/git_toolkit/ target/git_toolkit/
-          rsync -av bluewater-scripts/.github/ target/.github/
-          cd target
-          git config user.name "sync-bot"
-          git config user.email "bot@example.org"
-          git add .
-          git commit -m "chore(sync): weekly sync from bluewater-scripts" || echo "No changes"
-          git push origin main
+          git config user.name "Git Toolkit Sync Bot"
+          git config user.email "sync-bot@git-toolkit.dev"
+          git remote add upstream https://github.com/phpwalter/git-toolkit.git
+          git fetch upstream
+          git checkout -b auto-sync
+          git checkout upstream/main -- .github/
+          git checkout upstream/main -- git_toolkit/
+          git checkout upstream/main -- docs/en/
+          git commit -am "🔄 Auto-sync from upstream"
+          git push origin auto-sync
 ```
 
-> Requires `GH_PAT` secret with write access to target repo.
+---
+
+## ⏱️ Sync Frequency Guide
+
+| Target Repo Type       | Suggested Sync Interval     |
+|------------------------|-----------------------------|
+| Client applications    | Weekly (manual or CI)       |
+| Plugin/extension repos | Bi-weekly or monthly        |
+| Documentation mirrors  | On-demand or before release |
+| Translation branches   | Before milestone cutoff     |
 
 ---
 
-## ⏱️ Recommended Sync Frequencies
+## 🧾 Commit & PR Guidelines
 
-| Component            | Frequency | Sync Type |
-| -------------------- | --------- | --------- |
-| `git_toolkit/`       | Weekly    | Automated |
-| `.github/` workflows | Monthly   | Automated |
-| Config files         | As needed | Manual    |
+Always include:
 
----
-
-## ✅ Commit Guidelines
-
-* Use: `chore(sync): <brief description>`
-* Include upstream references if non-trivial
-* Do not combine sync commits with local logic or features
+* `🔄` emoji in commit or PR title
+* Summary of synced folders
+* Note of exclusions (if any)
+* Reviewer tag (if special approvals required)
 
 ---
 
-## 🛠 Tooling Integration
+## 🧩 Tooling Integration
 
-Many of the tools synchronized here support or enforce workflows used in:
+To streamline and standardize sync behavior, Git Toolkit may include:
 
-* `pre-commit` hooks across repos
-* GitHub Action template enforcement
-* CI build consistency
-* Input validation and API safety
-
-> These scripts may also support multilingual validation. See [`DOCS_SYNC.md`](../docs/DOCS_SYNC.md) for translation-related sync processes.
+* `.syncignore` — to ignore paths that shouldn't be overwritten
+* `sync.sh` or `sync.py` — CLI wrapper for sync actions
+* A `Makefile` task (e.g. `make sync-upstream`)
+* Git aliases or VS Code tasks
 
 ---
 
 ## 🔗 Related Sync Domains
 
-* [`DOCS_SYNC.md`](../docs/DOCS_SYNC.md): Translations, multilingual structure, and publishing
-* [`CONTRIBUTING.md`](../.github/CONTRIBUTING.md)
-* [`SECURITY.md`](../.github/SECURITY.md)
-* [`GOVERNANCE.md`](../.github/GOVERNANCE.md)
+| File/Policy                       | Description                                       |
+|-----------------------------------|---------------------------------------------------|
+| [CHARTER](../CHARTER.md)          | Project scope and lifecycle goals                 |
+| [GOVERNANCE](./GOVERNANCE.md)     | Maintainer roles and sync ownership               |
+| [CONTRIBUTING](./CONTRIBUTING.md) | Contribution process including sync participation |
+| [DOC SYNC](./DOC_SYNC.md)         | Translation, localization, and docs sync policies |
 
 ---
 
-_LastUpdate: 2025-07-12_<br>
-_Next Review: 2026-07-01_
+_Last updated: 2025-07-16_
+_Next review: 2026-07-01_

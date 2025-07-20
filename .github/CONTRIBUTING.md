@@ -1,194 +1,173 @@
+![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 
-# 🤝 Contributing to Git-Toolkit
+# 🤝 Contributing to Git Toolkit
 
-Thanks for your interest in improving **Git-Toolkit**! Whether it's code, documentation, or ideas—your input matters! 🚀
+Thank you for considering contributing to **Git Toolkit** — a per-project, scriptable Git automation tool designed for consistency, safety, and speed across teams and platforms.
+
+We welcome all kinds of contributions: 🧠 ideas, 💬 feedback, 📚 docs, 🐛 bug reports, and 💻 code.
 
 ---
 
-## 🧭 Table of Contents
+## 📑 Table of Contents
 
-1. [Code of Conduct](#code-of-conduct)  
-2. [Where to Start](#where-to-start)  
-3. [General Guidelines](#general-guidelines)  
-4. [Script Style & Standards](#script-style--standards)  
-5. [Documentation Standards](#documentation-standards)  
-6. [Development Process](#development-process)  
-7. [Pull Requests](#pull-requests)  
-8. [Issues & Feature Requests](#issues--feature-requests)  
-9. [Sync, Integration & Tooling](#sync-integration--tooling)  
-10. [Licensing](#licensing)  
-11. [Community & Code of Conduct](#community--code-of-conduct)  
-12. [Getting Help](#getting-help)  
-13. [🌍 Translations](#-translations)
+- [📜 Code of Conduct](#-code-of-conduct)
+- [🧭 Where to Start](#-where-to-start)
+- [📌 General Guidelines](#-general-guidelines)
+- [🔨 Development Process](#-development-process)
+- [📥 Pull Requests](#-pull-requests)
+- [🐞 Issues & Feature Requests](#-issues--feature-requests)
+- [⚙️ Script Style & Standards](#-script-style--standards)
+- [📝 Documentation Standards](#-documentation-standards)
+- [🔁 Sync, Integration & Tooling](#-sync-integration--tooling)
+- [📄 Licensing](#-licensing)
+- [🧑‍🤝‍🧑 Community](#-community)
+- [🆘 Getting Help](#-getting-help)
+- [🌍 Translations](#-translations)
 
 ---
 
 ## 📜 Code of Conduct
 
-All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md).  
-Be kind, inclusive, and constructive.
+By participating in this project, you agree to uphold our [Code of Conduct](./CODE_OF_CONDUCT.md).  
+We enforce it to ensure a respectful and inclusive community for all contributors.
 
 ---
 
 ## 🧭 Where to Start
 
-- Read the [README.md](../README.md) for project overview
-- Browse [open issues](../../issues) and [pull requests](../../pulls)
-- See [Governance](GOVERNANCE.md) for project leadership and decision-making
+We use GitHub issues to manage work and discussion. To get started:
 
+1. Browse the [issue tracker](https://github.com/phpwalter/Git-Toolkit/issues)
+2. Look for issues labeled **`good first issue`** or **`help wanted`**
+3. Comment to express interest and ask for clarification if needed
+4. Fork the repo and create your own feature branch
+
+>Before contributing, please read the [Project Charter](../CHARTER.md) to understand the vision and scope of Git Toolkit
+> 
 ---
 
 ## 📌 General Guidelines
 
-- Always be respectful and professional
-- Search for existing issues before creating new ones
-- Open a discussion or issue before starting major work
-- Contributions can include code, docs, ideas, or bug reports
-
----
-
-## ⚙️ Script Style & Standards
-
-If your contribution includes scripts:
-
-- **Preferred Language**: Python  
-- Use Bash/Shell/Batch only when necessary
-- Ensure cross-platform compatibility
-- Top-of-file comments must include:
-  - Script language
-  - Author
-  - Brief description
-- Follow:
-  - [PEP8](https://peps.python.org/pep-0008/)
-  - Shell/Batch best practices
-- Avoid destructive operations
-- Validate inputs, avoid hardcoded secrets
-- Include example usage in comments or docstrings
-
----
-
-## 📘 Documentation Standards
-
-Place documentation in appropriate language folders:
-
-```
-
-docs/{lang}/
-└── technical/ or architecture/
-
-````
-
-Required for each tool/script:
-
-- Description of purpose
-- Configuration options
-- Installation and execution
-- Any platform-specific notes
-- Markdown (`.md`) format only
-
----
-
-## 🔁 Sync, Integration & Tooling
-
-This repo may be used by:
-
-- CI/CD pipelines
-- Git hooks
-- Local automation
-- Other Bluewater repos
-
-Do not break backward compatibility or dependencies without discussion.  
-Ensure automation is robust and clearly logs output/errors.
+- Use clear, descriptive commit messages
+- Prefer small, focused changes over large, sprawling ones
+- Add/update tests when introducing new functionality
+- Respect our CI/CD and hook workflows
+- Sync frequently with `main` or `dev` (as specified)
 
 ---
 
 ## 🔨 Development Process
 
-1. Fork & branch:
-   ```bash
-   git clone <repo>
-   git checkout -b feature/my-change
-   ````
+We follow a PR-based model:
 
-2. Keep your fork updated:
-
-   ```bash
-   git remote add upstream <repo>
-   git fetch upstream
-   git merge upstream/main
-   ```
-3. Branch naming:
-
-   * `bugfix/...`, `feature/...`, `docs/...`
+1. Fork → Branch → Work locally
+2. Follow `.flake8`, formatting, and script standards
+3. Run tests before pushing
+4. Submit a PR to `main` or `dev` (depending on the issue)
+5. A maintainer will review, provide feedback, and help merge
 
 ---
 
 ## 📥 Pull Requests
 
-* Use the correct PR template
-* PRs must:
+PRs must:
 
-  * Be small and focused
-  * Reference issues (`Closes #123`)
-  * Include related documentation changes
-  * Pass lint, tests, and CI
-* Clearly describe purpose and impact
+- Pass CI (GitHub Actions)
+- Include relevant tests or docs
+- Not break existing YAML config patterns
+- Be atomic (1 purpose per PR)
+
+Pro Tip: Reference issues like `Closes #42` in your PR description.
 
 ---
 
 ## 🐞 Issues & Feature Requests
 
-* Check [issues](../../issues) before posting
-* Use templates for bugs, features
-* Explain how the change will help
-* Include affected files or workflows
+We appreciate clear and detailed reports.
+
+Please include:
+
+- ✅ What happened
+- ✅ Expected vs. actual behavior
+- ✅ Steps to reproduce (or a failing config/command)
+- ✅ Environment info (OS, Python version)
+
+Feature requests should describe **why** the feature matters, not just what it does.
+
+---
+
+## ⚙️ Script Style & Standards
+
+- Python 3.7+ with `black`, `flake8`, and `isort`
+- YAML is checked using `yamllint`
+- Hook logic must not break when run inside submodules
+- Use `pathlib`, no hardcoded OS paths
+- Use SPDX license headers where applicable
+
+---
+
+## 📝 Documentation Standards
+
+We use:
+
+- Markdown for user-facing docs (`docs/en`, `docs/es`, etc.)
+- Code comments and docstrings (PEP257)
+- Filename format: lowercase, kebab-case, no spaces
+- Link internal references using relative paths
+
+---
+
+## 🔁 Sync, Integration & Tooling
+
+- CI runs on all PRs: `ci.yml`, `release.yml`
+- Releases use `semantic-release` with changelog automation
+- Coverage tracked via Codecov
+- Run `./scripts/check` locally to lint before pushing
+- Toolkit must remain scriptable from submodule context
 
 ---
 
 ## 📄 Licensing
 
-* All contributions fall under the [Open Software License (OSL 3.0)](LICENSE)
-* You must own the code or have the right to submit it
-* Preserve license headers where applicable
+All contributions must comply with the **MIT License**.
+
+> By submitting a contribution, you agree that it will be licensed under the [MIT License](../LICENSE).  
+> Files must include the appropriate license header (see `LICENSE_HEADER.txt` if available).
 
 ---
 
-## 🧑‍🤝‍🧑 Community & Code of Conduct
+## 🧑‍🤝‍🧑 Community
 
-Our values are defined in [CODE\_OF\_CONDUCT.md](CODE_OF_CONDUCT.md).
-We enforce a harassment-free and inclusive space for everyone.
+We are committed to building a welcoming, inclusive environment.
+
+- 🧭 Follow the [Code of Conduct](./CODE_OF_CONDUCT.md)
+- 🛡️ See our [SECURITY.md](./SECURITY.md) for vulnerability reporting
+- 🧾 Project governance is defined in [GOVERNANCE.md](./GOVERNANCE.md)
 
 ---
 
 ## 🆘 Getting Help
 
-* Use [GitHub Discussions](../../discussions)
-* For security matters, see [SECURITY.md](SECURITY.md)
-* Or email: `contact@example.org`
+- Open a [GitHub Discussion](https://github.com/phpwalter/Git-Toolkit/discussions)
+- Tag maintainers in relevant issues or PRs
+- Email: 📧 [contribute@bluewatermvc.org](mailto:contribute@bluewatermvc.org)  
+  *(or suggest preferred team contact route)*
 
 ---
 
 ## 🌍 Translations
 
-Looking for this guide in another language?
+We welcome translations! Help us localize by copying:
 
-* 🇪🇸 [Español – Cómo contribuir](../docs/es/cómo-contribuir.md)
-* 🇫🇷 [Français – Contribuer](../docs/fr/contribuer.md)
+```bash
+docs/en/CONTRIBUTING.md → docs/{your-lang-code}/contributing.md
+````
 
-For other translated materials:
-
-* [Código de conducta (ES)](../docs/es/código-de-conducta.md)
-* [Code de conduite (FR)](../docs/fr/code-de-conduite.md)
-* [Gobernanza (ES)](../docs/es/gobernanza.md)
-* [Gouvernance (FR)](../docs/fr/gouvernance.md)
-* [Seguridad (ES)](../docs/es/seguridad.md)
-* [Sécurité (FR)](../docs/fr/sécurité.md)
+Then open a PR with your translated version.
 
 ---
 
-> 🙏 Thank you for helping make this project awesome!
+*Thank you for helping improve Git Toolkit!*
 
----
-
-_LastUpdate: 2025-07-14_<br>
-_Next Review: 2026-07-01_
+*Last updated: 2025-07-16*
+*Next review: 2026-07-01*
