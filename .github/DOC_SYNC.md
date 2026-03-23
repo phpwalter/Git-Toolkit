@@ -1,3 +1,17 @@
+<!--
+ file: DOC_SYNC.md
+ path: L:/var/www/Git-Toolkit/.github/DOC_SYNC.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Defines how English and translated documentation is structured, maintained, and synchronized across Git Toolkit repositories.
+-->
+
 ![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 
 # 🌐 Git Toolkit Documentation Sync Policy
@@ -73,7 +87,7 @@ Use `sync_docs_structure.py` to:
 Run via:
 
 ```bash
-python docs/tools/sync_docs_structure.py
+python docs/tools/i18n/sync_docs_structure.py
 ````
 
 ---
@@ -117,9 +131,9 @@ Use this before every milestone:
 * [CHARTER](../CHARTER.md)
 * [GOVERNANCE](./GOVERNANCE.md)
 * [CONTRIBUTING](./CONTRIBUTING.md)
-* [SYNC\_PROCESS.](./SYNC_PROCESS.md)
-* TRANSLATION STATUS POLICY *(coming soon)*
-* HEADER POLICY *(coming soon)*
+* [SYNC_PROCESS.md](./SYNC_PROCESS.md)
+* [TRANSLATION STATUS POLICY](../docs/en/architecture/translation-status-policy.md)
+* [HEADER POLICY](../docs/en/architecture/header-policy.md)
 
 ---
 

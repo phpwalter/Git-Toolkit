@@ -1,4 +1,18 @@
-![toolkit-logo-banner.png](/docs/assets/toolkit-logo-banner.png)
+<!--
+ file: branch-naming-guidelines.md
+ path: L:/var/www/Git-Toolkit/docs/en/branch-naming-guidelines.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Defines the required branch naming convention for the Git Toolkit project.
+-->
+
+![toolkit-logo-banner.png](../assets/toolkit-logo-banner.png)
 
 # 🏷️ Branch Naming Guidelines
 
@@ -70,9 +84,9 @@ You will be notified during local execution or CI if the branch name violates ru
 
 ## 📚 Related
 
-- [WORKFLOW.md](./WORKFLOW.md)
-- [CONTRIBUTING.md](./CONTRIBUTING.md)
-- [GOVERNANCE.md](./GOVERNANCE.md)
+- [WORKFLOW.md](../../.github/WORKFLOW.md)
+- [CONTRIBUTING.md](../../.github/CONTRIBUTING.md)
+- [GOVERNANCE.md](../../.github/GOVERNANCE.md)
 
 ---
 

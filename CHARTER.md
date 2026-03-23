@@ -1,3 +1,17 @@
+<!--
+ file: CHARTER.md
+ path: L:/var/www/Git-Toolkit/CHARTER.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Project Charter for the Git Toolkit, outlining its mission, scope, and long-term goals.
+-->
+
 ![toolkit-logo-banner.png](./docs/assets/toolkit-logo-banner.png)
 
 # 🧭 Git Toolkit – Project Charter

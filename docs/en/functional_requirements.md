@@ -1,5 +1,19 @@
-![toolkit-logo-banner.png](../../docs/assets/toolkit-logo-banner.png)
-# <img src="../../docs/assets/toolkit-icon.png" alt="Description" width="30"/> Functional Requirements Document – Git Toolkit
+<!--
+ file: functional_requirements.md
+ path: L:/var/www/Git-Toolkit/docs/en/functional_requirements.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Specifies the functional and non-functional requirements for the Git Toolkit project.
+-->
+
+![toolkit-logo-banner.png](../assets/toolkit-logo-banner.png)
+# <img src="../assets/toolkit-icon.png" alt="Description" width="30"/> Functional Requirements Document – Git Toolkit
 
 ## 1. Introduction
 
@@ -41,7 +55,7 @@ The Git Toolkit is a lightweight, per-project CLI utility designed to automate a
 *   [INTEGRATION.md](../../INTEGRATION.md)
 *   [SECURITY.md](../../.github/SECURITY.md)
 *   [CONTRIBUTING.md](../../.github/CONTRIBUTING.md)
-*   [Developer Guide.md](./Developer%20Guide.md)
+*   [Developer Guide](developer_guide.md)
 
 ---
 
@@ -114,12 +128,6 @@ The Git Toolkit is designed to operate in various environments:
 #### 3.2.1. Performance
 *   **NFR-PERF-001**: The system SHALL execute Git operations with minimal overhead compared to native Git commands.
 *   **NFR-PERF-002**: The system SHALL load configurations and execute commands efficiently, aiming for response times under 1 second for typical operations.
-
-#### 3.2.2. Security
-*   **NFR-SEC-001**: The system SHALL be "safe by default," preventing destructive operations unless explicitly configured.
-*   **NFR-SEC-002**: The system SHALL handle sensitive credentials securely, leveraging OS-level mechanisms where possible.
-*   **NFR-SEC-003**: The system SHALL provide mechanisms to restrict shell execution within hooks and plugins to prevent arbitrary code execution.
-*   **NFR-SEC-004**: The system SHALL adhere to the [Security Policy](../../.github/SECURITY.md) for vulnerability reporting and disclosure.
 
 #### 3.2.3. Usability
 *   **NFR-USAB-001**: The system SHALL provide a clear and intuitive command-line interface.

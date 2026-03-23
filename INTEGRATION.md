@@ -1,3 +1,17 @@
+<!--
+ file: INTEGRATION.md
+ path: L:/var/www/Git-Toolkit/INTEGRATION.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Guide on how Git Toolkit integrates into various development workflows, CI/CD pipelines, and team environments.
+-->
+
 ![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 # <img src="../docs/assets/toolkit-icon.png" alt="Description" width="30"/> Integration Guide – Git Toolkit
 

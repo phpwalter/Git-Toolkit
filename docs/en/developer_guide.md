@@ -1,5 +1,19 @@
-![toolkit-logo-banner.png](../../docs/assets/toolkit-logo-banner.png)
-# <img src="../../docs/assets/toolkit-icon.png" alt="Description" width="30"/> Developer Guide – Git Toolkit
+<!--
+ file: developer_guide.md
+ path: L:/var/www/Git-Toolkit/docs/en/developer_guide.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Comprehensive guide for developers and contributors interested in understanding, developing, and extending the Git Toolkit project.
+-->
+
+![toolkit-logo-banner.png](../assets/toolkit-logo-banner.png)
+# <img src="../assets/toolkit-icon.png" alt="Description" width="30"/> Developer Guide – Git Toolkit
 
 This guide provides comprehensive information for developers and contributors interested in understanding, developing, and extending the **Git Toolkit** project. Whether you're setting up your development environment, contributing new features, or integrating the toolkit into your workflows, this guide is for you.
 
@@ -177,7 +191,7 @@ If you encounter issues while developing or using Git Toolkit:
 *   **Check Logs**: The toolkit may provide verbose output or logs that can help diagnose problems.
 *   **Review Configuration**: Double-check your `.git-toolkit.yml` for syntax errors or incorrect paths.
 *   **Consult Documentation**: The [FAQ.md](../../FAQ.md) and other guides might have answers.
-*   **Seek Support**: If you can't resolve the issue, refer to our [SUPPORT.md](../../SUPPORT.md) for how to get help.
+*   **Seek Support**: If you can't resolve the issue, refer to our [SUPPORT.md](../../.github/SUPPORT.md) for how to get help.
 
 ---
 
@@ -187,12 +201,12 @@ If you encounter issues while developing or using Git Toolkit:
 *   [PROPOSAL.md](../../PROPOSAL.md) – Project vision and initial scope.
 *   [CONTRIBUTING.md](../../.github/CONTRIBUTING.md) – Guidelines for contributing.
 *   [INTEGRATION.md](../../INTEGRATION.md) – How to integrate Git Toolkit.
-*   [MAINTAINERS.md](../../MAINTAINERS.md) – Project maintainers and governance.
+*   [MAINTAINERS.md](../../.github/MAINTAINERS.md) – Project maintainers and governance.
 *   [MILESTONES.md](../../MILESTONES.md) – Key project objectives and timelines.
 *   [RELEASE.md](../../RELEASE.md) – Release process and versioning strategy.
 *   [ROADMAP.md](../../ROADMAP.md) – High-level plan for project evolution.
 *   [SECURITY.md](../../.github/SECURITY.md) – Vulnerability disclosure policy.
-*   [SUPPORT.md](../../SUPPORT.md) – How to get help.
+*   [SUPPORT.md](../../.github/SUPPORT.md) – How to get help.
 *   [TRANSLATIONS.md](../../TRANSLATIONS.md) – Overview of translation efforts.
 *   [FAQ.md](../../FAQ.md) – Frequently asked questions.
 *   [Branch Naming Guidelines](../branch-naming-guidelines.md) – Policy for branch names.

@@ -1,5 +1,19 @@
-![toolkit-logo-banner.png](../../docs/assets/toolkit-logo-banner.png)
-# <img src="../../docs/assets/toolkit-icon.png" alt="Description" width="30"/> Project Plan – Git Toolkit
+<!--
+ file: Project Plan.md
+ path: L:/var/www/Git-Toolkit/docs/en/Project Plan.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Outlines the objectives, scope, deliverables, timeline, resources, and management approach for the Git Toolkit project.
+-->
+
+![toolkit-logo-banner.png](../assets/toolkit-logo-banner.png)
+# <img src="../assets/toolkit-icon.png" alt="Description" width="30"/> Project Plan – Git Toolkit
 
 ## 1. Introduction
 
@@ -26,8 +40,8 @@ The primary goals of the Git Toolkit project are:
 *   [README.md](../../README.md)
 *   [PROPOSAL.md](../../PROPOSAL.md)
 *   [CHARTER.md](../../CHARTER.md)
-*   [Functional Requirements.md](Functional%20Requirements.md)
-*   [Technical Specifications.md](Technical%20Specifications.md)
+*   [Functional Requirements](functional_requirements.md)
+*   [Technical Specifications](Technical_specifications.md)
 *   [MILESTONES.md](../../MILESTONES.md)
 *   [ROADMAP.md](../../ROADMAP.md)
 *   [RELEASE.md](../../RELEASE.md)
@@ -65,19 +79,19 @@ The primary goals of the Git Toolkit project are:
 *   [README.md](../../README.md) (Project Overview)
 *   [PROPOSAL.md](../../PROPOSAL.md) (Project Vision & Scope)
 *   [CHARTER.md](../../CHARTER.md) (Mission, Scope, Long-Term Goals)
-*   [Functional Requirements.md](Functional%20Requirements.md)
-*   [Technical Specifications.md](Technical%20Specifications.md)
-*   [Developer Guide.md](Developer%20Guide.md)
+*   [Functional Requirements](functional_requirements.md)
+*   [Technical Specifications](Technical_specifications.md)
+*   [Developer Guide](developer_guide.md)
 *   [CONTRIBUTING.md](../../.github/CONTRIBUTING.md) (Contribution Guidelines)
 *   [SECURITY.md](../../.github/SECURITY.md) (Security Policy)
 *   [CODE_OF_CONDUCT.md](../../.github/CODE_OF_CONDUCT.md) (Community Standards)
 *   [FAQ.md](../../FAQ.md) (Frequently Asked Questions)
 *   [INTEGRATION.md](../../INTEGRATION.md) (Integration Guide)
-*   [MAINTAINERS.md](../../MAINTAINERS.md) (Maintainer Roles)
+*   [MAINTAINERS.md](../../.github/MAINTAINERS.md) (Maintainer Roles)
 *   [MILESTONES.md](../../MILESTONES.md) (Detailed Milestones)
 *   [RELEASE.md](../../RELEASE.md) (Release Plan)
 *   [ROADMAP.md](../../ROADMAP.md) (High-Level Roadmap)
-*   [SUPPORT.md](../../SUPPORT.md) (Support Policy)
+*   [SUPPORT.md](../../.github/SUPPORT.md) (Support Policy)
 *   [TRANSLATIONS.md](../../TRANSLATIONS.md) (Translation Guide)
 *   [SUMMARY.md](./SUMMARY.md) (Documentation Index)
 
@@ -103,7 +117,7 @@ The project follows a milestone-based approach, with detailed objectives and tim
 ## 5. Roles and Responsibilities
 
 *   **Project Owner/Primary Maintainer**: Walter Torres ([@phpwalter](https://github.com/phpwalter))
-    *   Responsibilities: Architectural decisions, roadmap, release authority, PR review, security triage, community management. (See [MAINTAINERS.md](../../MAINTAINERS.md))
+    *   Responsibilities: Architectural decisions, roadmap, release authority, PR review, security triage, community management. (See [MAINTAINERS.md](../../.github/MAINTAINERS.md))
 *   **Contributors**: Community members who submit bug fixes, features, and documentation.
     *   Responsibilities: Adhere to [CONTRIBUTING.md](../../.github/CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](../../.github/CODE_OF_CONDUCT.md).
 

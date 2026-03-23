@@ -1,3 +1,17 @@
+<!--
+ file: WORKFLOW.md
+ path: L:/var/www/Git-Toolkit/.github/WORKFLOW.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Outlines the official development workflow for the Git Toolkit project.
+-->
+
 # ⚙️ Project Workflow
 
 This document outlines the official development workflow for the **Git Toolkit** project, including branching strategy, pull request process, release automation, CI/CD policies, and contributor roles.
@@ -41,7 +55,16 @@ Branch names **must begin with an approved prefix** to support automation and en
 - `feat/`: New features
 - `fix/`: Bug fixes
 - `docs/`: Documentation changes
-- `ci/`, `test/`, `sync/`, etc.
+- `refactor/`   : Code cleanup or restructuring with no behavior change
+- `chore/`     : Dependencies, formatting, renaming, configuration, etc.
+- `ci/`        : CI/CD config, GitHub Actions, release workflows
+- `test/`      : Unit, integration, or regression tests
+- `perf/`      : Performance tuning or optimization
+- `i18n/`      : Localization and translation changes
+- `style/`     : Code styling, spacing, linting, formatting
+- `security/`  : Vulnerability patches, secrets removal, hardening steps
+- `sync/`      : Auto-synced or bulk-generated content (e.g. translations)
+- `hotfix/`    : Urgent patches targeting `main` or production branches
 
 📘 For the full list of accepted prefixes, best practices, and enforcement plans, see:  
 👉 [`Branch Naming Guidelines`](../docs/en/branch-naming-guidelines.md)

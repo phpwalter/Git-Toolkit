@@ -1,3 +1,17 @@
+<!--
+ file: PROPOSAL.md
+ path: L:/var/www/Git-Toolkit/PROPOSAL.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Project proposal for the Git Toolkit, outlining its executive summary, problem statement, and objectives.
+-->
+
 <!-- PROPOSAL.md Badge Block -->
 ![Version](https://img.shields.io/github/v/release/phpwalter/Git-Toolkit?label=version&logo=semantic-release&logoColor=white)
 ![CI](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/ci.yml?label=ci&logo=githubactions&logoColor=white)
@@ -114,7 +128,7 @@ your-project/
 ├── docs/
 │   ├── en/, es/, fr/
 └── .github/
-├── CONTRIBUTING.md, workflows/, etc.
+├── CONTRIBUTING.MD, workflows/, etc.
 ````
 
 ---
@@ -128,8 +142,13 @@ repositories:
     path: .
   - name: ui
     path: ./packages/ui
+    default_branch: main
 
 commands:
+  status:
+    script: |
+      git -C {{repo.path}} status
+
   release:
     steps:
       - tag: v{{ version }}

@@ -1,3 +1,17 @@
+<!--
+ file: CODE_OF_CONDUCT.md
+ path: L:/var/www/Git-Toolkit/.github/CODE_OF_CONDUCT.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Defines the Code of Conduct for the Git Toolkit project.
+-->
+
 ![Contributor Covenant v2.1](https://img.shields.io/badge/Contributor%20Covenant-2.1-brightgreen.svg)
 
 ![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
@@ -96,7 +110,7 @@ This Code of Conduct is based on the [Contributor Covenant v2.1](https://www.con
 - [SECURITY.md](./SECURITY.md)  
 - Translation Status Policy *(coming soon)*
 - Header and Metadata Policy *(coming soon)*
-* [SYNC\_PROCESS.](./SYNC_PROCESS.md) 
+* [SYNC_PROCESS.md](./SYNC_PROCESS.md)
 - Notification and Team Assignment Policy *(coming soon)*  
 - [SYNC_PROCESS.md](./SYNC_PROCESS.md)
 
@@ -104,4 +118,3 @@ This Code of Conduct is based on the [Contributor Covenant v2.1](https://www.con
 
 _LastUpdate: 2025-07-12_<br>  
 _Next Review: 2026-07-01_
-```

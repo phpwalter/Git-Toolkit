@@ -1,5 +1,19 @@
-![toolkit-logo-banner.png](../../docs/assets/toolkit-logo-banner.png)
-# <img src="../../docs/assets/toolkit-icon.png" alt="Description" width="30"/> How-To Guide – Git Toolkit
+<!--
+ file: how-to-guide.md
+ path: L:/var/www/Git-Toolkit/docs/en/how-to-guide.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Provides practical, step-by-step instructions for common tasks when using, configuring, and contributing to the Git Toolkit project.
+-->
+
+![toolkit-logo-banner.png](../assets/toolkit-logo-banner.png)
+# <img src="../assets/toolkit-icon.png" alt="Description" width="30"/> How-To Guide – Git Toolkit
 
 This guide provides practical, step-by-step instructions for common tasks when using, configuring, and contributing to the **Git Toolkit** project.
 
@@ -129,7 +143,7 @@ Hooks allow you to execute scripts or logic before or after specific Git operati
 We welcome contributions!
 
 1.  **Read the Contribution Guidelines**: Start by reviewing the [CONTRIBUTING.md](../../.github/CONTRIBUTING.md) document for a detailed workflow.
-2.  **Set up your development environment**: Follow the instructions in the [Developer Guide](Developer%20Guide.md).
+2.  **Set up your development environment**: Follow the instructions in the [Developer Guide](developer_guide.md).
 3.  **Find a task**: Look for open issues labeled `good first issue` or `help wanted` on our [GitHub Issues page](https://github.com/phpwalter/Git-Toolkit/issues).
 4.  **Follow our standards**: Adhere to the [Branch Naming Guidelines](../branch-naming-guidelines.md) and [Code of Conduct](../../.github/CODE_OF_CONDUCT.md).
 
@@ -160,9 +174,9 @@ If you have an idea for a new feature or enhancement:
 ## 5. ❓ Where to Find More Information
 
 *   **[FAQ](../../FAQ.md)**: For frequently asked questions.
-*   **[Developer Guide](Developer%20Guide.md)**: For in-depth development setup and concepts.
+*   **[Developer Guide](developer_guide.md)**: For in-depth development setup and concepts.
 *   **[Documentation Summary](SUMMARY.md)**: For a complete index of all project documentation.
-*   **[Support Policy](../../SUPPORT.md)**: For general support inquiries.
+*   **[Support Policy](../../.github/SUPPORT.md)**: For general support inquiries.
 
 ---
 

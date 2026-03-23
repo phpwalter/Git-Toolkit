@@ -1,3 +1,17 @@
+<!--
+ file: SUMMARY.md
+ path: L:/var/www/Git-Toolkit/docs/en/SUMMARY.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Defines the structure, navigation, and hierarchy of the Git Toolkit documentation.
+-->
+
 # 📚 Git Toolkit Documentation Summary
 
 > This file defines the structure, navigation, and hierarchy of the Git Toolkit documentation.  
@@ -47,7 +61,8 @@
 ## 🗺️ Project Coordination
 
 - [📝 Project Charter](../../CHARTER.md)
-- [📈 Roadmap & Milestones](../tools/i18n/README.md#-roadmap--milestones)
+- [📈 Roadmap](../../ROADMAP.md)
+- [🗓️ Milestones](../../MILESTONES.md)
 - [🛠 Tools & Branching Strategy](../../.github/WORKFLOW.md#️-tools-used)
 
 

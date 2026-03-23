@@ -1,3 +1,17 @@
+<!--
+ file: MILESTONES.md
+ path: L:/var/www/Git-Toolkit/MILESTONES.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Outlines the key delivery checkpoints for the Git Toolkit project, aligning with the project roadmap and strategic goals.
+-->
+
 ![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 # <img src="../docs/assets/toolkit-icon.png" alt="Description" width="30"/> Project Milestones – Git Toolkit
 

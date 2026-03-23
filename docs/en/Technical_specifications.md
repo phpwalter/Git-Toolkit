@@ -1,5 +1,19 @@
-![toolkit-logo-banner.png](../../docs/assets/toolkit-logo-banner.png)
-# <img src="../../docs/assets/toolkit-icon.png" alt="Description" width="30"/> Technical Specifications Document – Git Toolkit
+<!--
+ file: Technical_specifications.md
+ path: L:/var/www/Git-Toolkit/docs/en/Technical_specifications.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Details the technical design, architecture, and implementation specifics of the Git Toolkit project.
+-->
+
+![toolkit-logo-banner.png](../assets/toolkit-logo-banner.png)
+# <img src="../assets/toolkit-icon.png" alt="Description" width="30"/> Technical Specifications Document – Git Toolkit
 
 ## 1. Introduction
 
@@ -37,8 +51,8 @@ This document covers the technical design of the Git Toolkit's core components, 
 ### 1.4. References
 *   [README.md](../../README.md)
 *   [PROPOSAL.md](../../PROPOSAL.md)
-*   [Functional Requirements.md](Functional%20Requirements.md)
-*   [Developer Guide.md](Developer%20Guide.md)
+*   [Functional Requirements](functional_requirements.md)
+*   [Developer Guide](developer_guide.md)
 *   [SECURITY.md](../../.github/SECURITY.md)
 *   [CONTRIBUTING.md](../../.github/CONTRIBUTING.md)
 
