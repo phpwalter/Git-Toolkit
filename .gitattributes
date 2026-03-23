@@ -1,0 +1,11 @@
+# Exclude everything from Linguist language stats…
+* linguist-vendored
+
+# …except the /htdocs/phantom subtree (count these files)
+htdocs/phantom/** -linguist-vendored
+
+# Ensure JSON in that subtree is counted
+htdocs/phantom/**/*.json linguist-detectable=true
+
+# But don't count the generated badge JSONs themselves
+htdocs/phantom/docs/assets/badges/*.json -linguist-detectable
