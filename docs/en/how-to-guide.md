@@ -56,11 +56,23 @@ Once installed, you can run Git Toolkit commands from your project root.
     ./.git-toolkit/git-toolkit status
     ```
 2.  **Create a symlink for easier access (optional but recommended)**:
+    
+    **On macOS/Linux:**
     ```bash
     ln -s .git-toolkit/git-toolkit git-toolkit
     ./git-toolkit status
     ```
 
+    **On Windows:**
+
+    Open Command Prompt or PowerShell **as an administrator**.
+    ```powershell
+    mklink git-toolkit .\.git-toolkit\git-toolkit
+    ```
+    Then you can run:
+    ```
+    .\git-toolkit.ps1 status
+    ```
 ---
 
 ## 2. ⚙️ How to Configure Git Toolkit
@@ -86,8 +98,33 @@ The `.git-toolkit.yml` file allows you to define multiple repositories that Git 
     *   `name`: A unique identifier for the repository.
     *   `path`: The relative path from your project root to the repository.
     *   `default_branch`: (Optional) The default branch for this repository.
+    *   `groups`: (Optional) A list of groups this repository belongs to (e.g., `frontend`, `backend`).
 
-### 2.2. How to Create a Custom Command
+### 2.2. How to Use Repository Grouping
+
+Grouping allows you to run commands on specific sets of repositories.
+
+1.  **Define groups in `.git-toolkit.yml`**:
+    ```yaml
+    repositories:
+      - name: web_app
+        path: ./apps/web
+        groups: ["frontend"]
+      - name: api_service
+        path: ./services/api
+        groups: ["backend"]
+      - name: shared_utils
+        path: ./libs/utils
+        groups: ["frontend", "backend"]
+    ```
+2.  **Filter commands by group**:
+    Use the `--group` flag with any command to target only the repositories in that group.
+    ```bash
+    ./git-toolkit status --group frontend
+    ./git-toolkit push --group backend
+    ```
+
+### 2.3. How to Create a Custom Command
 
 Custom commands allow you to define high-level workflows that execute multiple Git operations or scripts.
 
@@ -136,6 +173,161 @@ Hooks allow you to execute scripts or logic before or after specific Git operati
     ```
 3.  This `pre_push` hook will now automatically run every time you attempt a `git push`. If you try to push directly to `main`, it will prevent the push.
 
+### 2.4. How to View Repository Analytics
+
+The `stats` command provides insights into your repositories' activity and health.
+
+1.  **Run the stats command**:
+    ```bash
+    ./git-toolkit stats
+    ```
+    This will display a table with the active branch, total commit count, unique contributor count, and a health summary for each defined repository.
+
+2.  **Export stats to JSON or Markdown**:
+    ```bash
+    ./git-toolkit stats --format json
+    ./git-toolkit stats --format markdown
+    ```
+    *   **JSON**: Useful for programmatic analysis or integration with custom reporting tools.
+    *   **Markdown**: Generates a detailed report including warnings for stale branches and large files.
+
+### 2.5. How to Configure Health Metrics
+
+You can customize the thresholds for repository health checks in your `.git-toolkit.yml`.
+
+1.  **Open your `.git-toolkit.yml` file**.
+2.  **Add a `health` section**:
+    ```yaml
+    # .git-toolkit.yml
+    health:
+      stale_branch_days: 30  # Warn if a branch hasn't been updated in 30 days
+      large_file_kb: 1000    # Warn if a file exceeds 1000 KB (1 MB)
+    ```
+    If not specified, these default values will be used.
+
+### 2.6. How to Run Custom Workflows
+
+Workflows allow you to define sequences of commands and scripts that run across all your repositories. They support parallel execution and conditional steps.
+
+1.  **Open your `.git-toolkit.yml` file**.
+2.  **Add a `workflows` section**:
+    ```yaml
+    # .git-toolkit.yml
+    workflows:
+      sync-all:
+        description: "Pull latest changes and update submodules"
+        steps:
+          - name: "pull"
+            script: "git pull origin main"
+            if: "branch == main"
+          - name: "submodules"
+            command: "submodule update"
+    ```
+3.  **Run the workflow**:
+    ```bash
+    ./git-toolkit run sync-all
+    ```
+4.  **Run in parallel**:
+    To speed up execution for many repositories, use the `--parallel` flag. You can also specify the number of workers:
+    ```bash
+    ./git-toolkit run sync-all --parallel --workers 8
+    ```
+
+### 2.7. How to Manage the Metadata Cache
+
+Git Toolkit caches repository metadata (like status and statistics) to improve performance, especially when dealing with many repositories.
+
+1.  **View performance improvements**:
+    Subsequent runs of `status` or `stats` commands will be significantly faster as they use cached data.
+    - `status` cache TTL: 60 seconds
+    - `stats` cache TTL: 300 seconds (5 minutes)
+
+2.  **Clear the cache**:
+    If you need to force a refresh of the metadata, use the `clear-cache` command:
+    ```bash
+    ./git-toolkit clear-cache
+    ```
+
+### 2.8. How to Configure Workflow Webhooks
+
+Workflows can send notifications to external services (like Slack or Discord) upon completion.
+
+1.  **Open your `.git-toolkit.yml` file**.
+2.  **Add a `webhook_url` to your workflow**:
+    ```yaml
+    workflows:
+      deploy:
+        description: "Deploy to production"
+        webhook_url: "https://hooks.slack.com/services/..."
+        steps:
+          - name: "build"
+            script: "npm run build"
+          - name: "push"
+            command: "push"
+    ```
+3.  When the workflow finishes, Git Toolkit will send a POST request with the execution results to the specified URL.
+
+### 2.9. How to Manage Authentication Tokens
+
+Git Toolkit supports secure storage of Personal Access Tokens (PATs) for different Git hosts using the system keyring.
+
+1.  **Store a token for a host**:
+    ```bash
+    ./git-toolkit auth set github.com --token your_personal_access_token
+    ```
+    This will securely store the token in your system's keyring (e.g., Windows Credential Manager, macOS Keychain).
+
+2.  **Verify a stored token (masked)**:
+    ```bash
+    ./git-toolkit auth get github.com
+    ```
+
+3.  **Delete a stored token**:
+    ```bash
+    ./git-toolkit auth delete github.com
+    ```
+
+4.  **Use host-specific tokens in configuration**:
+    You can also define tokens directly in `.git-toolkit.yml` (though using the `auth` command is more secure):
+    ```yaml
+    # .git-toolkit.yml
+    auth:
+      tokens:
+        github.com: "your_token_here"
+        gitlab.com: "another_token_here"
+    ```
+
+Git Toolkit will look for tokens in the following order:
+1.  Host-specific token in `.git-toolkit.yml`.
+2.  Host-specific token in the system keyring.
+3.  `GIT_TOOLKIT_PAT` environment variable.
+
+### 2.10. How to Use Observability Features
+
+Git Toolkit provides structured logging and execution history to help you debug and audit your workflows.
+
+1.  **Enable Verbose Logging**:
+    Use the `--verbose` flag with any command to see detailed debug logs in the console.
+    ```bash
+    ./git-toolkit status --verbose
+    ```
+
+2.  **View Execution History**:
+    The `history` command shows a list of recent Git Toolkit operations.
+    ```bash
+    ./git-toolkit history
+    ```
+    You can limit the number of entries shown using the `--limit` flag:
+    ```bash
+    ./git-toolkit history --limit 5
+    ```
+
+3.  **Inspect Log Files**:
+    Git Toolkit automatically saves detailed logs to the `.git-toolkit/logs/` directory. Each day has its own log file (e.g., `2026-03-25.log`).
+
+4.  **Audit Execution Data**:
+    A machine-readable execution history is maintained in `.git-toolkit/history.json`. This file contains timestamps, commands, arguments (with tokens masked), and success/failure status for the last 100 operations.
+
 ---
 
 ## 3. 🤝 How to Contribute to Git Toolkit
@@ -180,5 +372,5 @@ If you have an idea for a new feature or enhancement:
 
 ---
 
-_Last updated: 2025-07-17_<br>
+_Last updated: 2026-03-25_<br>
 _Next review: 2026-07-01_

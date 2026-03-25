@@ -1,0 +1,91 @@
+<div class="settings-modal" id="settings-modal">
+    <div class="settings-modal-header">
+        <h3><i data-lucide="settings"></i> Git Toolkit Settings</h3>
+        <button class="icon-button" id="close-settings-modal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="settings-modal-body">
+        <div class="settings-modal-nav">
+            <a href="#" class="active">General</a>
+            <a href="#">Integrations</a>
+            <a href="#">Security</a>
+            <a href="#">Advanced</a>
+        </div>
+        <div class="settings-modal-content">
+            <div class="settings-top-row">
+                <div class="form-group">
+                    <label for="project-name">Project Name</label>
+                    <input type="text" id="project-name" value="Git Toolkit Development">
+                </div>
+                <div class="form-group">
+                    <label for="author-name">Author Name</label>
+                    <input type="text" id="author-name" placeholder="Author Name">
+                </div>
+                <div class="form-group">
+                    <label for="version">Version</label>
+                    <input type="text" id="version" value="0.1.0" readonly>
+                </div>
+                <button class="button-primary">Update</button>
+            </div>
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="enable-analytics">
+                <label for="enable-analytics">Enable Analytics</label>
+            </div>
+
+            <div class="settings-columns">
+                <div class="settings-panel">
+                    <h4>Webhook URLs</h4>
+                    <div class="form-group">
+                        <input type="text" value="Git-Toolkit: https://git-toolkit / (from the config)">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" value="Git-Toolkit-Docs: https://git-toolt from the config">
+                    </div>
+                    <h4>Preferred Branch Naming</h4>
+                    <div class="form-group">
+                        <label for="branch-prefix">Prefix</label>
+                        <input type="text" id="branch-prefix" placeholder="e.g., feature/">
+                    </div>
+                    <div class="form-group">
+                        <label for="gitleaks-config">gitleaks Configuration</label>
+                        <input type="text" id="gitleaks-config" value="File-path: ~/usv/resorts/gitleaks/rules file">
+                    </div>
+                    <div class="form-group-switch">
+                        <label for="scan-on-push">Scan on push</label>
+                        <input type="checkbox" id="scan-on-push" role="switch">
+                    </div>
+                </div>
+                <div class="settings-panel">
+                    <h4>Security</h4>
+                    <div class="form-group">
+                        <select>
+                            <option>Scan on push</option>
+                            <option>Scan on commit</option>
+                        </select>
+                    </div>
+                    <h4>Advanced</h4>
+                    <div class="form-group">
+                        <label for="log-level">Default Log Level</label>
+                        <select id="log-level">
+                            <option>Warning</option>
+                            <option>Info</option>
+                            <option>Debug</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-hooks">Custom Hook Scripts</label>
+                        <textarea id="custom-hooks" rows="3">Ptaselttier
+Custom Hook
+Custom Here</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="settings-modal-footer">
+        <button class="button-secondary">Reset</button>
+        <div>
+            <button class="button-secondary">Cancel</button>
+            <button class="button-primary">Save Changes</button>
+        </div>
+    </div>
+</div>

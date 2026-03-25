@@ -1,0 +1,31 @@
+{
+  "_header": {
+    "file": "status.json",
+    "path": "./data/status.json",
+    "version": "1.0.0",
+    "date": "2026-03-13",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git Genie.",
+    "license": "Proprietary",
+    "maintainer": "Git Genie Team",
+    "status": "dev"
+  },
+  "data": {
+    "name": "Status",
+    "lifecycle": "REBUILD",
+    "type": "SINGLE_SELECT",
+    "github_default": true,
+    "options": [
+      { "name": "New / Triage", "color": "GRAY", "description": "Needs review" },
+      { "name": "Backlog", "color": "BLUE", "description": "Refined and ready" },
+      { "name": "Todo", "color": "PURPLE", "description": "Committed to sprint" },
+      { "name": "In Progress", "color": "YELLOW", "description": "Actively developing" },
+      { "name": "In Review", "color": "ORANGE", "description": "PR awaiting approval" },
+      { "name": "In Testing / QA", "color": "PINK", "description": "Verifying on Staging" },
+      { "name": "Blocked", "color": "RED", "description": "External dependency" },
+      { "name": "Ready for Prod", "color": "GREEN", "description": "Merged, pending release" },
+      { "name": "Done", "color": "GREEN", "description": "Live in Production" },
+      { "name": "Won't Do", "color": "ORANGE", "description": "Closed/Duplicate" }
+    ]
+  }
+}

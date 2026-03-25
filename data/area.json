@@ -1,0 +1,66 @@
+{
+  "_header": {
+    "file": "area.json",
+    "path": "./data/area.json",
+    "version": "1.1.0",
+    "date": "2026-03-13",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git Genie.",
+    "license": "Proprietary",
+    "maintainer": "Git Genie Team",
+    "status": "dev"
+  },
+  "data": {
+    "name": "Area",
+    "lifecycle": "RECREATE",
+    "type": "SINGLE_SELECT",
+    "github_default": false,
+    "options": [
+      {
+        "name": "Backend",
+        "color": "BLUE",
+        "description": "Server-side application logic, services, business rules, and system integrations."
+      },
+      {
+        "name": "UI/UX",
+        "color": "YELLOW",
+        "description": "User interface implementation, visual design, accessibility, and user experience improvements."
+      },
+      {
+        "name": "Infrastructure",
+        "color": "PURPLE",
+        "description": "Deployment systems, CI/CD pipelines, environment configuration, and platform infrastructure."
+      },
+      {
+        "name": "API",
+        "color": "GREEN",
+        "description": "Public and internal APIs, contracts, request/response schemas, and service endpoints."
+      },
+      {
+        "name": "AI",
+        "color": "ORANGE",
+        "description": "Machine learning systems, model integration, inference pipelines, and AI-driven features."
+      },
+      {
+        "name": "Data",
+        "color": "BLUE",
+        "description": "Data modeling, database management, and data processing pipelines."
+      },
+      {
+        "name": "DevOps",
+        "color": "PURPLE",
+        "description": "Development operations, automation, and environment management."
+      },
+      {
+        "name": "Frontend",
+        "color": "YELLOW",
+        "description": "Client-side application logic and web technologies."
+      },
+      {
+        "name": "Middleware",
+        "color": "GRAY",
+        "description": "Logic layers sitting between front-end and back-end systems."
+      }
+    ]
+  }
+}

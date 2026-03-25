@@ -1,0 +1,40 @@
+{
+  "_meta": {
+    "file": "milestones.json",
+    "path": "docs/implementation/milestones.json",
+    "version": "1.0.0",
+    "date": "2026-03-23",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git-Toolkit.",
+    "license": "MIT",
+    "maintainer": "Git-Toolkit Team",
+    "status": "dev"
+  },
+  "milestones": [
+    {
+      "title": "📑 [M1] v0.1.0 \"Hooks\"",
+      "description": "🏁 Milestone 1: Hooks\nPriority: P0 | Effort: 2 weeks\n\n🎯 Objective\nEstablish the foundational CLI, configuration loading, and the initial hook system for Git Toolkit.\n\n✅ Definition of Done (DoD)\n- Core CLI commands (clone, status, push, checkout, submodule update) are implemented using argparse and GitPython.\n- Per-project configuration (.git-toolkit.yml) can be loaded and parsed.\n- Initial hook system (pre_clone, post_push, etc.) is functional.\n- Basic authentication support via Git Credential Manager (GCM) and Personal Access Tokens (PAT) is integrated.\n\n📦 Acceptance Checks\n- Running git-toolkit <command> executes the corresponding Git operation.\n- A .git-toolkit.yml file successfully customizes command behavior.\n- Pre-defined hooks trigger Python functions or scripts.\n- Git operations authenticate correctly using GCM or a provided PAT.\n\n🔗 Related Specs\n- PROPOSAL.md\n- ROADMAP.md\n\n🛠️ Technical Guardrails\n- Integration with GitPython and argparse.\n- GCM/PAT authentication standards.",
+      "dueOn": "2026-04-09T00:00:00Z"
+    },
+    {
+      "title": "📑 [M2] v0.2.0 \"CI\"",
+      "description": "🏁 Milestone 2: CI\nPriority: P0 | Effort: 2 weeks\n\n🎯 Objective\nIntegrate Git Toolkit into CI/CD pipelines and ensure its readiness for automated environments.\n\n✅ Definition of Done (DoD)\n- GitHub Actions workflows (ci.yml, release.yml) are set up for continuous integration and release processes.\n- Git Toolkit commands can be reliably executed within a CI environment.\n- Basic multi-repo support is functional, allowing commands to operate across defined repositories.\n\n📦 Acceptance Checks\n- CI builds pass consistently on main branch.\n- Automated tests for Git Toolkit run successfully in CI.\n- A sample multi-repo configuration demonstrates commands running on multiple defined repositories.\n\n🔗 Related Specs\n- ROADMAP.md\n\n🛠️ Technical Guardrails\n- GitHub Actions automation.\n- Multi-repo execution logic.",
+      "dueOn": "2026-05-07T00:00:00Z"
+    },
+    {
+      "title": "📑 [M3] v0.2.1 \"Releases\"",
+      "description": "🏁 Milestone 3: Releases\nPriority: P1 | Effort: 2 weeks\n\n🎯 Objective\nImplement automated release management, including version tagging and changelog generation.\n\n✅ Definition of Done (DoD)\n- semantic-release or similar tooling is integrated for automated versioning.\n- Changelog generation is automated based on commit messages.\n- Release tagging is automated upon successful CI/CD runs.\n\n📦 Acceptance Checks\n- New releases are automatically tagged with semantic versions.\n- A CHANGELOG.md is automatically updated with each release.\n- Release artifacts (if any) are published automatically.\n\n🔗 Related Specs\n- ROADMAP.md\n\n🛠️ Technical Guardrails\n- Semantic versioning enforcement.\n- Automated changelog generation tooling.",
+      "dueOn": "2026-06-04T00:00:00Z"
+    },
+    {
+      "title": "📑 [M4] v0.3.0 \"Quality\"",
+      "description": "🏁 Milestone 4: Quality\nPriority: P0 | Effort: 4 weeks\n\n🎯 Objective\nEnhance project quality, stability, and security through comprehensive testing and code analysis.\n\n✅ Definition of Done (DoD)\n- Test coverage reaches ≥ 80% for all core modules.\n- Code linting (e.g., flake8, black) is enforced in CI.\n- Security scans (e.g., bandit) are integrated into the CI pipeline.\n- Documentation is updated to reflect best practices and usage.\n\n📦 Acceptance Checks\n- CI reports ≥ 80% test coverage.\n- No linting or formatting errors are reported in CI.\n- Security scans pass without critical vulnerabilities.\n- User-facing documentation is clear and complete.\n\n🔗 Related Specs\n- CONTRIBUTING.md\n\n🛠️ Technical Guardrails\n- Minimum 80% test coverage enforcement.\n- Strict linting and security scanning (Bandit, Flake8).",
+      "dueOn": "2026-07-02T00:00:00Z"
+    },
+    {
+      "title": "📑 [M5] v1.0.0 \"Monthly\"",
+      "description": "🏁 Milestone 5: Monthly\nPriority: P2 | Effort: 4 weeks\n\n🎯 Objective\nEstablish a sustainable release cadence and foster community engagement.\n\n✅ Definition of Done (DoD)\n- A monthly release job is configured and executed.\n- A contribution dashboard or similar mechanism is in place to track community activity.\n- Project governance and contribution guidelines are finalized and published.\n\n📦 Acceptance Checks\n- New releases occur on a predictable monthly schedule.\n- Community contributions are visible and acknowledged.\n- All core documentation (CONTRIBUTING, CODE_OF_CONDUCT, GOVERNANCE) is complete.\n\n🔗 Related Specs\n- GOVERNANCE.md\n- CONTRIBUTING.md\n\n🛠️ Technical Guardrails\n- Scheduled release triggers.\n- Governance and community engagement metrics.",
+      "dueOn": "2026-07-30T00:00:00Z"
+    }
+  ]
+}

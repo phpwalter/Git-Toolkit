@@ -1,0 +1,22 @@
+{
+  "_header": {
+    "file": "reviewer.json",
+    "path": "./data/reviewer.json",
+    "version": "1.0.0",
+    "date": "2026-03-20",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git Genie.",
+    "license": "Proprietary",
+    "maintainer": "Git Genie Team",
+    "status": "dev"
+  },
+  "data": {
+    "name": "Reviewers",
+    "lifecycle": "RECREATE",
+    "type": "SINGLE_SELECT",
+    "github_default": true,
+    "options": [
+      { "name": "phpwalter", "color": "BLUE", "description": "Lead Reviewer" }
+    ]
+  }
+}

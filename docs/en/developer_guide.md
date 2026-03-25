@@ -54,9 +54,10 @@ pip install -r requirements.txt
 ```
 
 ### Running Tests
-Ensure your setup is correct and all existing tests pass:
+Ensure your setup is correct and all existing tests pass. We aim for at least 80% code coverage:
 ```bash
-pytest
+export PYTHONPATH="."
+pytest --cov=git_toolkit git_toolkit/tests/
 ```
 
 ### Linting and Formatting
@@ -119,6 +120,39 @@ Hooks can be defined in your `.git-toolkit.yml` or implemented as Python plugins
 
 ### 3.4. Plugin System
 For more complex or reusable logic, Git Toolkit supports Python plugins. These are Python modules that can extend the toolkit's functionality, register new commands, or implement sophisticated hooks.
+
+#### Creating a Plugin
+To create a plugin, inherit from `git_toolkit.plugins.Plugin` and implement the required methods:
+
+```python
+from git_toolkit.plugins import Plugin
+
+class MyPlugin(Plugin):
+    def register_commands(self, subparsers):
+        # Add new argparse subparsers
+        my_parser = subparsers.add_parser("my-command", help="Custom plugin command")
+        my_parser.add_argument("--option", help="An option")
+
+    def run_command(self, args) -> bool:
+        # Handle the command logic
+        if args.command == "my-command":
+            print(f"Executing my-command with option: {args.option}")
+            return True
+        return False
+
+    def run_hook(self, hook_name, env=None) -> bool:
+        # Optional: React to lifecycle hooks
+        print(f"Plugin observed hook: {hook_name}")
+        return True
+```
+
+#### Registering a Plugin
+Plugins are discovered using Python entry points. Register your plugin in your `pyproject.toml`:
+
+```toml
+[project.entry-points."git_toolkit.plugins"]
+my_plugin = "my_package.module:MyPlugin"
+```
 
 ### 3.5. Multi-Repository Support
 Git Toolkit is designed to manage actions across multiple Git repositories, making it ideal for monorepos, microservices architectures, or projects heavily relying on Git submodules. Repositories are defined in the `repositories` section of `.git-toolkit.yml`.

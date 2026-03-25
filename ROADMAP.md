@@ -18,7 +18,7 @@
 **Project:** Git Toolkit
 **Maintainer:** Walter Torres ([@phpwalter](https://github.com/phpwalter))
 **Execution Model:** Solo Contributor, Public OSS
-**Last Updated:** 2025-07-16
+**Last Updated:** 2026-03-25
 
 ---
 
@@ -63,16 +63,39 @@ The development of Git Toolkit is structured into several phases, each building 
 
 ---
 
-### Phase 3: Extensibility & Community (v1.0.0 and Beyond)
+### Phase 3: Extensibility & Community (v1.0.0 - v1.6.x)
 
 **Focus:** Expanding the toolkit's extensibility, fostering community contributions, and establishing sustainable development practices.
 
 *   **Plugin System Enhancement**: Mature the plugin architecture for broader extensibility.
 *   **Advanced Workflow Customization**: Provide more sophisticated options for defining complex Git workflows.
 *   **Community Engagement**: Establish a regular release cadence and improve contribution pathways.
-*   **Documentation Expansion**: Comprehensive guides for extending, configuring, and troubleshooting.
+*   **Security & Authentication**: Mature host-specific credential management and secure storage.
 
-**Corresponding Milestone:** [v1.0.0 "Monthly"](./MILESTONES.md#%EF%B8%8F-v100-monthly)
+**Corresponding Milestones:**
+*   [v1.0.0 "Monthly"](./MILESTONES.md#%EF%B8%8F-v100-monthly)
+*   [v1.1.0 "Extensibility"](./MILESTONES.md#%EF%B8%8F-v110-extensibility)
+*   [v1.2.0 "Safety"](./MILESTONES.md#%EF%B8%8F-v120-safety)
+*   [v1.3.0 "Analytics"](./MILESTONES.md#%EF%B8%8F-v130-analytics)
+*   [v1.4.0 "Workflows"](./MILESTONES.md#%EF%B8%8F-v140-workflows)
+*   [v1.5.0 "Collaboration"](./MILESTONES.md#%F0%9F%A4%9D-v150-collaboration)
+*   [v1.6.0 "Security"](./MILESTONES.md#%F0%9F%94%92-v160-security)
+
+---
+
+### Phase 4: Observability, Reliability & Performance (v1.7.0 and Beyond)
+
+**Focus:** Enhancing the toolkit's visibility, traceability, and robust error handling while optimizing performance to support larger teams and more critical workflows.
+
+*   **Structured Logging**: Implement comprehensive and configurable logging for easier debugging.
+*   **Execution History**: Maintain a searchable audit log of all toolkit actions.
+*   **Enhanced Error Context**: Provide clearer diagnostic information and recovery steps on failure.
+*   **Metadata Caching**: Speed up repetitive operations like status and statistics.
+*   **Optimized Parallelism**: Improve multi-repo execution efficiency with configurable resources.
+
+**Corresponding Milestones:**
+*   [v1.7.0 "Observability"](./MILESTONES.md#%F0%9F%94%8D-v170-observability)
+*   [v1.8.0 "Performance"](./MILESTONES.md#%E2%9A%A1-v180-performance)
 
 ---
 

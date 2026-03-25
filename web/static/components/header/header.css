@@ -1,0 +1,47 @@
+header {
+    background-color: var(--md-sys-color-primary);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mdc-top-app-bar__section--align-start {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-right-column {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-right-column > i {
+    width: 20px;
+    height: 20px;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+    fill: none;
+    stroke: currentColor;
+}
+
+.header-separator {
+    width: 1px;
+    height: 24px;
+    background-color: var(--md-sys-color-outline);
+}
+
+.gravatar-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
