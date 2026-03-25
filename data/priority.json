@@ -1,0 +1,25 @@
+{
+  "_header": {
+    "file": "priority.json",
+    "path": "./data/priority.json",
+    "version": "1.0.0",
+    "date": "2026-03-13",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git Genie.",
+    "license": "Proprietary",
+    "maintainer": "Git Genie Team",
+    "status": "dev"
+  },
+  "data": {
+    "name": "Priority",
+    "lifecycle": "RECREATE",
+    "type": "SINGLE_SELECT",
+    "github_default": false,
+    "options": [
+      { "name": "P0 - Critical", "color": "RED", "description": "SLA/Security Breach" },
+      { "name": "P1 - High", "color": "ORANGE", "description": "Key Roadmap Item" },
+      { "name": "P2 - Medium", "color": "YELLOW", "description": "Standard Improvement" },
+      { "name": "P3 - Low", "color": "BLUE", "description": "Backlog/Nice-to-have" }
+    ]
+  }
+}

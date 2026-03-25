@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "git-toolkit"
+version = "0.1.0-alpha"
+description = "A lightweight, per-project CLI utility for automating Git workflows."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+dependencies = [
+    "GitPython>=3.1.44",
+    "pydantic>=2.9.2",
+    "PyYAML>=6.0.1",
+    "keyring>=24.3.0",
+]
+
+[tool.setuptools]
+packages = ["git_toolkit"]
+
+[project.scripts]
+git-toolkit = "git_toolkit.cli:main"
+
+[project.entry-points."git_toolkit.plugins"]
+# Plugins can be registered here using the format:
+# name = "package.module:Class"
+
+[tool.semantic_release]
+version_variable = "git_toolkit/cli.py:__version__"
+version_toml = ["pyproject.toml:project.version"]
+major_on_zero = true
+branch = "main"
+upload_to_pypi = false
+upload_to_release = true
+build_command = "python -m build"
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

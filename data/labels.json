@@ -1,0 +1,51 @@
+{
+  "_header": {
+    "file": "labels.json",
+    "path": "./data/labels.json",
+    "version": "1.0.0",
+    "date": "2026-03-13",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git Genie.",
+    "license": "Proprietary",
+    "maintainer": "Git Genie Team",
+    "status": "dev"
+  },
+  "data": {
+    "labels": [
+      { "name": "🚨 priority: critical", "description": "Must be fixed immediately", "color": "b60205" },
+      { "name": "🚨 priority: high", "description": "High priority task", "color": "d93f0b" },
+      { "name": "🚨 priority: medium", "description": "Medium priority task", "color": "fbca04" },
+      { "name": "🚨 priority: low", "description": "Low priority task", "color": "cfd3d7" },
+      { "name": "🌐 area: api", "description": "Related to API endpoints or structure", "color": "006b75" },
+      { "name": "🌐 area: auth", "description": "Related to authentication and authorization", "color": "006b75" },
+      { "name": "🌐 area: engine", "description": "Core logic and processing engine", "color": "006b75" },
+      { "name": "🌐 area: routing", "description": "Internal or external routing logic", "color": "006b75" },
+      { "name": "🌐 area: state", "description": "State management and persistence", "color": "006b75" },
+      { "name": "🌐 area: schema", "description": "Updates to the JSON definitions", "color": "006b75" },
+      { "name": "🌐 area: cli", "description": "Command line interface", "color": "006b75" },
+      { "name": "🌐 area: testing", "description": "Testing infrastructure and tools", "color": "006b75" },
+      { "name": "🌐 area: infrastructure", "description": "DevOps, CI/CD, and server config", "color": "006b75" },
+      { "name": "🌐 area: specification", "description": "Design docs and technical specs", "color": "006b75" },
+      { "name": "⚑ flag: security", "description": "Security vulnerability or concern", "color": "FF0000" },
+      { "name": "⚑ flag: performance", "description": "Performance optimization", "color": "fef2c0" },
+      { "name": "⚑ flag: breaking-change", "description": "Changes that break backward compatibility", "color": "d73a4a" },
+      { "name": "⚑ flag: technical-debt", "description": "Addresses code quality or legacy issues", "color": "f9d0c4" },
+      { "name": "⚑ flag: blocked", "description": "Progress is hindered by external factors", "color": "000000" },
+      { "name": "⚑ flag: help-wanted", "description": "Extra attention is needed", "color": "008672" },
+      { "name": "⚑ flag: good-first-issue", "description": "Good for newcomers", "color": "7057ff" },
+      { "name": "⚑ flag: duplicate", "description": "This issue or pull request already exists", "color": "cfd3d7" },
+      { "name": "⚑ flag: invalid", "description": "This doesn't seem right", "color": "e4e669" },
+      { "name": "⚑ flag: question", "description": "Further information is requested", "color": "d876e3" },
+      { "name": "⚑ flag: wontfix", "description": "This will not be worked on", "color": "FF0000" },
+      { "name": "📦 type: bug", "description": "Something isn't working", "color": "d73a4a" },
+      { "name": "📦 type: feature", "description": "New functionality", "color": "a2eeef" },
+      { "name": "📦 type: testing", "description":"Specifically flag work on pytest or the new script-level testing", "color": "a2eeef" },
+      { "name": "📦 type: maintenance", "description": "Chore, refactor, or dependency update", "color": "0052cc" },
+      { "name": "📦 type: documentation", "description": "Documentation only changes", "color": "0075ca" },
+      { "name": "📦 type: release", "description": "Tracking tasks related to versioning, tagging, and updating the CHANGELOG.md", "color": "0075ca" },
+      { "name": "🔄 status: needs-triage", "description": "Needs review and categorization", "color": "ededed" },
+      { "name": "🔄 status: in-progress", "description": "Work has begun", "color": "fef2c0" },
+      { "name": "🔄 status: review-needed", "description": "Ready for peer review", "color": "bfdadc" }
+    ]
+  }
+}

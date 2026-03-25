@@ -1,0 +1,27 @@
+{
+  "_header": {
+    "file": "estimate.json",
+    "path": "./data/estimate.json",
+    "version": "1.0.0",
+    "date": "2026-03-13",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git Genie.",
+    "license": "Proprietary",
+    "maintainer": "Git Genie Team",
+    "status": "dev"
+  },
+  "data": {
+    "name": "Estimate",
+    "lifecycle": "RECREATE",
+    "type": "SINGLE_SELECT",
+    "github_default": false,
+    "options": [
+      { "name": "1", "color": "GRAY", "description": "Very Small (<1 day)" },
+      { "name": "2", "color": "GRAY", "description": "Small (1-2 days)" },
+      { "name": "3", "color": "GRAY", "description": "Medium (3-4 days)" },
+      { "name": "5", "color": "GRAY", "description": "Large (1 week)" },
+      { "name": "8", "color": "GRAY", "description": "XL (Full Sprint)" },
+      { "name": "13", "color": "GRAY", "description": "Epic (Needs Breakdown)" }
+    ]
+  }
+}

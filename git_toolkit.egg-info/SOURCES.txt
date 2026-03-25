@@ -1,0 +1,16 @@
+LICENSE
+README.md
+pyproject.toml
+git_toolkit/auth.py
+git_toolkit/cli.py
+git_toolkit/config.py
+git_toolkit/git_wrapper.py
+git_toolkit/hello_plugin.py
+git_toolkit/hooks.py
+git_toolkit/plugins.py
+git_toolkit.egg-info/PKG-INFO
+git_toolkit.egg-info/SOURCES.txt
+git_toolkit.egg-info/dependency_links.txt
+git_toolkit.egg-info/entry_points.txt
+git_toolkit.egg-info/requires.txt
+git_toolkit.egg-info/top_level.txt

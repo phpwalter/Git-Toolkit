@@ -1,0 +1,25 @@
+{
+  "_header": {
+    "file": "iteration.json",
+    "path": "./data/iteration.json",
+    "version": "1.0.0",
+    "date": "2026-03-13",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git Genie.",
+    "license": "Proprietary",
+    "maintainer": "Git Genie Team",
+    "status": "dev"
+  },
+  "data": {
+    "name": "Iteration",
+    "github_default": false,
+    "lifecycle": "RECREATE",
+    "type": "ITERATION",
+    "configuration": {
+      "duration": 14,
+      "startDay": 1,
+      "iterations": []
+    },
+    "description": "2-week development cycles"
+  }
+}

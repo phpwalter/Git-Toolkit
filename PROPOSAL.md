@@ -48,6 +48,12 @@ Git Toolkit provides value to:
 
 ---
 
+## 2.1. 💰 Project Resources
+
+This project is currently developed and maintained by a single individual with a zero-budget approach. All development, testing, documentation, and ongoing maintenance are performed by this sole contributor. This model prioritizes lean development and community-driven contributions.
+
+---
+
 ## 3. 🔍 Market Gaps & Alternatives
 
 | Tool           | Strengths                       | Limitations                                               |
@@ -257,6 +263,16 @@ ln -s .git-toolkit/git-toolkit git-toolkit
 | Platform path issues        | Use `pathlib` and cross-platform testing   |
 | Plugin instability          | Version plugin API and enforce warnings    |
 | Overuse of “magic” defaults | Clear config override rules + dry-run mode |
+
+---
+
+## 14. 🏛️ Project Governance and Resources
+
+Git Toolkit operates under a lean governance model, primarily driven by a single maintainer.
+
+*   **Budget:** The project operates with a zero-budget approach, relying on volunteer effort and open-source tools.
+*   **Team:** Development and maintenance are currently handled by a single individual. Community contributions are highly encouraged and will be reviewed and integrated by the maintainer.
+*   **Maintenance:** Ongoing maintenance, bug fixes, and feature development will be managed by the sole maintainer on a best-effort basis, supported by community involvement.
 
 ---
 
