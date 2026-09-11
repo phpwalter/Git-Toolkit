@@ -30,20 +30,22 @@ class Plugin(abc.ABC):
 
 
 class PluginManager:
-    """Discover package entry-point plugins and project-local plugins.
-
-    Local plugins are loaded from ``.git-toolkit/plugins/*.py``. A local module
-    must expose ``plugin`` as either a Plugin instance or a Plugin subclass.
-    """
+    """Discover package entry-point plugins and optionally project-local plugins."""
 
     ENTRY_POINT_GROUP = "git_toolkit.plugins"
 
-    def __init__(self, local_plugin_dir: Path | None = None) -> None:
+    def __init__(
+        self,
+        local_plugin_dir: Path | None = None,
+        allow_local_plugins: bool = False,
+    ) -> None:
         self.plugins: list[Plugin] = []
         self.errors: list[str] = []
         self.local_plugin_dir = local_plugin_dir or Path(".git-toolkit") / "plugins"
+        self.allow_local_plugins = allow_local_plugins
         self._load_entry_points()
-        self._load_local_plugins()
+        if allow_local_plugins:
+            self._load_local_plugins()
 
     def _accept(self, candidate: Any, source: str) -> None:
         try:
@@ -62,7 +64,11 @@ class PluginManager:
     def _load_entry_points(self) -> None:
         try:
             points = importlib.metadata.entry_points()
-            selected = points.select(group=self.ENTRY_POINT_GROUP) if hasattr(points, "select") else points.get(self.ENTRY_POINT_GROUP, [])
+            selected = (
+                points.select(group=self.ENTRY_POINT_GROUP)
+                if hasattr(points, "select")
+                else points.get(self.ENTRY_POINT_GROUP, [])
+            )
             for entry_point in selected:
                 try:
                     self._accept(entry_point.load(), f"entry point {entry_point.name}")
@@ -108,6 +114,9 @@ class PluginManager:
     def diagnostics(self) -> dict[str, Any]:
         return {
             "api_version": PLUGIN_API_VERSION,
-            "plugins": [getattr(plugin, "name", None) or plugin.__class__.__name__ for plugin in self.plugins],
+            "local_plugins_enabled": self.allow_local_plugins,
+            "plugins": [
+                getattr(plugin, "name", None) or plugin.__class__.__name__ for plugin in self.plugins
+            ],
             "errors": list(self.errors),
         }
