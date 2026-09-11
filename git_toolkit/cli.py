@@ -1,389 +1,364 @@
+from __future__ import annotations
+
 import argparse
-import sys
-import concurrent.futures
 import json
-import urllib.request
+import sys
 from pathlib import Path
-from typing import Any
-from .config import load_config, Config, Step
-from .git_wrapper import get_repo_status, clone_repo, push_repo, checkout_repo, update_submodules, get_repo_stats, run_shell_command
+from typing import Any, Callable
+
+from .auth import delete_token, get_token, set_token
+from .config import Command, Config, load_config
+from .git_wrapper import (
+    checkout_repo,
+    clone_repo,
+    commit_repo,
+    fetch_repo,
+    get_repo_stats,
+    get_repo_status,
+    merge_repo,
+    pull_repo,
+    push_repo,
+    rebase_repo,
+    run_shell_command,
+    sync_repo,
+    tag_repo,
+    update_submodules,
+)
 from .hooks import HookManager
+from .logging import clear_cache, get_history, log_execution, logger
 from .plugins import PluginManager
-from .auth import set_token, delete_token, get_token
-from .logging import logger, log_execution, get_history, clear_cache
+from .version import __version__
+from .workflow_runner import execute_step, run_workflow, send_webhook_notification
 
-__version__ = "1.8.0-dev"
 
-def execute_step(step: Step, repo_config: Any, config: Config, dry_run: bool) -> str:
-    """
-    Executes a single step for a specific repository and returns a status message.
-    """
-    # Basic 'if' condition check (just checks for branch name for now)
-    if step.if_condition:
-        status = get_repo_status(repo_config)
-        if step.if_condition.startswith("branch == "):
-            target_branch = step.if_condition.split(" == ")[1]
-            if status.get("branch") != target_branch:
-                return f"{repo_config.name}: Skipped (branch mismatch: {status.get('branch')} != {target_branch})"
+def _bootstrap_config(argv: list[str]) -> Path:
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--config", type=Path, default=Path(".git-toolkit.yml"))
+    known, _ = parser.parse_known_args(argv)
+    return known.config
 
-    if step.command:
-        # Built-in commands
-        if step.command == "status":
-            status = get_repo_status(repo_config)
-            return f"{repo_config.name}: {status.get('branch', 'N/A')} - {'Dirty' if status.get('is_dirty') else 'Clean'}"
-        elif step.command == "push":
-            result = push_repo(repo_config, config, dry_run)
-            return f"{repo_config.name}: {result['message']}"
-        elif step.command == "clone":
-            result = clone_repo(repo_config, config)
-            return f"{repo_config.name}: {result['message']}"
-        # Add more built-in commands as needed
-        return f"{repo_config.name}: Unknown command {step.command}"
-    elif step.script:
-        result = run_shell_command(repo_config, step.script, dry_run)
-        msg = f"{repo_config.name}: {result['message']}"
-        if not result["success"] and not dry_run:
-            if "stderr" in result:
-                msg += f"\n  Error: {result['stderr']}"
-        return msg
-    return f"{repo_config.name}: Empty step"
 
-def send_webhook_notification(url: str, workflow_name: str, results: list):
-    """
-    Sends a POST request to a webhook URL with the workflow results.
-    """
-    data = {
-        "text": f"Git Toolkit Workflow '{workflow_name}' completed.",
-        "workflow": workflow_name,
-        "results": results
-    }
-    try:
-        req = urllib.request.Request(
-            url, 
-            data=json.dumps(data).encode('utf-8'),
-            headers={'Content-Type': 'application/json'},
-            method='POST'
-        )
-        with urllib.request.urlopen(req) as response:
-            if response.status >= 400:
-                print(f"Webhook failed with status: {response.status}", file=sys.stderr)
-    except Exception as e:
-        print(f"Error sending webhook notification: {e}", file=sys.stderr)
+def _add_repo_filter(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--group", help="Operate only on repositories in this group.")
 
-def main():
-    plugin_mgr = PluginManager()
+
+def _build_parser(config: Config, plugin_mgr: PluginManager) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Git Toolkit: A lightweight, per-project CLI utility for automating Git workflows."
+        prog="git-toolkit",
+        description="Deterministic Git workflow orchestration and policy enforcement.",
     )
-    parser.add_argument(
-        "--config", 
-        type=Path, 
-        default=Path(".git-toolkit.yml"),
-        help="Path to the .git-toolkit.yml configuration file."
-    )
-    parser.add_argument(
-        "--version", 
-        action="version", 
-        version=f"Git Toolkit v{__version__}"
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Simulate the execution of commands without making any changes."
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Show detailed debug logs."
-    )
+    parser.add_argument("--config", type=Path, default=Path(".git-toolkit.yml"))
+    parser.add_argument("--version", action="version", version=f"Git Toolkit v{__version__}")
+    parser.add_argument("--dry-run", action="store_true", help="Describe mutations without applying them.")
+    parser.add_argument("--verbose", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    # Placeholder for 'status' command
-    status_parser = subparsers.add_parser("status", help="Show the status of repositories.")
-    status_parser.add_argument("--group", help="Filter repositories by group.")
-    
-    # Placeholder for 'clone' command
-    clone_parser = subparsers.add_parser("clone", help="Clone repositories defined in the config.")
-    clone_parser.add_argument("--group", help="Filter repositories by group.")
+    for name, help_text in (
+        ("status", "Show repository state."),
+        ("clone", "Clone configured repositories."),
+        ("fetch", "Fetch and prune configured repositories."),
+        ("pull", "Fast-forward configured repositories."),
+        ("sync", "Fetch and fast-forward configured repositories deterministically."),
+    ):
+        child = subparsers.add_parser(name, help=help_text)
+        _add_repo_filter(child)
 
-    # New 'push' command
-    push_parser = subparsers.add_parser("push", help="Push changes for all repositories.")
-    push_parser.add_argument("--group", help="Filter repositories by group.")
+    push = subparsers.add_parser("push", help="Push configured repositories.")
+    push.add_argument(
+        "--force-with-lease",
+        action="store_true",
+        help="Request a force-with-lease push; policy may still block it.",
+    )
+    _add_repo_filter(push)
 
-    # New 'checkout' command
-    checkout_parser = subparsers.add_parser("checkout", help="Checkout a specific branch for all repositories.")
-    checkout_parser.add_argument("branch", help="The branch name to checkout.")
-    checkout_parser.add_argument("--group", help="Filter repositories by group.")
+    checkout = subparsers.add_parser("checkout", help="Checkout a branch.")
+    checkout.add_argument("branch")
+    _add_repo_filter(checkout)
 
-    # New 'submodule' command
-    submodule_parser = subparsers.add_parser("submodule", help="Update submodules for all repositories.")
-    submodule_parser.add_argument("action", choices=["update"], help="Action to perform (e.g., update).")
-    submodule_parser.add_argument("--group", help="Filter repositories by group.")
+    commit = subparsers.add_parser("commit", help="Stage all changes and commit them.")
+    commit.add_argument("-m", "--message", required=True)
+    _add_repo_filter(commit)
 
-    # New 'stats' command
-    stats_parser = subparsers.add_parser("stats", help="Display repository analytics and statistics.")
-    stats_parser.add_argument("--format", choices=["table", "json", "markdown"], default="table", help="Output format (default: table).")
-    stats_parser.add_argument("--group", help="Filter repositories by group.")
+    merge = subparsers.add_parser("merge", help="Merge a source branch/ref using --no-ff.")
+    merge.add_argument("source")
+    _add_repo_filter(merge)
 
-    # New 'run' command
-    run_parser = subparsers.add_parser("run", help="Run a predefined workflow.")
-    run_parser.add_argument("workflow", help="Name of the workflow to run.")
-    run_parser.add_argument("--parallel", action="store_true", help="Run tasks in parallel.")
-    run_parser.add_argument("--workers", type=int, default=4, help="Number of parallel workers (default: 4).")
-    run_parser.add_argument("--group", help="Filter repositories by group.")
+    rebase = subparsers.add_parser("rebase", help="Rebase onto a branch/ref.")
+    rebase.add_argument("onto")
+    _add_repo_filter(rebase)
 
-    # New 'auth' command
-    auth_parser = subparsers.add_parser("auth", help="Manage authentication tokens.")
-    auth_subparsers = auth_parser.add_subparsers(dest="auth_command", help="Authentication subcommands")
-    
-    auth_set_parser = auth_subparsers.add_parser("set", help="Set a token for a host.")
-    auth_set_parser.add_argument("host", help="The host to set the token for (e.g., github.com).")
-    auth_set_parser.add_argument("--token", required=True, help="The personal access token.")
-    
-    auth_delete_parser = auth_subparsers.add_parser("delete", help="Delete a token for a host.")
-    auth_delete_parser.add_argument("host", help="The host to delete the token for.")
+    tag = subparsers.add_parser("tag", help="Create a local tag.")
+    tag.add_argument("tag")
+    _add_repo_filter(tag)
 
-    auth_get_parser = auth_subparsers.add_parser("get", help="Get a token for a host (masked).")
-    auth_get_parser.add_argument("host", help="The host to get the token for.")
+    submodule = subparsers.add_parser("submodule", help="Manage submodules.")
+    submodule.add_argument("action", choices=["update"])
+    _add_repo_filter(submodule)
 
-    # New 'history' command
-    history_parser = subparsers.add_parser("history", help="Show execution history.")
-    history_parser.add_argument("--limit", type=int, default=10, help="Number of entries to show (default: 10).")
+    stats = subparsers.add_parser("stats", help="Display repository analytics.")
+    stats.add_argument("--format", choices=["table", "json", "markdown"], default="table")
+    _add_repo_filter(stats)
 
-    # New 'clear-cache' command
-    subparsers.add_parser("clear-cache", help="Clear the local metadata cache.")
+    run = subparsers.add_parser("run", help="Run a configured workflow.")
+    run.add_argument("workflow")
+    run.add_argument("--parallel", action="store_true")
+    run.add_argument("--workers", type=int, default=4)
+    _add_repo_filter(run)
 
-    # Register all plugins' commands
+    auth = subparsers.add_parser("auth", help="Manage credentials in the OS keyring.")
+    auth_sub = auth.add_subparsers(dest="auth_command")
+    auth_set = auth_sub.add_parser("set")
+    auth_set.add_argument("host")
+    auth_set.add_argument("--token", required=True)
+    auth_get = auth_sub.add_parser("get")
+    auth_get.add_argument("host")
+    auth_delete = auth_sub.add_parser("delete")
+    auth_delete.add_argument("host")
+
+    config_cmd = subparsers.add_parser("config", help="Inspect effective configuration.")
+    config_sub = config_cmd.add_subparsers(dest="config_command")
+    config_sub.add_parser("validate")
+    config_show = config_sub.add_parser("show")
+    config_show.add_argument("--format", choices=["json", "yaml"], default="json")
+
+    plugins = subparsers.add_parser("plugins", help="Inspect installed plugins.")
+    plugin_sub = plugins.add_subparsers(dest="plugin_command")
+    plugin_sub.add_parser("list")
+
+    history = subparsers.add_parser("history", help="Show execution history.")
+    history.add_argument("--limit", type=int, default=10)
+    subparsers.add_parser("clear-cache", help="Clear Git Toolkit metadata cache.")
+
+    reserved = set(subparsers.choices)
+    for name, command in config.commands.items():
+        if name in reserved:
+            raise ValueError(f"Custom command '{name}' conflicts with a built-in command")
+        custom = subparsers.add_parser(name, help=command.description or "Configured command")
+        _add_repo_filter(custom)
+        custom.set_defaults(_custom_command=name)
+
     plugin_mgr.register_all_commands(subparsers)
+    return parser
 
-    args = parser.parse_args()
 
-    if args.verbose:
-        logger.set_level(10) # logging.DEBUG
+def _targets(config: Config, group: str | None) -> list[Any]:
+    if not group:
+        return config.repositories
+    repositories = [repo for repo in config.repositories if group in repo.groups]
+    if not repositories:
+        raise ValueError(f"No repositories found for group: {group}")
+    return repositories
 
-    # Load configuration
-    try:
-        config = load_config(args.config)
-    except Exception as e:
-        print(f"Error loading configuration: {e}", file=sys.stderr)
-        sys.exit(1)
 
-    # Filter repositories by group if provided
-    target_repositories = config.repositories
-    if hasattr(args, 'group') and args.group:
-        target_repositories = [r for r in config.repositories if args.group in r.groups]
-        if not target_repositories:
-            print(f"No repositories found for group: {args.group}", file=sys.stderr)
-            sys.exit(1)
+def _print_results(results: list[dict[str, Any]]) -> int:
+    failed = False
+    print(f"{'Repository':<24} Status")
+    print("-" * 72)
+    for result in results:
+        failed = failed or not bool(result.get("success"))
+        print(f"{result.get('name', 'unknown'):<24} {result.get('message', '')}")
+    return 1 if failed else 0
 
-    if not args.command:
-        parser.print_help()
-        sys.exit(0)
 
-    # Initialize hook manager
+def _run_repo_operation(
+    targets: list[Any],
+    operation: Callable[[Any], dict[str, Any]],
+) -> int:
+    return _print_results([operation(repo) for repo in targets])
+
+
+def _status(targets: list[Any]) -> int:
+    failed = False
+    print(f"{'Repository':<20} {'Branch':<18} {'State':<8} {'Ahead':>5} {'Behind':>6}")
+    print("-" * 68)
+    for repo in targets:
+        state = get_repo_status(repo)
+        if state.get("error"):
+            failed = True
+            print(f"{repo.name:<20} {'N/A':<18} ERROR    {state['error']}")
+            continue
+        label = "Dirty" if state.get("is_dirty") else "Clean"
+        print(
+            f"{repo.name:<20} {state.get('branch', 'N/A'):<18} {label:<8} "
+            f"{state.get('ahead', 0):>5} {state.get('behind', 0):>6}"
+        )
+    return 1 if failed else 0
+
+
+def _stats(config: Config, targets: list[Any], output_format: str) -> int:
+    values = [get_repo_stats(repo, config.health) for repo in targets]
+    if output_format == "json":
+        print(json.dumps(values, indent=2))
+        return 1 if any(not value.get("success") for value in values) else 0
+    if output_format == "markdown":
+        print("# Repository Analytics Report")
+        for value in values:
+            print(f"\n## {value['name']}")
+            if not value.get("success"):
+                print(f"**Error:** {value.get('message', '')}")
+                continue
+            print(f"- **Active Branch:** {value['active_branch']}")
+            print(f"- **Total Commits:** {value['commit_count']}")
+            print(f"- **Contributors:** {value['contributor_count']}")
+            for branch in value.get("stale_branches", []):
+                print(f"- Stale branch: `{branch['name']}` ({branch['days_old']} days)")
+            for file in value.get("large_files", []):
+                print(f"- Large file: `{file['path']}` ({file['size_kb']} KB)")
+        return 1 if any(not value.get("success") for value in values) else 0
+
+    print(f"{'Repository':<20} {'Branch':<18} {'Commits':>8} {'Authors':>8} {'Health':<18}")
+    print("-" * 80)
+    for value in values:
+        if not value.get("success"):
+            print(f"{value['name']:<20} ERROR: {value.get('message', '')}")
+            continue
+        warnings: list[str] = []
+        if value.get("stale_branches"):
+            warnings.append(f"{len(value['stale_branches'])} stale")
+        if value.get("large_files"):
+            warnings.append(f"{len(value['large_files'])} large")
+        health = ", ".join(warnings) or "OK"
+        print(
+            f"{value['name']:<20} {value['active_branch']:<18} "
+            f"{value['commit_count']:>8} {value['contributor_count']:>8} {health:<18}"
+        )
+    return 1 if any(not value.get("success") for value in values) else 0
+
+
+def _run_custom(command: Command, targets: list[Any], dry_run: bool) -> int:
+    if command.script:
+        return _print_results(
+            [
+                {"name": repo.name, **run_shell_command(repo, command.script, dry_run)}
+                for repo in targets
+            ]
+        )
+    print("Configured command has no executable script.", file=sys.stderr)
+    return 2
+
+
+def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManager) -> int:
+    group = getattr(args, "group", None)
+    targets = _targets(config, group) if config.repositories else []
     hook_mgr = HookManager(config.hooks, plugin_mgr)
 
-    # Command routing
     if args.command == "status":
-        if not hook_mgr.run_hook("pre_status"):
-            sys.exit(1)
-        
-        print(f"{'Repository':<20} {'Branch':<15} {'Status':<10}")
-        print("-" * 45)
-        for repo_config in target_repositories:
-            status = get_repo_status(repo_config)
-            if not status["exists"]:
-                display_status = "Not Cloned"
-                branch = "N/A"
-            else:
-                display_status = "Dirty" if status["is_dirty"] else "Clean"
-                branch = status["branch"]
-            
-            if status["error"]:
-                display_status = f"Error: {status['error']}"
-
-            print(f"{repo_config.name:<20} {branch:<15} {display_status:<10}")
-        
-        hook_mgr.run_hook("post_status")
-
-    elif args.command == "clone":
-        if not hook_mgr.run_hook("pre_clone"):
-            sys.exit(1)
-            
-        print(f"{'Repository':<20} {'Status':<30}")
-        print("-" * 50)
-        for repo_config in target_repositories:
-            result = clone_repo(repo_config, config)
-            status_msg = result["message"]
-            print(f"{repo_config.name:<20} {status_msg:<30}")
-
-        hook_mgr.run_hook("post_clone")
-    elif args.command == "push":
+        return _status(targets)
+    if args.command == "clone":
+        return _run_repo_operation(targets, lambda repo: clone_repo(repo, config))
+    if args.command == "fetch":
+        return _run_repo_operation(targets, lambda repo: fetch_repo(repo, args.dry_run))
+    if args.command == "pull":
+        return _run_repo_operation(targets, lambda repo: pull_repo(repo, args.dry_run))
+    if args.command == "sync":
+        return _run_repo_operation(targets, lambda repo: sync_repo(repo, config, args.dry_run))
+    if args.command == "push":
         if not hook_mgr.run_hook("pre_push"):
-            sys.exit(1)
-        print(f"{'Repository':<20} {'Status':<30}")
-        print("-" * 50)
-        for repo_config in target_repositories:
-            result = push_repo(repo_config, config, args.dry_run)
-            print(f"{repo_config.name:<20} {result['message']:<30}")
+            return 1
+        code = _run_repo_operation(
+            targets,
+            lambda repo: push_repo(repo, config, args.dry_run, args.force_with_lease),
+        )
         hook_mgr.run_hook("post_push")
-    elif args.command == "checkout":
-        if not hook_mgr.run_hook("pre_checkout"):
-            sys.exit(1)
-        print(f"{'Repository':<20} {'Status':<30}")
-        print("-" * 50)
-        for repo_config in target_repositories:
-            result = checkout_repo(repo_config, args.branch, config.safety, args.dry_run)
-            print(f"{repo_config.name:<20} {result['message']:<30}")
-        hook_mgr.run_hook("post_checkout")
-    elif args.command == "submodule":
-        if args.action == "update":
-            if not hook_mgr.run_hook("pre_submodule_update"):
-                sys.exit(1)
-            print(f"{'Repository':<20} {'Status':<30}")
-            print("-" * 50)
-            for repo_config in target_repositories:
-                result = update_submodules(repo_config, args.dry_run)
-                print(f"{repo_config.name:<20} {result['message']:<30}")
-            hook_mgr.run_hook("post_submodule_update")
-    elif args.command == "stats":
-        if args.format == "json":
-            import json
-            stats_list = []
-            for repo_config in target_repositories:
-                stats_list.append(get_repo_stats(repo_config, config.health))
-            print(json.dumps(stats_list, indent=2))
-        elif args.format == "markdown":
-            print("# Repository Analytics Report")
-            print(f"Generated on: {Path('.').absolute()}\n")
-            for repo_config in target_repositories:
-                stats = get_repo_stats(repo_config, config.health)
-                print(f"## {repo_config.name}")
-                if not stats["success"]:
-                    print(f"**Error:** {stats['message']}\n")
-                    continue
-                
-                print(f"- **Active Branch:** {stats['active_branch']}")
-                print(f"- **Total Commits:** {stats['commit_count']}")
-                print(f"- **Contributors:** {stats['contributor_count']}")
-                
-                if stats["stale_branches"]:
-                    print("\n### ⚠️ Stale Branches")
-                    print("| Branch | Days Old | Last Author |")
-                    print("| --- | --- | --- |")
-                    for b in stats["stale_branches"]:
-                        print(f"| {b['name']} | {b['days_old']} | {b['last_author']} |")
-                
-                if stats["large_files"]:
-                    print("\n### ⚠️ Large Files")
-                    print("| File Path | Size (KB) |")
-                    print("| --- | --- |")
-                    for f in stats["large_files"]:
-                        print(f"| {f['path']} | {f['size_kb']} |")
-                print("")
-        else:
-            print(f"{'Repository':<20} {'Branch':<15} {'Commits':<10} {'Authors':<10} {'Health':<10}")
-            print("-" * 75)
-            for repo_config in target_repositories:
-                stats = get_repo_stats(repo_config, config.health)
-                if not stats["success"]:
-                    print(f"{repo_config.name:<20} {'Error':<15} {stats['message']:<30}")
-                else:
-                    health_status = "OK"
-                    if stats["stale_branches"] or stats["large_files"]:
-                        warnings = []
-                        if stats["stale_branches"]: warnings.append(f"{len(stats['stale_branches'])} stale")
-                        if stats["large_files"]: warnings.append(f"{len(stats['large_files'])} large")
-                        health_status = "⚠️ " + ", ".join(warnings)
-                    
-                    print(f"{repo_config.name:<20} {stats['active_branch']:<15} {stats['commit_count']:<10} {stats['contributor_count']:<10} {health_status:<10}")
-    elif args.command == "run":
-        if args.workflow not in config.workflows:
-            print(f"Workflow '{args.workflow}' not found in configuration.", file=sys.stderr)
-            sys.exit(1)
-        
-        workflow = config.workflows[args.workflow]
-        print(f"Running workflow: {args.workflow}")
-        if workflow.description:
-            print(f"Description: {workflow.description}")
-        print("-" * 50)
-
-        all_results = []
-        # Basic implementation: execution across all repositories
-        for step in workflow.steps:
-            step_name = step.name or step.command or step.script or "unnamed step"
-            print(f"\n[Step] {step_name}")
-            
-            if args.parallel:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
-                    futures = {executor.submit(execute_step, step, repo, config, args.dry_run): repo for repo in target_repositories}
-                    for future in concurrent.futures.as_completed(futures):
-                        res = future.result()
-                        print(res)
-                        all_results.append(res)
-            else:
-                for repo_config in target_repositories:
-                    res = execute_step(step, repo_config, config, args.dry_run)
-                    print(res)
-                    all_results.append(res)
-
+        return code
+    if args.command == "checkout":
+        return _run_repo_operation(
+            targets,
+            lambda repo: checkout_repo(repo, args.branch, config.safety, args.dry_run),
+        )
+    if args.command == "commit":
+        return _run_repo_operation(targets, lambda repo: commit_repo(repo, args.message, args.dry_run))
+    if args.command == "merge":
+        return _run_repo_operation(targets, lambda repo: merge_repo(repo, args.source, args.dry_run))
+    if args.command == "rebase":
+        return _run_repo_operation(targets, lambda repo: rebase_repo(repo, args.onto, args.dry_run))
+    if args.command == "tag":
+        return _run_repo_operation(targets, lambda repo: tag_repo(repo, args.tag, args.dry_run))
+    if args.command == "submodule":
+        return _run_repo_operation(targets, lambda repo: update_submodules(repo, args.dry_run))
+    if args.command == "stats":
+        return _stats(config, targets, args.format)
+    if args.command == "run":
+        workflow = config.workflows.get(args.workflow)
+        if workflow is None:
+            print(f"Workflow '{args.workflow}' not found.", file=sys.stderr)
+            return 2
+        results = run_workflow(workflow, config, targets, args.parallel, args.workers, args.dry_run)
+        for result in results:
+            print(result)
         if workflow.webhook_url and not args.dry_run:
-            print(f"\nSending notification to webhook...")
-            send_webhook_notification(workflow.webhook_url, args.workflow, all_results)
-
-    elif args.command == "auth":
+            send_webhook_notification(workflow.webhook_url, args.workflow, results)
+        return 1 if any(": FAILED -" in result for result in results) else 0
+    if args.command == "auth":
         if args.auth_command == "set":
             set_token(args.host, args.token)
-            print(f"Token for {args.host} stored successfully.")
-        elif args.auth_command == "delete":
-            delete_token(args.host)
-            print(f"Token for {args.host} deleted successfully.")
-        elif args.auth_command == "get":
+            print(f"Credential for {args.host} stored in OS keyring.")
+            return 0
+        if args.auth_command == "get":
             token = get_token(args.host)
-            if token:
-                masked = token[:4] + "*" * (len(token) - 8) + token[-4:] if len(token) > 8 else "****"
-                print(f"Token for {args.host}: {masked}")
+            print("configured" if token else "not configured")
+            return 0
+        if args.auth_command == "delete":
+            delete_token(args.host)
+            print(f"Credential for {args.host} deleted.")
+            return 0
+        return 2
+    if args.command == "config":
+        if args.config_command == "validate":
+            print("Configuration is valid.")
+            return 0
+        if args.config_command == "show":
+            data = config.model_dump(by_alias=True, exclude={"auth": {"tokens"}})
+            if args.format == "json":
+                print(json.dumps(data, indent=2, default=str))
             else:
-                print(f"No token found for {args.host}.")
-        else:
-            auth_parser.print_help()
+                import yaml
 
-    elif args.command == "history":
-        history = get_history(args.limit)
-        if not history:
-            print("No execution history found.")
-        else:
-            print(f"{'Timestamp':<25} {'Command':<15} {'Status':<10}")
-            print("-" * 55)
-            for entry in history:
-                timestamp = entry['timestamp'][:19].replace('T', ' ')
-                print(f"{timestamp:<25} {entry['command']:<15} {entry['status']:<10}")
-
-    elif args.command == "clear-cache":
+                print(yaml.safe_dump(data, sort_keys=False))
+            return 0
+        return 2
+    if args.command == "plugins":
+        if args.plugin_command == "list":
+            for plugin in plugin_mgr.plugins:
+                print(getattr(plugin, "name", plugin.__class__.__name__))
+            return 0
+        return 2
+    if args.command == "history":
+        print(json.dumps(get_history(args.limit), indent=2))
+        return 0
+    if args.command == "clear-cache":
         clear_cache()
-        print("Metadata cache cleared successfully.")
+        print("Cache cleared.")
+        return 0
+    if hasattr(args, "_custom_command"):
+        return _run_custom(config.commands[args._custom_command], targets, args.dry_run)
+    if plugin_mgr.handle_command(args):
+        return 0
+    return 2
 
-    elif plugin_mgr.handle_command(args):
-        pass # Plugin handled the command
-    else:
-        print(f"Unknown command: {args.command}", file=sys.stderr)
-        sys.exit(1)
 
-    # Log successful execution
-    if args.command and args.command != "history":
-        log_execution(args.command, vars(args), "SUCCESS")
+def main() -> None:
+    argv = sys.argv[1:]
+    config_path = _bootstrap_config(argv)
+    try:
+        config = load_config(config_path)
+        plugin_mgr = PluginManager()
+        parser = _build_parser(config, plugin_mgr)
+        args = parser.parse_args(argv)
+        if args.verbose:
+            logger.set_level(10)
+        if not args.command:
+            parser.print_help()
+            return
+        code = _dispatch(args, config, plugin_mgr)
+        log_execution(args.command, vars(args), "success" if code == 0 else "failure")
+        if code:
+            raise SystemExit(code)
+    except (ValueError, OSError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
+
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        # Get args if possible
-        import sys
-        command = "unknown"
-        if len(sys.argv) > 1:
-            command = sys.argv[1]
-        
-        log_execution(command, {"args": sys.argv[2:]}, "FAILED", str(e))
-        logger.error(f"Execution failed: {e}")
-        sys.exit(1)
+    main()
