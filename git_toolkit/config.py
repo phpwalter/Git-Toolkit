@@ -1,148 +1,137 @@
-from pathlib import Path
-from typing import List, Dict, Any, Optional
-import yaml
-from pydantic import BaseModel, Field, ValidationError
+from __future__ import annotations
 
-# Pydantic Models for Configuration Structure
+from copy import deepcopy
+from pathlib import Path
+from typing import Any
+
+import yaml
+from pydantic import BaseModel, Field
+
 
 class Repository(BaseModel):
     name: str
     path: str
-    url: Optional[str] = None
-    default_branch: Optional[str] = None
-    groups: List[str] = Field(default_factory=list)
+    url: str | None = None
+    default_branch: str | None = None
+    groups: list[str] = Field(default_factory=list)
+
 
 class Command(BaseModel):
-    description: Optional[str] = None
-    script: Optional[str] = None
-    steps: Optional[List[Dict[str, Any]]] = None # Flexible for various step types
+    description: str | None = None
+    script: str | None = None
+    steps: list[dict[str, Any]] | None = None
+
 
 class Hook(BaseModel):
-    description: Optional[str] = None
-    script: Optional[str] = None
-    # Add more specific hook properties as needed
+    description: str | None = None
+    script: str | None = None
+
 
 class Safety(BaseModel):
-    prevent_force_push: bool = False
-    protect_branches: List[str] = Field(default_factory=list)
+    prevent_force_push: bool = True
+    protect_branches: list[str] = Field(default_factory=lambda: ["main", "master"])
+    require_clean_worktree: bool = True
+
 
 class Health(BaseModel):
     stale_branch_days: int = 30
     large_file_kb: int = 1000
 
-class Step(BaseModel):
-    name: Optional[str] = None
-    command: Optional[str] = None
-    script: Optional[str] = None
-    if_condition: Optional[str] = Field(None, alias="if")
-    # Added for extensibility, e.g., steps from plugins
-    action: Optional[str] = None
-    args: Dict[str, Any] = Field(default_factory=dict)
 
-    model_config = {
-        "populate_by_name": True
-    }
+class Step(BaseModel):
+    name: str | None = None
+    command: str | None = None
+    script: str | None = None
+    if_condition: str | None = Field(None, alias="if")
+    action: str | None = None
+    args: dict[str, Any] = Field(default_factory=dict)
+    continue_on_error: bool = False
+    timeout: int | None = None
+    retries: int = 0
+
+    model_config = {"populate_by_name": True}
+
 
 class Workflow(BaseModel):
-    description: Optional[str] = None
-    steps: List[Step] = Field(default_factory=list)
-    webhook_url: Optional[str] = None
+    description: str | None = None
+    steps: list[Step] = Field(default_factory=list)
+    webhook_url: str | None = None
+    failure_policy: str = "stop"
+
+
+class AuthProvider(BaseModel):
+    provider: str = "gcm"
+    credential: str | None = None
+
 
 class AuthConfig(BaseModel):
-    tokens: Dict[str, str] = Field(default_factory=dict)
+    providers: dict[str, AuthProvider] = Field(default_factory=dict)
+    # Backward-compatible parse only. Runtime code intentionally ignores this field so
+    # version-controlled YAML cannot become a credential source.
+    tokens: dict[str, str] = Field(default_factory=dict, exclude=True)
+
 
 class Config(BaseModel):
-    name: Optional[str] = Field(None, alias="project_name")
-    repositories: List[Repository] = Field(default_factory=list)
-    commands: Dict[str, Command] = Field(default_factory=dict)
-    workflows: Dict[str, Workflow] = Field(default_factory=dict)
-    hooks: Dict[str, Hook] = Field(default_factory=dict)
+    name: str | None = Field(None, alias="project_name")
+    repositories: list[Repository] = Field(default_factory=list)
+    commands: dict[str, Command] = Field(default_factory=dict)
+    workflows: dict[str, Workflow] = Field(default_factory=dict)
+    hooks: dict[str, Hook] = Field(default_factory=dict)
     safety: Safety = Field(default_factory=Safety)
     health: Health = Field(default_factory=Health)
     auth: AuthConfig = Field(default_factory=AuthConfig)
 
-    model_config = {
-        "populate_by_name": True
-    }
+    model_config = {"populate_by_name": True}
 
-def load_config(file_path: Path) -> Config:
+
+def _read_yaml(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    text = path.read_text(encoding="utf-8")
+    if not text.strip():
+        return {}
+    loaded = yaml.safe_load(text)
+    if loaded is None:
+        return {}
+    if not isinstance(loaded, dict):
+        raise ValueError(f"Configuration root must be a mapping: {path}")
+    return loaded
+
+
+def _normalize(data: dict[str, Any]) -> dict[str, Any]:
+    result = deepcopy(data)
+    project = result.pop("project", None)
+    if isinstance(project, dict) and "name" in project:
+        result["project_name"] = project["name"]
+    return result
+
+
+def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    merged = deepcopy(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = deepcopy(value)
+    return merged
+
+
+def load_config(file_path: Path, global_path: Path | None = None) -> Config:
+    """Load the effective configuration.
+
+    Precedence, lowest to highest:
+      1. model defaults
+      2. ~/.git-toolkit/config.yml
+      3. project configuration supplied by ``file_path``
+
+    Environment and CLI overrides are intentionally handled by their owning
+    subsystems rather than being silently folded into the persisted model.
     """
-    Loads and validates the Git Toolkit configuration from a YAML file.
-    """
-    if not file_path.exists():
-        return Config()
-
+    global_path = global_path or (Path.home() / ".git-toolkit" / "config.yml")
     try:
-        content = file_path.read_text()
-        if not content.strip():
-            return Config()
-        
-        data = yaml.safe_load(content)
-        if data is None:
-            return Config()
-
-        # Handle 'project' section if present
-        if 'project' in data and isinstance(data['project'], dict):
-            project_data = data.pop('project')
-            if 'name' in project_data:
-                data['project_name'] = project_data['name']
-
-        return Config(**data)
-    except Exception as e:
-        raise ValueError(f"Configuration error in {file_path}: {e}") from e
-
-# Example usage (for demonstration, not part of the module's core logic)
-if __name__ == "__main__":
-    # Create a dummy config file for testing
-    dummy_config_path = Path("temp_git-toolkit.yml")
-    dummy_config_path.write_text("""
-repositories:
-  - name: main_app
-    path: .
-    default_branch: main
-  - name: shared_ui_lib
-    path: ./packages/ui-library
-
-commands:
-  status:
-    script: "git status"
-  release:
-    steps:
-      - tag: "v1.0.0"
-      - push-tags: true
-
-hooks:
-  pre_push:
-    script: "echo 'Running pre-push hook'"
-
-safety:
-  prevent_force_push: true
-  protect_branches:
-    - main
-    - develop
-""")
-
-    try:
-        config = load_config(dummy_config_path)
-        print("Configuration loaded successfully:")
-        print(config.json(indent=2))
-
-        # Test non-existent file
-        non_existent_path = Path("non_existent.yml")
-        empty_config = load_config(non_existent_path)
-        print(f"\nLoaded from non-existent file: {empty_config.json(indent=2)}")
-
-        # Test empty file
-        empty_file_path = Path("empty_config.yml")
-        empty_file_path.touch()
-        empty_config_from_file = load_config(empty_file_path)
-        print(f"\nLoaded from empty file: {empty_config_from_file.json(indent=2)}")
-
-    except (ValueError, FileNotFoundError) as e:
-        print(f"Error loading configuration: {e}")
-    finally:
-        # Clean up dummy files
-        if dummy_config_path.exists():
-            dummy_config_path.unlink()
-        if empty_file_path.exists():
-            empty_file_path.unlink()
+        global_data = _normalize(_read_yaml(global_path))
+        project_data = _normalize(_read_yaml(file_path))
+        effective = _deep_merge(global_data, project_data)
+        return Config(**effective)
+    except Exception as exc:
+        raise ValueError(f"Configuration error in {file_path}: {exc}") from exc
