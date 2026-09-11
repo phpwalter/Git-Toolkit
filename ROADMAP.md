@@ -41,12 +41,13 @@ Git Toolkit is a deterministic Git workflow orchestration and policy-enforcement
 
 ### Policy and safety
 
+- [x] Dedicated structured policy decision engine.
 - [x] Default force-push prevention.
 - [x] Protected-branch force-push blocking.
 - [x] Clean-worktree requirement for sensitive operations.
+- [x] Policy rule/reason/remediation metadata.
 - [x] No unconditional force-push option in the supported CLI.
 - [x] Hosting-provider rules remain authoritative.
-- [ ] Extract policy decisions into a dedicated policy-engine package with structured remediation metadata.
 - [ ] Add branch-name policy enforcement.
 - [ ] Add remote allow/deny policy.
 
@@ -59,6 +60,8 @@ Git Toolkit is a deterministic Git workflow orchestration and policy-enforcement
 - [x] Effective-config inspection and validation commands.
 - [x] Config-defined commands are executable from the CLI.
 - [x] Version-controlled `auth.tokens` is ignored by runtime credential handling.
+- [x] Project scripts are disabled by default and require explicit trust opt-in.
+- [x] Project-local plugins are disabled by default and require explicit trust opt-in.
 - [ ] Add explicit CLI/environment override reporting to `config show`.
 - [ ] Add `config explain <path>` provenance reporting.
 
@@ -74,7 +77,7 @@ Git Toolkit is a deterministic Git workflow orchestration and policy-enforcement
 
 - [x] One workflow execution engine.
 - [x] Built-in Git workflow steps.
-- [x] Script steps.
+- [x] Trusted script steps.
 - [x] Conditions.
 - [x] Retries.
 - [x] Script timeouts.
@@ -88,7 +91,7 @@ Git Toolkit is a deterministic Git workflow orchestration and policy-enforcement
 ### Plugins and hooks
 
 - [x] Package entry-point plugin discovery.
-- [x] Project-local plugin discovery.
+- [x] Project-local plugin discovery behind explicit trust.
 - [x] Plugin API compatibility checks.
 - [x] Plugin diagnostics.
 - [x] Plugin hook participation.
@@ -107,6 +110,7 @@ Git Toolkit is a deterministic Git workflow orchestration and policy-enforcement
 - [x] package build verification.
 - [x] CLI smoke test.
 - [x] 80% minimum coverage gate.
+- [x] Direct policy-engine unit coverage.
 - [ ] Raise policy/security critical paths toward 100% coverage.
 - [ ] Add documentation-link validation.
 - [ ] Add explicit secret-scanning regression test data rules.
@@ -114,11 +118,12 @@ Git Toolkit is a deterministic Git workflow orchestration and policy-enforcement
 ### Documentation and governance
 
 - [x] Architecture specification.
+- [x] Functional requirements reconciled to the 0.9/1.0 contract.
 - [x] Support policy.
 - [x] CODEOWNERS.
 - [x] README aligned with implemented behavior.
 - [x] Experimental web boundary documented.
-- [ ] Reconcile remaining historical milestone/requirements language with the 0.9 implementation.
+- [ ] Reconcile remaining historical milestone/technical-guide language with the 0.9 implementation.
 - [ ] Complete localized-document parity after English source documents stabilize.
 
 ## 1.0 Release Gate
