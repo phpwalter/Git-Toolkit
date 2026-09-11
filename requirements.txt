@@ -1,0 +1,19 @@
+"""
+ @file requirements.txt
+ @path L:/var/www/Git-Toolkit/requirements.txt
+ @version 1.0.0
+ @date 2026-03-13
+ @author Walter Torres
+ @copyright Copyright 2026, Git-Toolkit.
+ @license MIT
+ @maintainer Git-Toolkit Team
+ @status dev
+
+ Core dependencies for the Git-Toolkit documentation and i18n automation suite.
+"""
+
+mkdocs>=1.5.0
+mkdocs-material>=9.0.0
+mkdocs-static-i18n>=1.2.0
+ruamel.yaml>=0.17.40
+PyYAML>=6.0.1

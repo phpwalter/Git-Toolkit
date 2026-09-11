@@ -1,0 +1,4 @@
+2026-03-25 08:19:35,418 - git-toolkit - DEBUG - Failed to read cache for stats_test-stats-repo: [Errno 2] No such file or directory: '.git-toolkit\\cache\\stats_test-stats-repo.json'
+2026-03-25 08:19:35,419 - git-toolkit - DEBUG - [test-stats-repo] Using cached stats.
+2026-03-25 08:19:35,420 - git-toolkit - DEBUG - Failed to read cache for status_test-repo: [Errno 2] No such file or directory: '.git-toolkit\\cache\\status_test-repo.json'
+2026-03-25 08:19:35,421 - git-toolkit - DEBUG - [test-repo] Using cached status.

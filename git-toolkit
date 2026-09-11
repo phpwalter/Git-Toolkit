@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+import sys
+import os
+
+# Add the project root to sys.path to ensure git_toolkit is importable
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, project_root)
+
+try:
+    from git_toolkit.cli import main
+except ImportError as e:
+    print(f"Error: {e}. Please ensure dependencies are installed via 'pip install -r requirements.txt'.", file=sys.stderr)
+    sys.exit(1)
+
+if __name__ == "__main__":
+    main()

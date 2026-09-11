@@ -1,3 +1,17 @@
+<!--
+ file: PROPOSAL.md
+ path: L:/var/www/Git-Toolkit/PROPOSAL.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Project proposal for the Git Toolkit, outlining its executive summary, problem statement, and objectives.
+-->
+
 <!-- PROPOSAL.md Badge Block -->
 ![Version](https://img.shields.io/github/v/release/phpwalter/Git-Toolkit?label=version&logo=semantic-release&logoColor=white)
 ![CI](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/ci.yml?label=ci&logo=githubactions&logoColor=white)
@@ -31,6 +45,12 @@ Git Toolkit provides value to:
 - **DevOps Teams**: Automate repetitive tasks, enforce Git policy, and integrate with CI/CD pipelines.
 - **Release Managers**: Track versions, enforce commit hygiene, and simplify tagging + changelog generation.
 - **Open Source Maintainers**: Document, share, and enforce project-specific Git behaviors with contributors.
+
+---
+
+## 2.1. 💰 Project Resources
+
+This project is currently developed and maintained by a single individual with a zero-budget approach. All development, testing, documentation, and ongoing maintenance are performed by this sole contributor. This model prioritizes lean development and community-driven contributions.
 
 ---
 
@@ -114,7 +134,7 @@ your-project/
 ├── docs/
 │   ├── en/, es/, fr/
 └── .github/
-├── CONTRIBUTING.md, workflows/, etc.
+├── CONTRIBUTING.MD, workflows/, etc.
 ````
 
 ---
@@ -128,8 +148,13 @@ repositories:
     path: .
   - name: ui
     path: ./packages/ui
+    default_branch: main
 
 commands:
+  status:
+    script: |
+      git -C {{repo.path}} status
+
   release:
     steps:
       - tag: v{{ version }}
@@ -238,6 +263,16 @@ ln -s .git-toolkit/git-toolkit git-toolkit
 | Platform path issues        | Use `pathlib` and cross-platform testing   |
 | Plugin instability          | Version plugin API and enforce warnings    |
 | Overuse of “magic” defaults | Clear config override rules + dry-run mode |
+
+---
+
+## 14. 🏛️ Project Governance and Resources
+
+Git Toolkit operates under a lean governance model, primarily driven by a single maintainer.
+
+*   **Budget:** The project operates with a zero-budget approach, relying on volunteer effort and open-source tools.
+*   **Team:** Development and maintenance are currently handled by a single individual. Community contributions are highly encouraged and will be reviewed and integrated by the maintainer.
+*   **Maintenance:** Ongoing maintenance, bug fixes, and feature development will be managed by the sole maintainer on a best-effort basis, supported by community involvement.
 
 ---
 

@@ -1,0 +1,14 @@
+#
+# @file .gitignore
+# @path L:/var/www/Git-Toolkit/.gitignore
+# @version 1.0.0
+# @date 2026-03-13
+# @author Walter Torres
+# @copyright Copyright 2026, Git-Toolkit.
+# @license MIT
+# @maintainer Git-Toolkit Team
+# @status dev
+#
+# Specifies intentionally untracked files to ignore.
+#
+/.idea/

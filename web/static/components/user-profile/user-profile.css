@@ -1,0 +1,85 @@
+.user-profile-modal {
+    position: absolute;
+    display: block;
+    background-color: var(--md-sys-color-surface);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    width: 300px;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.2s ease-out;
+    overflow: hidden;
+}
+
+.user-profile-modal.show {
+    transform: scaleX(1);
+}
+
+.user-profile-modal-section {
+    padding: 12px;
+}
+
+.user-profile-modal-section:nth-child(odd) {
+    background-color: var(--md-sys-color-surface-variant);
+}
+
+.user-profile-modal-section:not(:last-child) {
+    border-bottom: 1px solid var(--md-sys-color-outline);
+}
+
+.user-profile-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gravatar-icon-modal {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.user-profile-modal-name {
+    font-weight: 500;
+}
+
+.user-profile-modal-id {
+    font-size: 0.875rem;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.user-profile-modal-type {
+    font-size: 0.75rem;
+    color: var(--md-sys-color-on-surface-variant);
+    font-style: italic;
+}
+
+.user-profile-modal-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.user-profile-modal ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.user-profile-modal li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.user-profile-modal a {
+    color: var(--md-sys-color-on-surface);
+    text-decoration: none;
+}
+
+.user-profile-modal a:hover {
+    text-decoration: underline;
+}

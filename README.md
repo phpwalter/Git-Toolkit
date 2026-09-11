@@ -1,3 +1,17 @@
+<!--
+ file: README.md
+ path: L:/var/www/Git-Toolkit/README.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Main README file for the Git Toolkit project. Provides an overview, features, quick start, and documentation links.
+-->
+
 <!-- Badge Block -->
 ![CI](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/ci.yml?label=ci&logo=githubactions&logoColor=white)
 ![Release](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/release.yml?label=release&logo=rocket&logoColor=white)

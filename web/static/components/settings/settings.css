@@ -1,0 +1,141 @@
+.settings-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background-color: var(--md-sys-color-surface);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    width: 900px;
+    display: none;
+    opacity: 0;
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.settings-modal.show {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.settings-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--md-sys-color-outline);
+}
+
+.settings-modal-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-modal-body {
+    display: flex;
+}
+
+.settings-modal-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 24px;
+    border-right: 1px solid var(--md-sys-color-outline);
+}
+
+.settings-modal-nav a {
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--md-sys-color-on-surface);
+}
+
+.settings-modal-nav a.active,
+.settings-modal-nav a:hover {
+    background-color: var(--md-sys-color-surface-variant);
+}
+
+.settings-modal-content {
+    padding: 24px;
+    flex-grow: 1;
+}
+
+.settings-top-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 16px;
+    align-items: flex-end;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--md-sys-color-outline);
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+}
+
+.form-group-checkbox,
+.form-group-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.settings-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.settings-panel {
+    background-color: var(--md-sys-color-surface-variant);
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.settings-panel h4 {
+    margin-top: 0;
+}
+
+.settings-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 24px;
+    border-top: 1px solid var(--md-sys-color-outline);
+}
+
+.button-primary,
+.button-secondary {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.button-primary {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+
+.button-secondary {
+    background-color: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface-variant);
+}

@@ -1,3 +1,17 @@
+<!--
+ file: SYNC_PROCESS.md
+ path: L:/var/www/Git-Toolkit/.github/SYNC_PROCESS.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Outlines how the Git Toolkit project manages code, documentation, and workflow synchronization across downstream repositories.
+-->
+
 ![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 
 # 🔄 Git Toolkit Sync Process

@@ -1,3 +1,17 @@
+<!--
+ file: CONTRIBUTING.md
+ path: L:/var/www/Git-Toolkit/.github/CONTRIBUTING.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Guidelines for contributing to the Git Toolkit project.
+-->
+
 ![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 
 # 🤝 Contributing to Git Toolkit
@@ -107,13 +121,11 @@ Feature requests should describe **why** the feature matters, not just what it d
 ---
 
 ## 📝 Documentation Standards
-
-We use:
-
-- Markdown for user-facing docs (`docs/en`, `docs/es`, etc.)
-- Code comments and docstrings (PEP257)
-- Filename format: lowercase, kebab-case, no spaces
-- Link internal references using relative paths
+We maintain a high documentation-to-code ratio. Please ensure:
+- **Location:** General docs live in `docs/en/`. Tool-specific docs live in `docs/tools/`.
+- **Formatting:** Use Markdown. Filenames must be `kebab-case.md` (e.g., `technical-specifications.md`).
+- **Consistency:** If you change a core feature, you must update the `ARCHITECTURE.md` and `Functional Requirements.md` in `docs/en/`.
+- **Assets:** Place new diagrams or icons in `docs/assets/`. Use `.svg` or `.png` where possible.
 
 ---
 
@@ -156,14 +168,11 @@ We are committed to building a welcoming, inclusive environment.
 ---
 
 ## 🌍 Translations
-
-We welcome translations! Help us localize by copying:
-
-```bash
-docs/en/CONTRIBUTING.md → docs/{your-lang-code}/contributing.md
-````
-
-Then open a PR with your translated version.
+We use a structured translation system. To contribute a new language:
+1. Create a new directory: `docs/{lang-code}/` (e.g., `docs/es/`).
+2. Copy the contents of `docs/en/` to your new folder.
+3. Translate the files, maintaining the same filenames.
+4. Update `TRANSLATIONS.md` in the root to include your new language.
 
 ---
 

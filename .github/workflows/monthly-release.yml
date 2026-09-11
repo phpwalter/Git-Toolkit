@@ -1,0 +1,28 @@
+name: Monthly Release
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # Runs at 00:00 on the 1st day of every month
+  workflow_dispatch:      # Allows manual triggering
+
+jobs:
+  monthly-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-semantic-release
+      - name: Python Semantic Release
+        uses: python-semantic-release/python-semantic-release@v8
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Force a release even if no breaking/feature commits are found, if desired.
+          # For a standard monthly cadence, we might just rely on normal semantic release.

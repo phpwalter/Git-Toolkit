@@ -1,0 +1,123 @@
+.search-container {
+    position: relative;
+    width: var(--box-height);
+    height: var(--box-height);
+}
+
+.search-inner {
+    position: absolute;
+    right: 0; /* Anchored to the right */
+    display: flex;
+    align-items: center;
+    background: var(--input-bg);
+    border: 2px solid var(--border);
+    border-radius: 40px;
+    height: var(--box-height);
+    width: var(--box-height);
+    overflow: hidden;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+
+    /* Syncs with the icon migration */
+    transition: width 0.8s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                opacity 0.4s ease !important;
+}
+
+.search-container.active .search-inner {
+    opacity: 1;
+    width: var(--box-width);
+    pointer-events: auto;
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+/* MIGRATING SEARCH ICON */
+.search-trigger {
+    position: absolute;
+    right: 0; /* Start at the right */
+    left: auto;
+    z-index: 10;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    width: var(--box-height);
+    height: var(--box-height);
+    padding: 0;
+
+    /* Migration Transition */
+    transition: right 0.8s cubic-bezier(0.68, -0.6, 0.32, 1.6), color 0.2s !important;
+}
+
+.search-container.active .search-trigger {
+    /* Moves to the left side of the 200px box */
+    right: calc(var(--box-width) - var(--box-height));
+    color: white;
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    /* Padding adjusted: icon is on left (42px), X is on right (42px) */
+    padding: 0 42px 0 42px;
+    font-size: 14px;
+    color: var(--text);
+    opacity: 0;
+    transition: opacity 0.3s ease !important;
+}
+
+.search-container.active .search-input {
+    opacity: 1;
+    transition-delay: 0.5s !important;
+}
+
+/* CLEAR ICON (X) */
+.clear-btn {
+    position: absolute;
+    right: 0; /* Appears exactly where the search icon started */
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    width: var(--box-height);
+    height: var(--box-height);
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.5);
+    transition: opacity 0.3s ease, transform 0.3s ease !important;
+}
+
+.search-container.active .clear-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+    transition-delay: 0.7s!important; /* Appears after icon has migrated */
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .search-inner {
+        transition: width 0.8s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                    opacity 0.4s ease !important;
+    }
+
+    .search-trigger {
+        transition: right 0.8s cubic-bezier(0.68, -0.6, 0.32, 1.6), color 0.2s !important;
+    }
+
+    .search-input {
+        transition: opacity 0.3s ease !important;
+    }
+
+    .clear-btn {
+        transition: opacity 0.3s ease, transform 0.3s ease !important;
+    }
+}

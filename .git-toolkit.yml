@@ -1,0 +1,22 @@
+project:
+  name: "Git Toolkit Development"
+  version: "0.1.0"
+
+repositories:
+  - name: "Git-Toolkit"
+    path: "."
+    url: "https://github.com/phpwalter/Git-Toolkit.git"
+    default_branch: "main"
+  - name: "Git-Toolkit-Docs"
+    path: "docs"
+    url: "https://github.com/phpwalter/Git-Toolkit.git"
+    default_branch: "main"
+
+hooks:
+  pre_status:
+    description: "Optional pre-status message"
+    script: "echo 'Fetching status for all repositories...'"
+  post_status:
+    script: "echo 'Status check complete.'"
+  pre_clone:
+    script: "echo 'Preparing to clone...'"

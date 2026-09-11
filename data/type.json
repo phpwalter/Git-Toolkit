@@ -1,0 +1,31 @@
+{
+  "_header": {
+    "file": "type.json",
+    "path": "./data/type.json",
+    "version": "1.0.0",
+    "date": "2026-03-13",
+    "author": "Walter Torres",
+    "copyright": "Copyright 2026, Git Genie.",
+    "license": "Proprietary",
+    "maintainer": "Git Genie Team",
+    "status": "dev"
+  },
+  "data": {
+    "name": "Type",
+    "lifecycle": "RECREATE",
+    "type": "SINGLE_SELECT",
+    "github_default": false,
+    "options": [
+      { "name": "Bug", "color": "RED", "description": "Something isn't working / Unexpected behavior in existing features" },
+      { "name": "Story", "color": "GREEN", "description": "User-facing functionality, requirements" },
+      { "name": "Feature", "color": "GREEN", "description": "New functionality or module" },
+      { "name": "Enhancement", "color": "BLUE", "description": "Incremental improvement to an existing feature" },
+      { "name": "Refactor / Tech Debt", "color": "ORANGE", "description": "Code changes for quality or legacy issues that don't add features" },
+      { "name": "Chore", "color": "GRAY", "description": "Routine maintenance and small technical to-do items" },
+      { "name": "Documentation", "color": "ORANGE", "description": "Improvements to Wiki, README, API docs, or general documentation" },
+      { "name": "Spike", "color": "PURPLE", "description": "Research or exploration task" },
+      { "name": "Test", "color": "BLUE", "description": "Adding missing tests or correcting existing tests" },
+      { "name": "Vulnerability", "color": "RED", "description": "CVEs or security-related patches" }
+    ]
+  }
+}

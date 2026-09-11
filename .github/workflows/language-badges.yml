@@ -1,0 +1,84 @@
+name: language-badges-subtree
+
+on:
+  push:
+    branches: [ master ]
+  schedule:
+    - cron: "0 6 * * 1"   # weekly
+  workflow_dispatch: {}
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Compute bytes by extension only inside htdocs/phantom
+      - name: Build badge JSONs from /htdocs/phantom
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const cp = require('child_process');
+
+          // List only tracked files under subtree
+          const list = cp.execSync('git ls-files htdocs/phantom', { encoding: 'utf8' })
+                         .split('\n').filter(Boolean);
+
+          // Map extensions to language buckets we want to show
+          const LANG_OF_EXT = new Map([
+            ['js','JavaScript'], ['mjs','JavaScript'], ['cjs','JavaScript'],
+            ['html','HTML'], ['htm','HTML'],
+            ['css','CSS'],
+            ['json','JSON'],
+            ['py','Python']
+          ]);
+
+          // Exclusion: do not count generated badge JSONs
+          const EXCLUDES = [/^htdocs\/phantom\/docs\/assets\/badges\/.*\.json$/];
+
+          const bytes = { JavaScript:0, HTML:0, CSS:0, JSON:0, Python:0 };
+
+          for (const file of list) {
+            if (EXCLUDES.some(rx => rx.test(file))) continue;
+            const m = file.match(/\.([A-Za-z0-9]+)$/);
+            if (!m) continue;
+            const ext = m[1].toLowerCase();
+            const lang = LANG_OF_EXT.get(ext);
+            if (!lang) continue;
+            let size = 0;
+            try { size = fs.statSync(file).size|0; } catch (_) {}
+            bytes[lang] += size;
+          }
+
+          const total = Object.values(bytes).reduce((a,b)=>a+b,0) || 0;
+          const pct = (n) => total ? Math.round((n/total)*100) : 0;
+
+          const outDir = 'htdocs/phantom/docs/assets/badges';
+          fs.mkdirSync(outDir, { recursive: true });
+
+          const write = (name, label, val, color) =>
+            fs.writeFileSync(`${outDir}/${name}.json`,
+              JSON.stringify({ schemaVersion:1, label, message:`${val}%`, color })
+            );
+
+          write('js',   'JavaScript', pct(bytes.JavaScript), 'blue');
+          write('html', 'HTML',       pct(bytes.HTML),       'orange');
+          write('css',  'CSS',        pct(bytes.CSS),        'blueviolet');
+          write('json', 'JSON',       pct(bytes.JSON),       'informational');
+          write('py',   'Python',     pct(bytes.Python),     'lightgrey');
+
+          console.log('Bytes:', bytes, 'Total:', total);
+          console.log('Percents:',
+            { JS:pct(bytes.JavaScript), HTML:pct(bytes.HTML), CSS:pct(bytes.CSS), JSON:pct(bytes.JSON), PY:pct(bytes.Python) });
+          NODE
+
+      - name: Commit & push badge endpoints
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add htdocs/phantom/docs/assets/badges/*.json
+          git commit -m "chore(badges): update subtree language % endpoints" || echo "No changes"
+          git push

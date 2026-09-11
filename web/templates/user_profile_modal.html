@@ -1,0 +1,74 @@
+<div class="user-profile-modal" id="user-profile-modal">
+    <div class="user-profile-modal-section">
+        <div class="user-profile-modal-header">
+            <img src="https://www.gravatar.com/avatar/22082342b1aa17561688069516d26889?d=mp&f=y" alt="User Avatar" class="gravatar-icon-modal">
+            <div>
+                <div class="user-profile-modal-name">Walter Torres</div>
+                <div class="user-profile-modal-id">phpwalter</div>
+                <div class="user-profile-modal-type">Admin</div>
+            </div>
+        </div>
+    </div>
+    <div class="user-profile-modal-section">
+        <div class="user-profile-modal-section-header">
+            <i data-lucide="settings"></i>
+            <span>Account Settings</span>
+        </div>
+        <ul>
+            <li><a href="#">View Profile</a></li>
+            <li><a href="#">Edit password</a></li>
+            <li>
+                <label for="status-select">Set Status</label>
+                <select id="status-select">
+                    <option>Online</option>
+                    <option>Away</option>
+                    <option>Do not disturb</option>
+                </select>
+            </li>
+        </ul>
+    </div>
+    <div class="user-profile-modal-section">
+        <div class="user-profile-modal-section-header">
+            <i data-lucide="bell"></i>
+            <span>Notifications</span>
+        </div>
+        <ul>
+            <li>
+                <label for="mute-all">Mute all</label>
+                <input type="checkbox" id="mute-all" role="switch">
+            </li>
+            <li>
+                <label for="project-alerts">Project Alerts</label>
+                <input type="checkbox" id="project-alerts" role="switch" checked>
+            </li>
+            <li>
+                <label for="mentions">@Mentions</label>
+                <input type="checkbox" id="mentions" role="switch" checked>
+            </li>
+        </ul>
+    </div>
+    <div class="user-profile-modal-section">
+        <div class="user-profile-modal-section-header">
+            <i data-lucide="link"></i>
+            <span>Integrations</span>
+        </div>
+        <ul>
+            <li><a href="#">Connect to Github <span class="indicator green"></span></a></li>
+            <li><a href="#">Connect to Jira <span class="indicator red"></span></a></li>
+            <li><a href="#">Connect to Slack <span class="indicator green"></span></a></li>
+        </ul>
+    </div>
+    <div class="user-profile-modal-section">
+        <div class="user-profile-modal-section-header">
+            <i data-lucide="badge-info"></i>
+            <span>Support</span>
+        </div>
+        <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">About CommitGuardian</a></li>
+        </ul>
+    </div>
+    <div class="user-profile-modal-section">
+        <a href="#"><i data-lucide="log-out"></i>Log Out</a>
+    </div>
+</div>

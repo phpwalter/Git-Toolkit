@@ -1,3 +1,17 @@
+<!--
+ file: GOVERNANCE.md
+ path: L:/var/www/Git-Toolkit/.github/GOVERNANCE.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Defines how Git Toolkit is governed, how decisions are made, who participates, and how contributors grow into leadership roles.
+-->
+
 ![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 
 # 🏛️ Project Governance

@@ -1,3 +1,17 @@
+<!--
+ file: SECURITY.md
+ path: L:/var/www/Git-Toolkit/.github/SECURITY.md
+ version: 1.0.0
+ date: 2026-03-13
+ author: Walter Torres
+ copyright: Copyright 2026, Git-Toolkit.
+ license: MIT
+ maintainer: Git-Toolkit Team
+ status: dev
+
+ Instructions for reporting security vulnerabilities within the Git-Toolkit project.
+-->
+
 ![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
 
 # 🛡️ Security Policy – Git Toolkit
@@ -20,7 +34,7 @@ We currently support **only the `main` branch** and the latest tagged release of
 
 ## 🕵️‍♂️ Reporting a Vulnerability
 
-If you discover a potential security issue in Git Toolkit, please **report it privately and responsibly.**  
+If you discover a potential security issue in Git Toolkit, please **report it privately and responsibly.**
 Do **not** disclose it publicly until it has been reviewed and fixed.
 
 ### 🔐 GitHub (Preferred)
@@ -79,7 +93,7 @@ Reporter Info:
 
 We believe in responsible disclosure.
 
-We aim to resolve all critical vulnerabilities within **14 days**.  
+We aim to resolve all critical vulnerabilities within **14 days**.
 Please avoid public disclosure until we confirm a fix is deployed or communicate otherwise.
 
 ---
@@ -112,13 +126,13 @@ Git Toolkit is licensed under the [MIT License](../LICENSE).
 
 ## 🔗 Related Policies
 
-- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)  
-- [CONTRIBUTING.md](./CONTRIBUTING.md)  
-- [GOVERNANCE.md](./GOVERNANCE.md)  
-- [CHARTER.md](../CHARTER.md)  
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [GOVERNANCE.md](./GOVERNANCE.md)
+- [CHARTER.md](../CHARTER.md)
 - [SYNC_PROCESS.md](./SYNC_PROCESS.md)
 
 ---
 
-_Last updated: 2025-07-16_  
+_Last updated: 2025-07-16_
 _Next review: 2026-07-01_
