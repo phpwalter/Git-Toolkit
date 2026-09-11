@@ -125,6 +125,7 @@ def _build_parser(config: Config, plugin_mgr: PluginManager) -> argparse.Argumen
     plugins = subparsers.add_parser("plugins", help="Inspect installed plugins.")
     plugin_sub = plugins.add_subparsers(dest="plugin_command")
     plugin_sub.add_parser("list")
+    plugin_sub.add_parser("doctor")
 
     history = subparsers.add_parser("history", help="Show execution history.")
     history.add_argument("--limit", type=int, default=10)
@@ -226,22 +227,33 @@ def _stats(config: Config, targets: list[Any], output_format: str) -> int:
     return 1 if any(not value.get("success") for value in values) else 0
 
 
-def _run_custom(command: Command, targets: list[Any], dry_run: bool) -> int:
-    if command.script:
-        return _print_results(
-            [
-                {"name": repo.name, **run_shell_command(repo, command.script, dry_run)}
-                for repo in targets
-            ]
+def _run_custom(command: Command, config: Config, targets: list[Any], dry_run: bool) -> int:
+    if not command.script:
+        print("Configured command has no executable script.", file=sys.stderr)
+        return 2
+    if not config.security.allow_project_scripts:
+        print(
+            "Configured script is blocked. Set security.allow_project_scripts: true only "
+            "for trusted repositories.",
+            file=sys.stderr,
         )
-    print("Configured command has no executable script.", file=sys.stderr)
-    return 2
+        return 1
+    return _print_results(
+        [
+            {"name": repo.name, **run_shell_command(repo, command.script, dry_run)}
+            for repo in targets
+        ]
+    )
 
 
 def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManager) -> int:
     group = getattr(args, "group", None)
     targets = _targets(config, group) if config.repositories else []
-    hook_mgr = HookManager(config.hooks, plugin_mgr)
+    hook_mgr = HookManager(
+        config.hooks,
+        plugin_mgr,
+        allow_project_scripts=config.security.allow_project_scripts,
+    )
 
     if args.command == "status":
         return _status(targets)
@@ -319,10 +331,14 @@ def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManage
             return 0
         return 2
     if args.command == "plugins":
+        diagnostics = plugin_mgr.diagnostics()
         if args.plugin_command == "list":
-            for plugin in plugin_mgr.plugins:
-                print(getattr(plugin, "name", plugin.__class__.__name__))
+            for plugin in diagnostics["plugins"]:
+                print(plugin)
             return 0
+        if args.plugin_command == "doctor":
+            print(json.dumps(diagnostics, indent=2))
+            return 1 if diagnostics["errors"] else 0
         return 2
     if args.command == "history":
         print(json.dumps(get_history(args.limit), indent=2))
@@ -332,7 +348,7 @@ def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManage
         print("Cache cleared.")
         return 0
     if hasattr(args, "_custom_command"):
-        return _run_custom(config.commands[args._custom_command], targets, args.dry_run)
+        return _run_custom(config.commands[args._custom_command], config, targets, args.dry_run)
     if plugin_mgr.handle_command(args):
         return 0
     return 2
@@ -343,7 +359,7 @@ def main() -> None:
     config_path = _bootstrap_config(argv)
     try:
         config = load_config(config_path)
-        plugin_mgr = PluginManager()
+        plugin_mgr = PluginManager(allow_local_plugins=config.security.allow_local_plugins)
         parser = _build_parser(config, plugin_mgr)
         args = parser.parse_args(argv)
         if args.verbose:
