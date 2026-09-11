@@ -27,7 +27,7 @@ def test_send_webhook_notification(mock_request, mock_urlopen):
     mock_response.status = 200
     mock_urlopen.return_value.__enter__.return_value = mock_response
 
-    url = "https://example.test/webhook"
+    url = "https://example.invalid/slack-webhook"
     workflow_name = "deploy"
     results = ["repo1: Success", "repo2: Success"]
 
