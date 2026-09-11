@@ -1,7 +1,7 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from git_toolkit.cli import main
-from git_toolkit.config import Config, Repository
+from git_toolkit.config import Config, Repository, Security
 
 
 def _config() -> Config:
@@ -78,9 +78,11 @@ def test_cli_stats_json(mock_stats, mock_load, mock_plugin_manager, capsys) -> N
 @patch("git_toolkit.cli.run_shell_command")
 @patch("sys.argv", ["git-toolkit", "quality"])
 def test_configured_command_is_executable(mock_shell, mock_load, mock_plugin_manager, capsys) -> None:
-    config = _config()
-    config.commands = {"quality": {"description": "Quality gate", "script": "pytest"}}
-    config = Config(**config.model_dump())
+    config = Config(
+        repositories=[Repository(name="repo1", path=".")],
+        commands={"quality": {"description": "Quality gate", "script": "pytest"}},
+        security=Security(allow_project_scripts=True),
+    )
     mock_load.return_value = config
     mock_plugin_manager.return_value.plugins = []
     mock_plugin_manager.return_value.register_all_commands.return_value = None
