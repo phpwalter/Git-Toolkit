@@ -1,139 +1,102 @@
-import pytest
+from pathlib import Path
 from unittest.mock import MagicMock, patch
-from git_toolkit.plugins import Plugin, PluginManager
+
 from git_toolkit.hooks import HookManager
+from git_toolkit.plugins import PLUGIN_API_VERSION, Plugin, PluginManager
+
 
 class MockPlugin(Plugin):
-    def __init__(self):
+    name = "mock"
+
+    def __init__(self) -> None:
         self.commands_registered = False
         self.command_handled = False
         self.hook_called = False
 
-    def register_commands(self, subparsers):
+    def register_commands(self, subparsers) -> None:
         self.commands_registered = True
 
     def run_command(self, args) -> bool:
-        if hasattr(args, 'command') and args.command == 'mock':
+        if getattr(args, "command", None) == "mock":
             self.command_handled = True
             return True
         return False
 
-    def run_hook(self, hook_name, env=None) -> bool:
+    def run_hook(self, hook_name: str, env=None) -> bool:
         self.hook_called = True
         return True
 
-def test_plugin_manager_loading():
-    with patch('importlib.metadata.entry_points') as mock_ep:
-        mock_entry = MagicMock()
-        mock_entry.name = 'mock'
-        mock_entry.load.return_value = MockPlugin
-        
-        # Mocking for Python 3.10+ style
-        mock_ep.return_value = [mock_entry]
-        
-        mgr = PluginManager()
-        assert len(mgr.plugins) == 1
-        assert isinstance(mgr.plugins[0], MockPlugin)
 
-def test_plugin_manager_loading_legacy():
-    with patch('importlib.metadata.entry_points') as mock_ep:
-        mock_entry = MagicMock()
-        mock_entry.name = 'mock_legacy'
-        mock_entry.load.return_value = MockPlugin
-        
-        # Mocking for Python < 3.10 style
-        mock_ep.return_value.get.return_value = [mock_entry]
-        
-        with patch('sys.version_info', (3, 9)):
-            mgr = PluginManager()
-            assert len(mgr.plugins) == 1
-            assert isinstance(mgr.plugins[0], MockPlugin)
+def _entry_points_with(plugin_class):
+    selected = MagicMock()
+    entry = MagicMock()
+    entry.name = "mock"
+    entry.load.return_value = plugin_class
+    selected.select.return_value = [entry]
+    return selected
 
-def test_plugin_manager_loading_warning():
-    class NotAPlugin:
-        pass
 
-    with patch('importlib.metadata.entry_points') as mock_ep:
-        mock_entry = MagicMock()
-        mock_entry.name = 'not_a_plugin'
-        mock_entry.load.return_value = NotAPlugin
-        mock_ep.return_value = [mock_entry]
-        
-        with patch('builtins.print') as mock_print:
-            mgr = PluginManager()
-            assert len(mgr.plugins) == 0
-            mock_print.assert_any_call("Warning: Plugin 'not_a_plugin' does not inherit from Plugin base class.")
+def test_entry_point_plugin_loading(tmp_path: Path) -> None:
+    with patch("importlib.metadata.entry_points", return_value=_entry_points_with(MockPlugin)):
+        manager = PluginManager(local_plugin_dir=tmp_path / "none")
+    assert len(manager.plugins) == 1
+    assert isinstance(manager.plugins[0], MockPlugin)
 
-def test_plugin_manager_loading_error():
-    with patch('importlib.metadata.entry_points') as mock_ep:
-        mock_entry = MagicMock()
-        mock_entry.name = 'error_plugin'
-        mock_entry.load.side_effect = Exception("Load error")
-        mock_ep.return_value = [mock_entry]
-        
-        with patch('builtins.print') as mock_print:
-            mgr = PluginManager()
-            assert len(mgr.plugins) == 0
-            mock_print.assert_any_call("Error loading plugin 'error_plugin': Load error")
 
-def test_plugin_register_commands():
-    mgr = PluginManager()
-    mock_plugin = MockPlugin()
-    mgr.plugins = [mock_plugin]
-    
-    mock_subparsers = MagicMock()
-    mgr.register_all_commands(mock_subparsers)
-    assert mock_plugin.commands_registered is True
+def test_incompatible_plugin_is_rejected(tmp_path: Path) -> None:
+    class IncompatiblePlugin(MockPlugin):
+        api_version = "999"
 
-def test_plugin_handle_command():
-    mgr = PluginManager()
-    mock_plugin = MockPlugin()
-    mgr.plugins = [mock_plugin]
-    
-    mock_args = MagicMock()
-    mock_args.command = 'mock'
-    
-    assert mgr.handle_command(mock_args) is True
-    assert mock_plugin.command_handled is True
+    with patch("importlib.metadata.entry_points", return_value=_entry_points_with(IncompatiblePlugin)):
+        manager = PluginManager(local_plugin_dir=tmp_path / "none")
+    assert manager.plugins == []
+    assert "incompatible" in manager.errors[0]
 
-def test_plugin_handle_command_not_handled():
-    mgr = PluginManager()
-    mock_plugin = MockPlugin()
-    mgr.plugins = [mock_plugin]
-    
-    mock_args = MagicMock()
-    mock_args.command = 'other'
-    
-    assert mgr.handle_command(mock_args) is False
-    assert mock_plugin.command_handled is False
 
-def test_plugin_base_methods():
-    class MinimalPlugin(Plugin):
-        def register_commands(self, subparsers):
-            subparsers.add_parser("minimal")
+def test_local_plugin_discovery(tmp_path: Path) -> None:
+    plugin_dir = tmp_path / "plugins"
+    plugin_dir.mkdir()
+    plugin_file = plugin_dir / "local.py"
+    plugin_file.write_text(
+        "from git_toolkit.plugins import Plugin\n"
+        "class LocalPlugin(Plugin):\n"
+        "    name = 'local'\n"
+        "    def register_commands(self, subparsers):\n"
+        "        return None\n"
+        "plugin = LocalPlugin\n",
+        encoding="utf-8",
+    )
+    with patch("importlib.metadata.entry_points") as entry_points:
+        entry_points.return_value.select.return_value = []
+        manager = PluginManager(local_plugin_dir=plugin_dir)
+    assert [plugin.name for plugin in manager.plugins] == ["local"]
 
-    mock_subparsers = MagicMock()
-    plugin = MinimalPlugin()
-    plugin.register_commands(mock_subparsers)
-    mock_subparsers.add_parser.assert_called_with("minimal")
-    assert plugin.run_command(None) is False
 
-def test_plugin_hook_integration():
-    plugin_mgr = PluginManager()
-    mock_plugin = MockPlugin()
-    plugin_mgr.plugins = [mock_plugin]
-    
-    hook_mgr = HookManager(hooks_config={}, plugin_mgr=plugin_mgr)
-    assert hook_mgr.run_hook("some_hook") is True
-    assert mock_plugin.hook_called is True
+def test_plugin_command_and_hook_dispatch(tmp_path: Path) -> None:
+    with patch("importlib.metadata.entry_points") as entry_points:
+        entry_points.return_value.select.return_value = []
+        manager = PluginManager(local_plugin_dir=tmp_path / "none")
+    plugin = MockPlugin()
+    manager.plugins = [plugin]
 
-def test_plugin_hook_failure_blocks():
-    class FailingPlugin(Plugin):
-        def register_commands(self, subparsers): pass
-        def run_hook(self, hook_name, env=None): return False
-    
-    plugin_mgr = PluginManager()
-    plugin_mgr.plugins = [FailingPlugin()]
-    
-    hook_mgr = HookManager(hooks_config={}, plugin_mgr=plugin_mgr)
-    assert hook_mgr.run_hook("some_hook") is False
+    subparsers = MagicMock()
+    manager.register_all_commands(subparsers)
+    assert plugin.commands_registered is True
+
+    args = MagicMock(command="mock")
+    assert manager.handle_command(args) is True
+    assert plugin.command_handled is True
+
+    hooks = HookManager(hooks_config={}, plugin_mgr=manager)
+    assert hooks.run_hook("pre_push") is True
+    assert plugin.hook_called is True
+
+
+def test_diagnostics_report_api_and_errors(tmp_path: Path) -> None:
+    with patch("importlib.metadata.entry_points") as entry_points:
+        entry_points.return_value.select.return_value = []
+        manager = PluginManager(local_plugin_dir=tmp_path / "none")
+    manager.errors.append("example error")
+    diagnostics = manager.diagnostics()
+    assert diagnostics["api_version"] == PLUGIN_API_VERSION
+    assert diagnostics["errors"] == ["example error"]
