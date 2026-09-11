@@ -1,12 +1,19 @@
 from unittest.mock import patch
 
-from git_toolkit.config import Config, Repository, Step, Workflow
+from git_toolkit.config import Config, Repository, Security, Step, Workflow
 from git_toolkit.workflow_runner import execute_step, run_workflow
+
+
+def _trusted_config(repo: Repository) -> Config:
+    return Config(
+        repositories=[repo],
+        security=Security(allow_project_scripts=True),
+    )
 
 
 def test_branch_condition_skips_nonmatching_repo() -> None:
     repo = Repository(name="repo", path=".")
-    config = Config(repositories=[repo])
+    config = _trusted_config(repo)
     step = Step(name="only-main", script="echo hello", **{"if": "branch == main"})
 
     with patch("git_toolkit.workflow_runner.get_repo_status") as status, patch(
@@ -19,9 +26,22 @@ def test_branch_condition_skips_nonmatching_repo() -> None:
     shell.assert_not_called()
 
 
-def test_script_retry_stops_after_success() -> None:
+def test_untrusted_script_is_blocked() -> None:
     repo = Repository(name="repo", path=".")
     config = Config(repositories=[repo])
+    step = Step(script="echo no")
+
+    with patch("git_toolkit.workflow_runner.run_shell_command") as shell:
+        result = execute_step(step, repo, config, dry_run=False)
+
+    assert "FAILED" in result
+    assert "Project scripts are disabled" in result
+    shell.assert_not_called()
+
+
+def test_script_retry_stops_after_success() -> None:
+    repo = Repository(name="repo", path=".")
+    config = _trusted_config(repo)
     step = Step(name="retry", script="test", retries=2)
 
     with patch("git_toolkit.workflow_runner.run_shell_command") as shell:
@@ -65,7 +85,7 @@ def test_parallel_workflow_executes_each_repo() -> None:
 
 def test_repo_clean_condition() -> None:
     repo = Repository(name="repo", path=".")
-    config = Config(repositories=[repo])
+    config = _trusted_config(repo)
     step = Step(script="echo ok", **{"if": "repo.clean"})
 
     with patch("git_toolkit.workflow_runner.get_repo_status") as status, patch(
