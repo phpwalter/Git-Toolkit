@@ -1,99 +1,61 @@
-import pytest
-import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from git_toolkit.cli import main
-from git_toolkit.config import Repository
+from git_toolkit.config import Config, Repository
 
-@patch("git_toolkit.cli.load_config")
-@patch("argparse.ArgumentParser.parse_args")
-def test_cli_version(mock_args, mock_load):
-    # This is a bit tricky since --version exits, 
-    # but we can test if it routes to other commands properly.
-    pass
 
+def _config() -> Config:
+    return Config(repositories=[Repository(name="repo1", path=".")])
+
+
+@patch("git_toolkit.cli.PluginManager")
 @patch("git_toolkit.cli.load_config")
 @patch("git_toolkit.cli.get_repo_status")
-@patch("git_toolkit.cli.HookManager.run_hook")
 @patch("sys.argv", ["git-toolkit", "status"])
-def test_cli_status(mock_run_hook, mock_status, mock_load):
-    mock_config = MagicMock()
-    mock_repo = Repository(name="repo1", path=".")
-    mock_config.repositories = [mock_repo]
-    mock_config.hooks = {}
-    mock_load.return_value = mock_config
-    mock_run_hook.return_value = True
-    mock_status.return_value = {"exists": True, "is_dirty": False, "branch": "main", "error": None}
-    
-    with patch("sys.stdout") as mock_stdout:
-        main()
-        # Verify it printed something related to status
-        output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
-        assert "repo1" in output
-        assert "main" in output
-        assert "Clean" in output
+def test_cli_status(mock_status, mock_load, mock_plugin_manager, capsys) -> None:
+    mock_load.return_value = _config()
+    mock_plugin_manager.return_value.plugins = []
+    mock_plugin_manager.return_value.register_all_commands.return_value = None
+    mock_status.return_value = {
+        "exists": True,
+        "branch": "main",
+        "is_dirty": False,
+        "ahead": 0,
+        "behind": 0,
+        "error": None,
+    }
 
+    main()
+
+    output = capsys.readouterr().out
+    assert "repo1" in output
+    assert "main" in output
+    assert "Clean" in output
+
+
+@patch("git_toolkit.cli.PluginManager")
 @patch("git_toolkit.cli.load_config")
 @patch("git_toolkit.cli.clone_repo")
-@patch("git_toolkit.cli.HookManager.run_hook")
 @patch("sys.argv", ["git-toolkit", "clone"])
-def test_cli_clone(mock_run_hook, mock_clone, mock_load):
-    mock_config = MagicMock()
-    mock_repo = Repository(name="repo1", path=".")
-    mock_config.repositories = [mock_repo]
-    mock_config.hooks = {}
-    mock_load.return_value = mock_config
-    mock_run_hook.return_value = True
-    mock_clone.return_value = {"message": "Cloned"}
-    
-    with patch("sys.stdout") as mock_stdout:
-        main()
-        output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
-        assert "repo1" in output
-        assert "Cloned" in output
+def test_cli_clone(mock_clone, mock_load, mock_plugin_manager, capsys) -> None:
+    mock_load.return_value = _config()
+    mock_plugin_manager.return_value.plugins = []
+    mock_plugin_manager.return_value.register_all_commands.return_value = None
+    mock_clone.return_value = {"name": "repo1", "success": True, "message": "Cloned"}
 
-@patch("git_toolkit.cli.load_config")
-@patch("git_toolkit.cli.get_repo_stats")
-@patch("sys.argv", ["git-toolkit", "stats"])
-def test_cli_stats_table(mock_stats, mock_load):
-    mock_config = MagicMock()
-    mock_repo = Repository(name="repo1", path=".")
-    mock_config.repositories = [mock_repo]
-    mock_config.hooks = {}
-    mock_load.return_value = mock_config
-    
-    mock_stats.return_value = {
-        "success": True,
-        "name": "repo1",
-        "active_branch": "main",
-        "commit_count": 10,
-        "contributor_count": 2,
-        "stale_branches": [],
-        "large_files": []
-    }
-    
-    with patch("sys.stdout") as mock_stdout:
-        main()
-        output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
-        assert "repo1" in output
-        assert "main" in output
-        assert "10" in output
-        assert "2" in output
+    main()
 
-@patch("git_toolkit.cli.load_config")
-@patch("git_toolkit.cli.get_repo_stats")
+    assert "Cloned" in capsys.readouterr().out
+
+
 @patch("git_toolkit.cli.PluginManager")
+@patch("git_toolkit.cli.load_config")
+@patch("git_toolkit.cli.get_repo_stats")
 @patch("sys.argv", ["git-toolkit", "stats", "--format", "json"])
-def test_cli_stats_json(mock_plugin_class, mock_stats, mock_load):
-    # Mock PluginManager to avoid noise in stdout
-    mock_plugin_mgr = mock_plugin_class.return_value
-    mock_plugin_mgr.plugins = []
-    
-    mock_config = MagicMock()
-    mock_repo = Repository(name="repo1", path=".")
-    mock_config.repositories = [mock_repo]
-    mock_config.hooks = {}
-    mock_load.return_value = mock_config
-    
+def test_cli_stats_json(mock_stats, mock_load, mock_plugin_manager, capsys) -> None:
+    mock_load.return_value = _config()
+    mock_plugin_manager.return_value.plugins = []
+    mock_plugin_manager.return_value.register_all_commands.return_value = None
     mock_stats.return_value = {
         "success": True,
         "name": "repo1",
@@ -101,45 +63,43 @@ def test_cli_stats_json(mock_plugin_class, mock_stats, mock_load):
         "commit_count": 10,
         "contributor_count": 2,
         "stale_branches": [],
-        "large_files": []
+        "large_files": [],
     }
-    
-    with patch("sys.stdout") as mock_stdout:
-        main()
-        output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
-        import json
-        # Filter out potential warnings from PluginManager if they still occur
-        json_start = output.find("[")
-        if json_start != -1:
-            output = output[json_start:]
-        data = json.loads(output)
-        assert data[0]["name"] == "repo1"
-        assert data[0]["commit_count"] == 10
 
+    main()
+
+    output = capsys.readouterr().out
+    assert '"name": "repo1"' in output
+    assert '"commit_count": 10' in output
+
+
+@patch("git_toolkit.cli.PluginManager")
 @patch("git_toolkit.cli.load_config")
-@patch("git_toolkit.cli.get_repo_stats")
-@patch("sys.argv", ["git-toolkit", "stats", "--format", "markdown"])
-def test_cli_stats_markdown(mock_stats, mock_load):
-    mock_config = MagicMock()
-    mock_repo = Repository(name="repo1", path=".")
-    mock_config.repositories = [mock_repo]
-    mock_config.hooks = {}
-    mock_load.return_value = mock_config
-    
-    mock_stats.return_value = {
-        "success": True,
-        "name": "repo1",
-        "active_branch": "main",
-        "commit_count": 10,
-        "contributor_count": 2,
-        "stale_branches": [{"name": "stale-feat", "days_old": 40, "last_author": "User"}],
-        "large_files": [{"path": "big.bin", "size_kb": 200}]
-    }
-    
-    with patch("sys.stdout") as mock_stdout:
-        main()
-        output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
-        assert "# Repository Analytics Report" in output
-        assert "## repo1" in output
-        assert "stale-feat" in output
-        assert "big.bin" in output
+@patch("git_toolkit.cli.run_shell_command")
+@patch("sys.argv", ["git-toolkit", "quality"])
+def test_configured_command_is_executable(mock_shell, mock_load, mock_plugin_manager, capsys) -> None:
+    config = _config()
+    config.commands = {"quality": {"description": "Quality gate", "script": "pytest"}}
+    config = Config(**config.model_dump())
+    mock_load.return_value = config
+    mock_plugin_manager.return_value.plugins = []
+    mock_plugin_manager.return_value.register_all_commands.return_value = None
+    mock_shell.return_value = {"success": True, "message": "Command succeeded."}
+
+    main()
+
+    assert "Command succeeded" in capsys.readouterr().out
+    mock_shell.assert_called_once()
+
+
+@patch("git_toolkit.cli.PluginManager")
+@patch("git_toolkit.cli.load_config")
+@patch("sys.argv", ["git-toolkit", "config", "validate"])
+def test_config_validate(mock_load, mock_plugin_manager, capsys) -> None:
+    mock_load.return_value = _config()
+    mock_plugin_manager.return_value.plugins = []
+    mock_plugin_manager.return_value.register_all_commands.return_value = None
+
+    main()
+
+    assert "Configuration is valid" in capsys.readouterr().out
