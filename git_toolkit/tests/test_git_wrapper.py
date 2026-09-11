@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from git_toolkit.config import Config, Health, Repository, Safety
+from git_toolkit.config import Config, Repository, Safety
 from git_toolkit.git_wrapper import (
     checkout_repo,
     clone_repo,
@@ -105,7 +105,8 @@ def test_force_push_blocked_by_policy(
     config = Config(repositories=[repo_config], safety=safety_config)
     result = push_repo(repo_config, config=config, force=True)
     assert result["success"] is False
-    assert "Force push blocked" in result["message"]
+    assert result["policy_rule"] == "push.force.disabled"
+    assert "Force push is disabled" in result["message"]
     repo.remotes.origin.push.assert_not_called()
 
 
@@ -132,7 +133,8 @@ def test_sync_requires_clean_tree(mock_open: MagicMock, repo_config: Repository)
     mock_open.return_value = repo
     result = sync_repo(repo_config, Config(safety=Safety(require_clean_worktree=True)))
     assert result["success"] is False
-    assert result["message"] == "Working tree is dirty"
+    assert result["policy_rule"] == "sync.dirty.blocked"
+    assert "requires a clean working tree" in result["message"]
 
 
 @patch("git_toolkit.git_wrapper._open_repo")
@@ -142,6 +144,7 @@ def test_checkout_requires_clean_tree(mock_open: MagicMock, repo_config: Reposit
     mock_open.return_value = repo
     result = checkout_repo(repo_config, "main", Safety(require_clean_worktree=True))
     assert result["success"] is False
+    assert result["policy_rule"] == "checkout.dirty.blocked"
 
 
 @patch("git_toolkit.git_wrapper._open_repo")
