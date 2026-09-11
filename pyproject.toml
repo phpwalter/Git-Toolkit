@@ -37,7 +37,7 @@ git-toolkit = "git_toolkit.cli:main"
 # Plugins register here using: name = "package.module:PluginClass"
 
 [tool.semantic_release]
-version_variable = "git_toolkit/cli.py:__version__"
+version_variable = "git_toolkit/version.py:__version__"
 version_toml = ["pyproject.toml:project.version"]
 major_on_zero = true
 branch = "main"
@@ -51,10 +51,6 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
-
-[tool.black]
-line-length = 100
-target-version = ["py311", "py312", "py313"]
 
 [tool.pytest.ini_options]
 testpaths = ["git_toolkit/tests"]
