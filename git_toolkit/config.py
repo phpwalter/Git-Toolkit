@@ -33,6 +33,11 @@ class Safety(BaseModel):
     require_clean_worktree: bool = True
 
 
+class Security(BaseModel):
+    allow_project_scripts: bool = False
+    allow_local_plugins: bool = False
+
+
 class Health(BaseModel):
     stale_branch_days: int = 30
     large_file_kb: int = 1000
@@ -78,6 +83,7 @@ class Config(BaseModel):
     workflows: dict[str, Workflow] = Field(default_factory=dict)
     hooks: dict[str, Hook] = Field(default_factory=dict)
     safety: Safety = Field(default_factory=Safety)
+    security: Security = Field(default_factory=Security)
     health: Health = Field(default_factory=Health)
     auth: AuthConfig = Field(default_factory=AuthConfig)
 
@@ -124,8 +130,9 @@ def load_config(file_path: Path, global_path: Path | None = None) -> Config:
       2. ~/.git-toolkit/config.yml
       3. project configuration supplied by ``file_path``
 
-    Environment and CLI overrides are intentionally handled by their owning
-    subsystems rather than being silently folded into the persisted model.
+    Project scripts and project-local plugins are disabled by default because
+    both execute code from the checked-out repository. A trusted repository
+    must opt in through the ``security`` section.
     """
     global_path = global_path or (Path.home() / ".git-toolkit" / "config.yml")
     try:
