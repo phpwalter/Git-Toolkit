@@ -1,73 +1,62 @@
+from __future__ import annotations
+
 import os
-import sys
-from typing import Optional, Dict
-from urllib.parse import urlparse
+from typing import Optional
+
 import keyring
 
-# Configuration for keyring
 SERVICE_NAME = "git-toolkit"
 
-def get_auth_url(url: str, pat: Optional[str] = None, config_tokens: Optional[Dict[str, str]] = None) -> str:
-    """
-    Constructs an authenticated URL.
-    Order of precedence for PAT:
-    1. Provided `pat` argument.
-    2. Host-specific token from `config_tokens`.
-    3. Host-specific token from system keyring.
-    4. GIT_TOOLKIT_PAT environment variable.
-    """
-    if not url.startswith("https://"):
-        return url
-
-    parsed_url = urlparse(url)
-    host = parsed_url.netloc
-
-    # 1. Provided pat
-    token = pat
-
-    # 2. Host-specific token from config
-    if not token and config_tokens:
-        token = config_tokens.get(host)
-
-    # 3. Host-specific token from keyring
-    if not token:
-        token = get_token(host)
-
-    # 4. Fallback to environment variable
-    if not token:
-        token = get_pat_from_env()
-
-    if not token:
-        return url
-
-    # Reconstruct URL with token
-    # https://github.com/user/repo.git -> https://<token>@github.com/user/repo.git
-    return f"https://{token}@{host}{parsed_url.path}{'?' + parsed_url.query if parsed_url.query else ''}"
 
 def get_pat_from_env() -> Optional[str]:
-    """
-    Retrieves the Personal Access Token from environment variables.
-    Checks for GIT_TOOLKIT_PAT.
-    """
+    """Return the process-scoped fallback PAT, if explicitly supplied."""
     return os.environ.get("GIT_TOOLKIT_PAT")
 
-def set_token(host: str, token: str):
-    """
-    Stores a token in the system keyring for a specific host.
-    """
+
+def set_token(host: str, token: str) -> None:
+    """Store a host credential in the operating-system keyring."""
+    if not host.strip():
+        raise ValueError("host is required")
+    if not token:
+        raise ValueError("token is required")
     keyring.set_password(SERVICE_NAME, host, token)
 
+
 def get_token(host: str) -> Optional[str]:
-    """
-    Retrieves a token from the system keyring for a specific host.
-    """
+    """Retrieve a host credential from the operating-system keyring."""
     return keyring.get_password(SERVICE_NAME, host)
 
-def delete_token(host: str):
-    """
-    Deletes a token from the system keyring for a specific host.
-    """
+
+def delete_token(host: str) -> None:
+    """Delete a host credential from the operating-system keyring."""
     try:
         keyring.delete_password(SERVICE_NAME, host)
     except keyring.errors.PasswordDeleteError:
         pass
+
+
+def get_credential(host: str) -> Optional[str]:
+    """Resolve an explicit Git Toolkit credential without exposing it in URLs.
+
+    Keyring takes precedence over the process environment. Git operations do
+    not rewrite remotes with this value; transport authentication is delegated
+    to Git Credential Manager/credential helpers until provider adapters are
+    introduced.
+    """
+    return get_token(host) or get_pat_from_env()
+
+
+def get_auth_url(
+    url: str,
+    pat: Optional[str] = None,
+    config_tokens: Optional[dict[str, str]] = None,
+) -> str:
+    """Compatibility shim that deliberately never injects credentials.
+
+    Older Git Toolkit releases returned URLs containing PATs. That could leak
+    secrets through process listings, exception messages, logs, remote config,
+    and shell history. Callers may still import this function during migration,
+    but the remote URL is now always returned unchanged.
+    """
+    del pat, config_tokens
+    return url
