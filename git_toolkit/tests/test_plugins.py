@@ -53,7 +53,18 @@ def test_incompatible_plugin_is_rejected(tmp_path: Path) -> None:
     assert "incompatible" in manager.errors[0]
 
 
-def test_local_plugin_discovery(tmp_path: Path) -> None:
+def test_local_plugins_are_disabled_by_default(tmp_path: Path) -> None:
+    plugin_dir = tmp_path / "plugins"
+    plugin_dir.mkdir()
+    (plugin_dir / "local.py").write_text("raise RuntimeError('must not execute')\n", encoding="utf-8")
+    with patch("importlib.metadata.entry_points") as entry_points:
+        entry_points.return_value.select.return_value = []
+        manager = PluginManager(local_plugin_dir=plugin_dir)
+    assert manager.plugins == []
+    assert manager.errors == []
+
+
+def test_local_plugin_discovery_when_trusted(tmp_path: Path) -> None:
     plugin_dir = tmp_path / "plugins"
     plugin_dir.mkdir()
     plugin_file = plugin_dir / "local.py"
@@ -68,7 +79,7 @@ def test_local_plugin_discovery(tmp_path: Path) -> None:
     )
     with patch("importlib.metadata.entry_points") as entry_points:
         entry_points.return_value.select.return_value = []
-        manager = PluginManager(local_plugin_dir=plugin_dir)
+        manager = PluginManager(local_plugin_dir=plugin_dir, allow_local_plugins=True)
     assert [plugin.name for plugin in manager.plugins] == ["local"]
 
 
@@ -99,4 +110,5 @@ def test_diagnostics_report_api_and_errors(tmp_path: Path) -> None:
     manager.errors.append("example error")
     diagnostics = manager.diagnostics()
     assert diagnostics["api_version"] == PLUGIN_API_VERSION
+    assert diagnostics["local_plugins_enabled"] is False
     assert diagnostics["errors"] == ["example error"]
