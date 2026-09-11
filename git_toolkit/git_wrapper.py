@@ -8,11 +8,16 @@ from typing import Any
 from git import GitCommandError, InvalidGitRepositoryError, NoSuchPathError, Repo
 
 from .config import Config, Health, Repository, Safety
-from .logging import get_cache, logger, set_cache
+from .logging import get_cache, set_cache
+from .policy import evaluate_clean_worktree, evaluate_force_push
 
 
 def _open_repo(repo_config: Repository) -> Repo:
     return Repo(repo_config.path, search_parent_directories=False)
+
+
+def _denied_message(reason: str, remediation: str | None) -> str:
+    return f"{reason} Remediation: {remediation}" if remediation else reason
 
 
 def run_shell_command(
@@ -27,7 +32,7 @@ def run_shell_command(
     if dry_run:
         return {"success": True, "message": f"[DRY-RUN] Would run: {script}"}
     try:
-        result = subprocess.run(  # nosec B602 - explicit workflow feature
+        result = subprocess.run(  # nosec B602 - explicit trusted workflow feature
             script,
             shell=True,
             cwd=repo_path,
@@ -79,9 +84,7 @@ def get_repo_status(repo_config: Repository) -> dict[str, Any]:
         status["branch"] = "DETACHED" if repo.head.is_detached else repo.active_branch.name
         status["is_dirty"] = repo.is_dirty(untracked_files=True)
         status["untracked"] = len(repo.untracked_files)
-
-        diff_index = repo.index.diff("HEAD")
-        status["staged"] = bool(diff_index)
+        status["staged"] = bool(repo.index.diff("HEAD"))
         status["unstaged"] = bool(repo.index.diff(None))
         status["conflicted"] = len(repo.index.unmerged_blobs())
 
@@ -102,7 +105,7 @@ def get_repo_status(repo_config: Repository) -> dict[str, Any]:
 
 
 def clone_repo(repo_config: Repository, config: Config | None = None) -> dict[str, Any]:
-    del config  # Authentication is delegated to Git/GCM rather than embedded URLs.
+    del config
     if not repo_config.url:
         return {"name": repo_config.name, "success": False, "message": "No URL provided"}
     path = Path(repo_config.path)
@@ -112,7 +115,11 @@ def clone_repo(repo_config: Repository, config: Config | None = None) -> dict[st
             return {"name": repo_config.name, "success": True, "message": "Repository already exists"}
         except Exception:
             if any(path.iterdir()):
-                return {"name": repo_config.name, "success": False, "message": "Destination exists and is not a Git repository"}
+                return {
+                    "name": repo_config.name,
+                    "success": False,
+                    "message": "Destination exists and is not a Git repository",
+                }
     try:
         kwargs: dict[str, Any] = {}
         if repo_config.default_branch:
@@ -121,10 +128,6 @@ def clone_repo(repo_config: Repository, config: Config | None = None) -> dict[st
         return {"name": repo_config.name, "success": True, "message": "Successfully cloned"}
     except Exception as exc:
         return {"name": repo_config.name, "success": False, "message": str(exc)}
-
-
-def _protected(branch: str, safety: Safety | None) -> bool:
-    return bool(safety and branch in safety.protect_branches)
 
 
 def push_repo(
@@ -139,10 +142,14 @@ def push_repo(
         if repo.head.is_detached:
             return {"name": repo_config.name, "success": False, "message": "Cannot push detached HEAD"}
         branch = repo.active_branch.name
-        if force and safety and safety.prevent_force_push:
-            return {"name": repo_config.name, "success": False, "message": "Force push blocked by policy"}
-        if force and _protected(branch, safety):
-            return {"name": repo_config.name, "success": False, "message": f"Force push to protected branch '{branch}' is blocked"}
+        decision = evaluate_force_push(branch, force, safety)
+        if not decision.allowed:
+            return {
+                "name": repo_config.name,
+                "success": False,
+                "message": _denied_message(decision.reason, decision.remediation),
+                "policy_rule": decision.rule,
+            }
         if dry_run:
             mode = "force-with-lease" if force else "normal"
             return {"name": repo_config.name, "success": True, "message": f"[DRY-RUN] Would perform {mode} push"}
@@ -196,14 +203,23 @@ def commit_repo(repo_config: Repository, message: str, dry_run: bool = False) ->
 
 
 def sync_repo(repo_config: Repository, config: Config | None = None, dry_run: bool = False) -> dict[str, Any]:
-    """Fetch and fast-forward a clean repository to its configured upstream."""
     safety = config.safety if config else None
     try:
         repo = _open_repo(repo_config)
         if repo.head.is_detached:
             return {"name": repo_config.name, "success": False, "message": "Cannot sync detached HEAD"}
-        if safety and safety.require_clean_worktree and repo.is_dirty(untracked_files=True):
-            return {"name": repo_config.name, "success": False, "message": "Working tree is dirty"}
+        decision = evaluate_clean_worktree(
+            is_dirty=repo.is_dirty(untracked_files=True),
+            safety=safety,
+            operation="sync",
+        )
+        if not decision.allowed:
+            return {
+                "name": repo_config.name,
+                "success": False,
+                "message": _denied_message(decision.reason, decision.remediation),
+                "policy_rule": decision.rule,
+            }
         if dry_run:
             return {"name": repo_config.name, "success": True, "message": "[DRY-RUN] Would fetch and fast-forward"}
         repo.remotes.origin.fetch(prune=True)
@@ -226,8 +242,18 @@ def checkout_repo(
 ) -> dict[str, Any]:
     try:
         repo = _open_repo(repo_config)
-        if safety and safety.require_clean_worktree and repo.is_dirty(untracked_files=True):
-            return {"name": repo_config.name, "success": False, "message": "Working tree is dirty"}
+        decision = evaluate_clean_worktree(
+            is_dirty=repo.is_dirty(untracked_files=True),
+            safety=safety,
+            operation="checkout",
+        )
+        if not decision.allowed:
+            return {
+                "name": repo_config.name,
+                "success": False,
+                "message": _denied_message(decision.reason, decision.remediation),
+                "policy_rule": decision.rule,
+            }
         if dry_run:
             return {"name": repo_config.name, "success": True, "message": f"[DRY-RUN] Would checkout {branch}"}
         repo.git.checkout(branch)
@@ -316,7 +342,9 @@ def get_repo_stats(repo_config: Repository, health: Health | None = None) -> dic
             maximum = health.large_file_kb * 1024
             for entry in repo.tree().traverse():
                 if entry.type == "blob" and entry.size > maximum:
-                    stats["large_files"].append({"path": entry.path, "size_kb": round(entry.size / 1024, 2)})
+                    stats["large_files"].append(
+                        {"path": entry.path, "size_kb": round(entry.size / 1024, 2)}
+                    )
         stats["success"] = True
         set_cache(cache_key, stats, ttl=300)
     except Exception as exc:
