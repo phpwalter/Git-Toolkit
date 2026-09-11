@@ -1,77 +1,79 @@
-import pytest
-import yaml
-from pathlib import Path
-from git_toolkit.cli import main
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-@pytest.fixture
-def mock_config(tmp_path):
-    config_path = tmp_path / ".git-toolkit.yml"
-    config_data = {
-        "repositories": [
-            {"name": "repo1", "path": str(tmp_path / "repo1")},
-            {"name": "repo2", "path": str(tmp_path / "repo2")}
-        ],
-        "workflows": {
-            "test_workflow": {
-                "description": "A test workflow",
-                "steps": [
-                    {"name": "check status", "command": "status"},
-                    {"name": "custom script", "script": "echo hello", "if": "branch == main"}
-                ]
-            }
-        }
-    }
-    config_path.write_text(yaml.dump(config_data))
-    return config_path
+from git_toolkit.config import Config, Repository, Step, Workflow
+from git_toolkit.workflow_runner import execute_step, run_workflow
 
-@patch("git_toolkit.cli.load_config")
-@patch("git_toolkit.cli.get_repo_status")
-@patch("git_toolkit.cli.run_shell_command")
-def test_run_workflow(mock_run_shell, mock_status, mock_load, mock_config):
-    from git_toolkit.config import Config
-    with open(mock_config) as f:
-        data = yaml.safe_load(f)
-    mock_load.return_value = Config(**data)
-    
-    # Mock status for both repos
-    mock_status.side_effect = [
-        {"branch": "main", "is_dirty": False, "exists": True},
-        {"branch": "develop", "is_dirty": True, "exists": True},
-        {"branch": "main", "is_dirty": False, "exists": True}, # For the second step repo1
-        {"branch": "develop", "is_dirty": True, "exists": True} # For the second step repo2
-    ]
-    
-    mock_run_shell.return_value = {"success": True, "message": "Command succeeded."}
-    
-    with patch("sys.argv", ["git-toolkit", "--config", str(mock_config), "run", "test_workflow"]):
-        with patch("sys.exit") as mock_exit:
-            main()
-            mock_exit.assert_not_called()
 
-    # Verify that run_shell_command was called only once (for repo1 which is on 'main')
-    assert mock_run_shell.call_count == 1
-    # Verify that get_repo_status was called for each repo in each step (4 times total + 2 for status command = 6)
-    # Actually: 
-    # Step 1 (status command): calls get_repo_status for repo1 and repo2.
-    # Step 2 (script with if): calls get_repo_status for repo1 and repo2.
-    # Total 4 calls to get_repo_status.
-    assert mock_status.call_count == 4
+def test_branch_condition_skips_nonmatching_repo() -> None:
+    repo = Repository(name="repo", path=".")
+    config = Config(repositories=[repo])
+    step = Step(name="only-main", script="echo hello", **{"if": "branch == main"})
 
-@patch("git_toolkit.cli.load_config")
-@patch("git_toolkit.cli.execute_step")
-def test_run_workflow_parallel(mock_execute, mock_load, mock_config):
-    from git_toolkit.config import Config
-    with open(mock_config) as f:
-        data = yaml.safe_load(f)
-    mock_load.return_value = Config(**data)
-    
-    mock_execute.return_value = "Success"
-    
-    with patch("sys.argv", ["git-toolkit", "--config", str(mock_config), "run", "test_workflow", "--parallel"]):
-        with patch("sys.exit") as mock_exit:
-            main()
-            mock_exit.assert_not_called()
+    with patch("git_toolkit.workflow_runner.get_repo_status") as status, patch(
+        "git_toolkit.workflow_runner.run_shell_command"
+    ) as shell:
+        status.return_value = {"branch": "develop", "is_dirty": False, "exists": True}
+        result = execute_step(step, repo, config, dry_run=False)
 
-    # 2 steps * 2 repos = 4 executions
-    assert mock_execute.call_count == 4
+    assert "Skipped" in result
+    shell.assert_not_called()
+
+
+def test_script_retry_stops_after_success() -> None:
+    repo = Repository(name="repo", path=".")
+    config = Config(repositories=[repo])
+    step = Step(name="retry", script="test", retries=2)
+
+    with patch("git_toolkit.workflow_runner.run_shell_command") as shell:
+        shell.side_effect = [
+            {"success": False, "message": "failed"},
+            {"success": True, "message": "done"},
+        ]
+        result = execute_step(step, repo, config, dry_run=False)
+
+    assert "OK" in result
+    assert shell.call_count == 2
+
+
+def test_failure_policy_stops_later_steps() -> None:
+    repo = Repository(name="repo", path=".")
+    workflow = Workflow(
+        failure_policy="stop",
+        steps=[Step(command="status"), Step(command="fetch")],
+    )
+    config = Config(repositories=[repo], workflows={"test": workflow})
+
+    with patch("git_toolkit.workflow_runner.execute_step") as execute:
+        execute.return_value = "repo: FAILED - problem"
+        results = run_workflow(workflow, config)
+
+    assert results == ["repo: FAILED - problem"]
+    assert execute.call_count == 1
+
+
+def test_parallel_workflow_executes_each_repo() -> None:
+    repos = [Repository(name="a", path="."), Repository(name="b", path=".")]
+    workflow = Workflow(steps=[Step(command="status")])
+    config = Config(repositories=repos)
+
+    with patch("git_toolkit.workflow_runner.execute_step", return_value="OK") as execute:
+        results = run_workflow(workflow, config, parallel=True, workers=2)
+
+    assert len(results) == 2
+    assert execute.call_count == 2
+
+
+def test_repo_clean_condition() -> None:
+    repo = Repository(name="repo", path=".")
+    config = Config(repositories=[repo])
+    step = Step(script="echo ok", **{"if": "repo.clean"})
+
+    with patch("git_toolkit.workflow_runner.get_repo_status") as status, patch(
+        "git_toolkit.workflow_runner.run_shell_command"
+    ) as shell:
+        status.return_value = {"is_dirty": False, "exists": True, "branch": "main"}
+        shell.return_value = {"success": True, "message": "Command succeeded."}
+        result = execute_step(step, repo, config, dry_run=False)
+
+    assert "OK" in result
+    shell.assert_called_once()
