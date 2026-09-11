@@ -60,7 +60,12 @@ def _condition_matches(condition: str | None, repo_config: Repository) -> tuple[
     raise ValueError(f"Unsupported workflow condition: {condition}")
 
 
-def _execute_builtin(step: Step, repo_config: Repository, config: Config, dry_run: bool) -> dict[str, Any]:
+def _execute_builtin(
+    step: Step,
+    repo_config: Repository,
+    config: Config,
+    dry_run: bool,
+) -> dict[str, Any]:
     command = step.command or ""
     args = step.args
     if command == "status":
@@ -113,7 +118,13 @@ def execute_step(step: Step, repo_config: Repository, config: Config, dry_run: b
     """Execute one workflow step with condition, timeout and retry semantics."""
     matches, reason = _condition_matches(step.if_condition, repo_config)
     if not matches:
-        return StepResult(repo_config.name, step.name or step.command or "step", True, True, reason).render()
+        return StepResult(
+            repo_config.name,
+            step.name or step.command or "step",
+            True,
+            True,
+            reason,
+        ).render()
 
     attempts = max(1, step.retries + 1)
     last: dict[str, Any] = {"success": False, "message": "not executed"}
@@ -121,7 +132,21 @@ def execute_step(step: Step, repo_config: Repository, config: Config, dry_run: b
         if step.command:
             last = _execute_builtin(step, repo_config, config, dry_run)
         elif step.script:
-            last = run_shell_command(repo_config, step.script, dry_run, timeout=step.timeout)
+            if not config.security.allow_project_scripts:
+                last = {
+                    "success": False,
+                    "message": (
+                        "Project scripts are disabled. Set "
+                        "security.allow_project_scripts: true only for trusted repositories."
+                    ),
+                }
+            else:
+                last = run_shell_command(
+                    repo_config,
+                    step.script,
+                    dry_run,
+                    timeout=step.timeout,
+                )
         else:
             last = {"success": False, "message": "Empty step"}
         if last.get("success"):
@@ -157,10 +182,13 @@ def run_workflow(
 
     for step in workflow.steps:
         logger.info("Running step: %s", step.name or step.command or "script")
-        step_results: list[str] = []
         if parallel and len(targets) > 1:
+            step_results: list[str] = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
-                futures = [executor.submit(execute_step, step, repo, config, dry_run) for repo in targets]
+                futures = [
+                    executor.submit(execute_step, step, repo, config, dry_run)
+                    for repo in targets
+                ]
                 for future in concurrent.futures.as_completed(futures):
                     step_results.append(future.result())
         else:
@@ -187,7 +215,7 @@ def send_webhook_notification(url: str, workflow_name: str, results: list[str]) 
         method="POST",
     )
     try:
-        with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310 - user-configured webhook
+        with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
             if response.status >= 400:
                 logger.error("Webhook failed with status: %s", response.status)
     except Exception as exc:
