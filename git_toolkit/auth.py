@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import os
-from typing import Optional
 
 import keyring
 
 SERVICE_NAME = "git-toolkit"
 
 
-def get_pat_from_env() -> Optional[str]:
+def get_pat_from_env() -> str | None:
     """Return the process-scoped fallback PAT, if explicitly supplied."""
     return os.environ.get("GIT_TOOLKIT_PAT")
 
@@ -22,7 +21,7 @@ def set_token(host: str, token: str) -> None:
     keyring.set_password(SERVICE_NAME, host, token)
 
 
-def get_token(host: str) -> Optional[str]:
+def get_token(host: str) -> str | None:
     """Retrieve a host credential from the operating-system keyring."""
     return keyring.get_password(SERVICE_NAME, host)
 
@@ -35,7 +34,7 @@ def delete_token(host: str) -> None:
         pass
 
 
-def get_credential(host: str) -> Optional[str]:
+def get_credential(host: str) -> str | None:
     """Resolve an explicit Git Toolkit credential without exposing it in URLs.
 
     Keyring takes precedence over the process environment. Git operations do
@@ -48,8 +47,8 @@ def get_credential(host: str) -> Optional[str]:
 
 def get_auth_url(
     url: str,
-    pat: Optional[str] = None,
-    config_tokens: Optional[dict[str, str]] = None,
+    pat: str | None = None,
+    config_tokens: dict[str, str] | None = None,
 ) -> str:
     """Compatibility shim that deliberately never injects credentials.
 
