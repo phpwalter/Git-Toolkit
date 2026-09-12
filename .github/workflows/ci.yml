@@ -2,31 +2,67 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov bandit pydantic GitPython
-    - name: Run security scan
-      run: |
-        bandit -r git_toolkit/ -ll
-    - name: Run tests with coverage
-      run: |
-        pytest --cov=git_toolkit git_toolkit/tests/
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install package and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Lint production code
+        run: python -m ruff check git_toolkit --exclude git_toolkit/tests
+
+      - name: Type check production code
+        run: python -m mypy git_toolkit --exclude "git_toolkit/tests/"
+
+      - name: Security scan production code
+        run: python -m bandit -r git_toolkit -ll -x git_toolkit/tests
+
+      - name: Test with coverage
+        run: python -m pytest --cov=git_toolkit --cov-report=term-missing --cov-report=xml --cov-fail-under=80
+
+      - name: Build distribution
+        run: python -m build
+
+      - name: Smoke-test CLI
+        run: python -m git_toolkit.cli --version
+
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pip_audit

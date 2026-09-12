@@ -1,14 +1,45 @@
-#
-# @file .gitignore
-# @path L:/var/www/Git-Toolkit/.gitignore
-# @version 1.0.0
-# @date 2026-03-13
-# @author Walter Torres
-# @copyright Copyright 2026, Git-Toolkit.
-# @license MIT
-# @maintainer Git-Toolkit Team
-# @status dev
-#
-# Specifies intentionally untracked files to ignore.
-#
+# IDE and editor state
 /.idea/
+.vscode/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build and package artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Coverage and test artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Git Toolkit runtime state
+.git-toolkit/history.json
+.git-toolkit/logs/
+.git-toolkit/cache/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local.yml
+*.local.yaml
+
+# OS noise
+.DS_Store
+Thumbs.db

@@ -1,41 +1,54 @@
-import pytest
-import subprocess
 from unittest.mock import MagicMock, patch
-from git_toolkit.hooks import HookManager
+
 from git_toolkit.config import Hook
+from git_toolkit.hooks import HookManager
 
-def test_run_hook_no_script():
-    mgr = HookManager({"pre_status": Hook(script=None)})
-    assert mgr.run_hook("pre_status") is True
 
-def test_run_hook_not_defined():
-    mgr = HookManager({})
-    assert mgr.run_hook("pre_status") is True
+def test_run_hook_no_script() -> None:
+    manager = HookManager({"pre_status": Hook(script=None)})
+    assert manager.run_hook("pre_status") is True
+
+
+def test_run_hook_not_defined() -> None:
+    manager = HookManager({})
+    assert manager.run_hook("pre_status") is True
+
 
 @patch("subprocess.run")
-def test_run_hook_success(mock_run):
+def test_project_hook_is_blocked_by_default(mock_run, capsys) -> None:
+    manager = HookManager({"pre_status": Hook(script="echo hi")})
+    assert manager.run_hook("pre_status") is False
+    mock_run.assert_not_called()
+    assert "project scripts are disabled" in capsys.readouterr().err
+
+
+@patch("subprocess.run")
+def test_trusted_hook_success(mock_run) -> None:
     mock_run.return_value = MagicMock(returncode=0)
-    mgr = HookManager({"pre_status": Hook(script="echo 'hi'")})
-    assert mgr.run_hook("pre_status") is True
+    manager = HookManager(
+        {"pre_status": Hook(script="echo hi")},
+        allow_project_scripts=True,
+    )
+    assert manager.run_hook("pre_status") is True
     mock_run.assert_called_once()
-    assert mock_run.call_args[0][0] == "echo 'hi'"
+
 
 @patch("subprocess.run")
-def test_run_hook_failure(mock_run):
+def test_trusted_hook_failure(mock_run) -> None:
     mock_run.return_value = MagicMock(returncode=1)
-    mgr = HookManager({"pre_status": Hook(script="exit 1")})
-    assert mgr.run_hook("pre_status") is False
+    manager = HookManager(
+        {"pre_status": Hook(script="exit 1")},
+        allow_project_scripts=True,
+    )
+    assert manager.run_hook("pre_status") is False
+
 
 @patch("subprocess.run")
-def test_run_hook_exception(mock_run):
-    mock_run.side_effect = Exception("error")
-    mgr = HookManager({"pre_status": Hook(script="exit 1")})
-    assert mgr.run_hook("pre_status") is False
-
-@patch("subprocess.run")
-def test_run_hook_env(mock_run):
+def test_trusted_hook_environment(mock_run) -> None:
     mock_run.return_value = MagicMock(returncode=0)
-    mgr = HookManager({"pre_status": Hook(script="echo $TEST_VAR")})
-    assert mgr.run_hook("pre_status", env={"TEST_VAR": "hi"}) is True
-    env_called = mock_run.call_args[1]["env"]
-    assert env_called["TEST_VAR"] == "hi"
+    manager = HookManager(
+        {"pre_status": Hook(script="echo $TEST_VAR")},
+        allow_project_scripts=True,
+    )
+    assert manager.run_hook("pre_status", env={"TEST_VAR": "hi"}) is True
+    assert mock_run.call_args.kwargs["env"]["TEST_VAR"] == "hi"

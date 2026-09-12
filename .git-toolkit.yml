@@ -1,22 +1,47 @@
 project:
   name: "Git Toolkit Development"
-  version: "0.1.0"
 
 repositories:
   - name: "Git-Toolkit"
     path: "."
     url: "https://github.com/phpwalter/Git-Toolkit.git"
     default_branch: "main"
-  - name: "Git-Toolkit-Docs"
-    path: "docs"
-    url: "https://github.com/phpwalter/Git-Toolkit.git"
-    default_branch: "main"
+    groups: ["core"]
+
+safety:
+  prevent_force_push: true
+  protect_branches:
+    - main
+    - master
+  require_clean_worktree: true
+
+security:
+  # This repository owns these scripts. Downstream repositories should leave
+  # script/plugin execution disabled until their configuration is trusted.
+  allow_project_scripts: true
+  allow_local_plugins: false
+
+health:
+  stale_branch_days: 30
+  large_file_kb: 1000
+
+commands:
+  quality:
+    description: "Run the local quality gate"
+    script: "python -m pytest"
+
+workflows:
+  verify:
+    description: "Run repository status and the automated test suite"
+    failure_policy: stop
+    steps:
+      - name: "Repository status"
+        command: status
+      - name: "Tests"
+        script: "python -m pytest"
+        timeout: 300
 
 hooks:
   pre_status:
     description: "Optional pre-status message"
-    script: "echo 'Fetching status for all repositories...'"
-  post_status:
-    script: "echo 'Status check complete.'"
-  pre_clone:
-    script: "echo 'Preparing to clone...'"
+    script: "echo 'Fetching status for configured repositories...'"
