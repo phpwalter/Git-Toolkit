@@ -13,7 +13,7 @@ class PolicyDecision:
     remediation: str | None = None
 
     @classmethod
-    def allow(cls, rule: str = "policy.allow") -> "PolicyDecision":
+    def allow(cls, rule: str = "policy.allow") -> PolicyDecision:
         return cls(True, rule, "Operation allowed")
 
 
@@ -27,7 +27,10 @@ def evaluate_force_push(branch: str, force: bool, safety: Safety | None) -> Poli
             False,
             "push.force.disabled",
             "Force push is disabled by project policy.",
-            "Use a normal push or explicitly change safety.prevent_force_push for a trusted workflow.",
+            (
+                "Use a normal push or explicitly change "
+                "safety.prevent_force_push for a trusted workflow."
+            ),
         )
     if branch in safety.protect_branches:
         return PolicyDecision(
