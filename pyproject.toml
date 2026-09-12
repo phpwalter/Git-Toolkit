@@ -50,7 +50,7 @@ upload_to_release = true
 build_command = "python -m build"
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py311"
 
 [tool.ruff.lint]
