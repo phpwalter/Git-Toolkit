@@ -9,7 +9,12 @@ from git import GitCommandError, InvalidGitRepositoryError, NoSuchPathError, Rep
 
 from .config import Config, Health, Repository, Safety
 from .logging import get_cache, set_cache
-from .policy import evaluate_clean_worktree, evaluate_force_push
+from .policy import (
+    evaluate_branch_name,
+    evaluate_clean_worktree,
+    evaluate_force_push,
+    evaluate_remote,
+)
 
 
 def _open_repo(repo_config: Repository) -> Repo:
@@ -18,6 +23,22 @@ def _open_repo(repo_config: Repository) -> Repo:
 
 def _denied_message(reason: str, remediation: str | None) -> str:
     return f"{reason} Remediation: {remediation}" if remediation else reason
+
+
+def _policy_failure(repo_name: str, decision: Any) -> dict[str, Any]:
+    return {
+        "name": repo_name,
+        "success": False,
+        "message": _denied_message(decision.reason, decision.remediation),
+        "policy_rule": decision.rule,
+    }
+
+
+def _origin_url(repo: Repo) -> str:
+    try:
+        return str(repo.remotes.origin.url)
+    except (AttributeError, IndexError):
+        return ""
 
 
 def run_shell_command(
@@ -105,9 +126,13 @@ def get_repo_status(repo_config: Repository) -> dict[str, Any]:
 
 
 def clone_repo(repo_config: Repository, config: Config | None = None) -> dict[str, Any]:
-    del config
     if not repo_config.url:
         return {"name": repo_config.name, "success": False, "message": "No URL provided"}
+    safety = config.safety if config else None
+    remote_decision = evaluate_remote(repo_config.url, safety)
+    if not remote_decision.allowed:
+        return _policy_failure(repo_config.name, remote_decision)
+
     path = Path(repo_config.path)
     if path.exists():
         try:
@@ -123,6 +148,9 @@ def clone_repo(repo_config: Repository, config: Config | None = None) -> dict[st
     try:
         kwargs: dict[str, Any] = {}
         if repo_config.default_branch:
+            branch_decision = evaluate_branch_name(repo_config.default_branch, safety)
+            if not branch_decision.allowed:
+                return _policy_failure(repo_config.name, branch_decision)
             kwargs["branch"] = repo_config.default_branch
         Repo.clone_from(repo_config.url, repo_config.path, **kwargs)
         return {"name": repo_config.name, "success": True, "message": "Successfully cloned"}
@@ -142,14 +170,15 @@ def push_repo(
         if repo.head.is_detached:
             return {"name": repo_config.name, "success": False, "message": "Cannot push detached HEAD"}
         branch = repo.active_branch.name
-        decision = evaluate_force_push(branch, force, safety)
-        if not decision.allowed:
-            return {
-                "name": repo_config.name,
-                "success": False,
-                "message": _denied_message(decision.reason, decision.remediation),
-                "policy_rule": decision.rule,
-            }
+        branch_decision = evaluate_branch_name(branch, safety)
+        if not branch_decision.allowed:
+            return _policy_failure(repo_config.name, branch_decision)
+        remote_decision = evaluate_remote(_origin_url(repo), safety)
+        if not remote_decision.allowed:
+            return _policy_failure(repo_config.name, remote_decision)
+        force_decision = evaluate_force_push(branch, force, safety)
+        if not force_decision.allowed:
+            return _policy_failure(repo_config.name, force_decision)
         if dry_run:
             mode = "force-with-lease" if force else "normal"
             return {
@@ -168,9 +197,16 @@ def push_repo(
         return {"name": repo_config.name, "success": False, "message": str(exc)}
 
 
-def fetch_repo(repo_config: Repository, dry_run: bool = False) -> dict[str, Any]:
+def fetch_repo(
+    repo_config: Repository,
+    dry_run: bool = False,
+    safety: Safety | None = None,
+) -> dict[str, Any]:
     try:
         repo = _open_repo(repo_config)
+        remote_decision = evaluate_remote(_origin_url(repo), safety)
+        if not remote_decision.allowed:
+            return _policy_failure(repo_config.name, remote_decision)
         if dry_run:
             return {
                 "name": repo_config.name,
@@ -183,11 +219,28 @@ def fetch_repo(repo_config: Repository, dry_run: bool = False) -> dict[str, Any]
         return {"name": repo_config.name, "success": False, "message": str(exc)}
 
 
-def pull_repo(repo_config: Repository, dry_run: bool = False) -> dict[str, Any]:
+def pull_repo(
+    repo_config: Repository,
+    dry_run: bool = False,
+    safety: Safety | None = None,
+) -> dict[str, Any]:
     try:
         repo = _open_repo(repo_config)
-        if repo.is_dirty(untracked_files=True):
-            return {"name": repo_config.name, "success": False, "message": "Working tree is dirty"}
+        remote_decision = evaluate_remote(_origin_url(repo), safety)
+        if not remote_decision.allowed:
+            return _policy_failure(repo_config.name, remote_decision)
+        if repo.head.is_detached:
+            return {"name": repo_config.name, "success": False, "message": "Cannot pull detached HEAD"}
+        branch_decision = evaluate_branch_name(repo.active_branch.name, safety)
+        if not branch_decision.allowed:
+            return _policy_failure(repo_config.name, branch_decision)
+        clean_decision = evaluate_clean_worktree(
+            is_dirty=repo.is_dirty(untracked_files=True),
+            safety=safety,
+            operation="pull",
+        )
+        if not clean_decision.allowed:
+            return _policy_failure(repo_config.name, clean_decision)
         if dry_run:
             return {
                 "name": repo_config.name,
@@ -232,18 +285,19 @@ def sync_repo(
         repo = _open_repo(repo_config)
         if repo.head.is_detached:
             return {"name": repo_config.name, "success": False, "message": "Cannot sync detached HEAD"}
-        decision = evaluate_clean_worktree(
+        branch_decision = evaluate_branch_name(repo.active_branch.name, safety)
+        if not branch_decision.allowed:
+            return _policy_failure(repo_config.name, branch_decision)
+        remote_decision = evaluate_remote(_origin_url(repo), safety)
+        if not remote_decision.allowed:
+            return _policy_failure(repo_config.name, remote_decision)
+        clean_decision = evaluate_clean_worktree(
             is_dirty=repo.is_dirty(untracked_files=True),
             safety=safety,
             operation="sync",
         )
-        if not decision.allowed:
-            return {
-                "name": repo_config.name,
-                "success": False,
-                "message": _denied_message(decision.reason, decision.remediation),
-                "policy_rule": decision.rule,
-            }
+        if not clean_decision.allowed:
+            return _policy_failure(repo_config.name, clean_decision)
         if dry_run:
             return {
                 "name": repo_config.name,
@@ -282,18 +336,16 @@ def checkout_repo(
 ) -> dict[str, Any]:
     try:
         repo = _open_repo(repo_config)
-        decision = evaluate_clean_worktree(
+        branch_decision = evaluate_branch_name(branch, safety)
+        if not branch_decision.allowed:
+            return _policy_failure(repo_config.name, branch_decision)
+        clean_decision = evaluate_clean_worktree(
             is_dirty=repo.is_dirty(untracked_files=True),
             safety=safety,
             operation="checkout",
         )
-        if not decision.allowed:
-            return {
-                "name": repo_config.name,
-                "success": False,
-                "message": _denied_message(decision.reason, decision.remediation),
-                "policy_rule": decision.rule,
-            }
+        if not clean_decision.allowed:
+            return _policy_failure(repo_config.name, clean_decision)
         if dry_run:
             return {
                 "name": repo_config.name,
