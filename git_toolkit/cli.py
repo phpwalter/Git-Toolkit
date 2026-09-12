@@ -8,7 +8,13 @@ from pathlib import Path
 from typing import Any
 
 from .auth import delete_token, get_token, set_token
-from .config import Command, Config, load_config
+from .config import (
+    Command,
+    Config,
+    explain_config_value,
+    initialize_project_config,
+    load_config,
+)
 from .git_wrapper import (
     checkout_repo,
     clone_repo,
@@ -121,11 +127,15 @@ def _build_parser(config: Config, plugin_mgr: PluginManager) -> argparse.Argumen
     auth_delete = auth_sub.add_parser("delete")
     auth_delete.add_argument("host")
 
-    config_cmd = subparsers.add_parser("config", help="Inspect effective configuration.")
+    config_cmd = subparsers.add_parser("config", help="Inspect and initialize configuration.")
     config_sub = config_cmd.add_subparsers(dest="config_command")
     config_sub.add_parser("validate")
     config_show = config_sub.add_parser("show")
     config_show.add_argument("--format", choices=["json", "yaml"], default="json")
+    config_explain = config_sub.add_parser("explain")
+    config_explain.add_argument("key", help="Dotted configuration key, e.g. safety.prevent_force_push")
+    config_init = config_sub.add_parser("init")
+    config_init.add_argument("--force", action="store_true")
 
     plugins = subparsers.add_parser("plugins", help="Inspect installed plugins.")
     plugin_sub = plugins.add_subparsers(dest="plugin_command")
@@ -251,7 +261,12 @@ def _run_custom(command: Command, config: Config, targets: list[Any], dry_run: b
     )
 
 
-def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManager) -> int:
+def _dispatch(
+    args: argparse.Namespace,
+    config: Config,
+    plugin_mgr: PluginManager,
+    config_path: Path,
+) -> int:
     group = getattr(args, "group", None)
     targets = _targets(config, group) if config.repositories else []
     hook_mgr = HookManager(
@@ -350,6 +365,15 @@ def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManage
 
                 print(yaml.safe_dump(data, sort_keys=False))
             return 0
+        if args.config_command == "explain":
+            value, source = explain_config_value(config_path, args.key)
+            print(f"{args.key} = {json.dumps(value, default=str)}")
+            print(f"source: {source}")
+            return 0
+        if args.config_command == "init":
+            initialize_project_config(config_path, force=args.force)
+            print(f"Initialized configuration: {config_path}")
+            return 0
         return 2
     if args.command == "plugins":
         diagnostics = plugin_mgr.diagnostics()
@@ -393,11 +417,11 @@ def main() -> None:
         if not args.command:
             parser.print_help()
             return
-        code = _dispatch(args, config, plugin_mgr)
+        code = _dispatch(args, config, plugin_mgr, config_path)
         log_execution(args.command, vars(args), "success" if code == 0 else "failure")
         if code:
             raise SystemExit(code)
-    except (ValueError, OSError) as exc:
+    except (ValueError, OSError, KeyError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(2) from exc
 
