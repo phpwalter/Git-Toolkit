@@ -77,9 +77,9 @@ def _execute_builtin(
     if command == "clone":
         return clone_repo(repo_config, config)
     if command == "fetch":
-        return fetch_repo(repo_config, dry_run)
+        return fetch_repo(repo_config, dry_run, config.safety)
     if command == "pull":
-        return pull_repo(repo_config, dry_run)
+        return pull_repo(repo_config, dry_run, config.safety)
     if command == "push":
         return push_repo(repo_config, config, dry_run, force=bool(args.get("force", False)))
     if command == "checkout":
