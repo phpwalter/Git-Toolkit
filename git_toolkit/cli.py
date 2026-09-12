@@ -3,8 +3,9 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from .auth import delete_token, get_token, set_token
 from .config import Command, Config, load_config
@@ -28,7 +29,7 @@ from .hooks import HookManager
 from .logging import clear_cache, get_history, log_execution, logger
 from .plugins import PluginManager
 from .version import __version__
-from .workflow_runner import execute_step, run_workflow, send_webhook_notification
+from .workflow_runner import run_workflow, send_webhook_notification
 
 
 def _bootstrap_config(argv: list[str]) -> Path:
@@ -49,7 +50,11 @@ def _build_parser(config: Config, plugin_mgr: PluginManager) -> argparse.Argumen
     )
     parser.add_argument("--config", type=Path, default=Path(".git-toolkit.yml"))
     parser.add_argument("--version", action="version", version=f"Git Toolkit v{__version__}")
-    parser.add_argument("--dry-run", action="store_true", help="Describe mutations without applying them.")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Describe mutations without applying them.",
+    )
     parser.add_argument("--verbose", action="store_true")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -280,11 +285,20 @@ def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManage
             lambda repo: checkout_repo(repo, args.branch, config.safety, args.dry_run),
         )
     if args.command == "commit":
-        return _run_repo_operation(targets, lambda repo: commit_repo(repo, args.message, args.dry_run))
+        return _run_repo_operation(
+            targets,
+            lambda repo: commit_repo(repo, args.message, args.dry_run),
+        )
     if args.command == "merge":
-        return _run_repo_operation(targets, lambda repo: merge_repo(repo, args.source, args.dry_run))
+        return _run_repo_operation(
+            targets,
+            lambda repo: merge_repo(repo, args.source, args.dry_run),
+        )
     if args.command == "rebase":
-        return _run_repo_operation(targets, lambda repo: rebase_repo(repo, args.onto, args.dry_run))
+        return _run_repo_operation(
+            targets,
+            lambda repo: rebase_repo(repo, args.onto, args.dry_run),
+        )
     if args.command == "tag":
         return _run_repo_operation(targets, lambda repo: tag_repo(repo, args.tag, args.dry_run))
     if args.command == "submodule":
@@ -296,7 +310,14 @@ def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManage
         if workflow is None:
             print(f"Workflow '{args.workflow}' not found.", file=sys.stderr)
             return 2
-        results = run_workflow(workflow, config, targets, args.parallel, args.workers, args.dry_run)
+        results = run_workflow(
+            workflow,
+            config,
+            targets,
+            args.parallel,
+            args.workers,
+            args.dry_run,
+        )
         for result in results:
             print(result)
         if workflow.webhook_url and not args.dry_run:
@@ -348,7 +369,12 @@ def _dispatch(args: argparse.Namespace, config: Config, plugin_mgr: PluginManage
         print("Cache cleared.")
         return 0
     if hasattr(args, "_custom_command"):
-        return _run_custom(config.commands[args._custom_command], config, targets, args.dry_run)
+        return _run_custom(
+            config.commands[args._custom_command],
+            config,
+            targets,
+            args.dry_run,
+        )
     if plugin_mgr.handle_command(args):
         return 0
     return 2
