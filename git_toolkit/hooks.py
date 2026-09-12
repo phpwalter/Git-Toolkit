@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-from typing import Optional
 
 from .config import Hook
 from .plugins import PluginManager
@@ -15,14 +14,14 @@ class HookManager:
     def __init__(
         self,
         hooks_config: dict[str, Hook],
-        plugin_mgr: Optional[PluginManager] = None,
+        plugin_mgr: PluginManager | None = None,
         allow_project_scripts: bool = False,
     ) -> None:
         self.hooks = hooks_config
         self.plugin_mgr = plugin_mgr
         self.allow_project_scripts = allow_project_scripts
 
-    def run_hook(self, hook_name: str, env: Optional[dict[str, str]] = None) -> bool:
+    def run_hook(self, hook_name: str, env: dict[str, str] | None = None) -> bool:
         if self.plugin_mgr:
             for plugin in self.plugin_mgr.plugins:
                 try:
