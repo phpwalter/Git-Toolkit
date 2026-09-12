@@ -31,6 +31,9 @@ class Safety(BaseModel):
     prevent_force_push: bool = True
     protect_branches: list[str] = Field(default_factory=lambda: ["main", "master"])
     require_clean_worktree: bool = True
+    branch_name_pattern: str | None = None
+    allowed_remote_hosts: list[str] = Field(default_factory=list)
+    denied_remote_hosts: list[str] = Field(default_factory=list)
 
 
 class Security(BaseModel):
@@ -187,6 +190,9 @@ def initialize_project_config(file_path: Path, *, force: bool = False) -> Path:
             "prevent_force_push": True,
             "protect_branches": ["main", "master"],
             "require_clean_worktree": True,
+            "branch_name_pattern": None,
+            "allowed_remote_hosts": [],
+            "denied_remote_hosts": [],
         },
         "security": {
             "allow_project_scripts": False,
