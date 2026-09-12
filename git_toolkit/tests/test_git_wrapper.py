@@ -40,6 +40,7 @@ def _mock_repo(branch: str = "feature") -> MagicMock:
     repo.index.diff.return_value = []
     repo.index.unmerged_blobs.return_value = {}
     repo.active_branch.tracking_branch.return_value = None
+    repo.remotes.origin.url = "https://github.com/example/repo.git"
     return repo
 
 
@@ -66,6 +67,22 @@ def test_clone_repo_success(mock_clone: MagicMock, repo_config: Repository, tmp_
     mock_clone.assert_called_once()
 
 
+@patch("git_toolkit.git_wrapper.Repo.clone_from")
+def test_clone_repo_respects_remote_allowlist(
+    mock_clone: MagicMock,
+    repo_config: Repository,
+    tmp_path,
+) -> None:
+    repo_config.path = str(tmp_path / "clone")
+    config = Config(safety=Safety(allowed_remote_hosts=["gitlab.com"]))
+
+    result = clone_repo(repo_config, config)
+
+    assert result["success"] is False
+    assert result["policy_rule"] == "remote.host.not_allowed"
+    mock_clone.assert_not_called()
+
+
 @patch("git_toolkit.git_wrapper._open_repo")
 def test_fetch_repo(mock_open: MagicMock, repo_config: Repository) -> None:
     repo = _mock_repo()
@@ -73,6 +90,19 @@ def test_fetch_repo(mock_open: MagicMock, repo_config: Repository) -> None:
     result = fetch_repo(repo_config)
     assert result["success"] is True
     repo.remotes.origin.fetch.assert_called_once_with(prune=True)
+
+
+@patch("git_toolkit.git_wrapper._open_repo")
+def test_fetch_repo_respects_remote_policy(mock_open: MagicMock, repo_config: Repository) -> None:
+    repo = _mock_repo()
+    mock_open.return_value = repo
+    safety = Safety(denied_remote_hosts=["github.com"])
+
+    result = fetch_repo(repo_config, safety=safety)
+
+    assert result["success"] is False
+    assert result["policy_rule"] == "remote.host.denied"
+    repo.remotes.origin.fetch.assert_not_called()
 
 
 @patch("git_toolkit.git_wrapper._open_repo")
@@ -111,6 +141,19 @@ def test_force_push_blocked_by_policy(
 
 
 @patch("git_toolkit.git_wrapper._open_repo")
+def test_push_blocks_invalid_branch_name(mock_open: MagicMock, repo_config: Repository) -> None:
+    repo = _mock_repo("BadBranch")
+    mock_open.return_value = repo
+    config = Config(safety=Safety(branch_name_pattern=r"feature/[a-z0-9-]+"))
+
+    result = push_repo(repo_config, config=config)
+
+    assert result["success"] is False
+    assert result["policy_rule"] == "branch.name.invalid"
+    repo.remotes.origin.push.assert_not_called()
+
+
+@patch("git_toolkit.git_wrapper._open_repo")
 def test_force_push_uses_force_with_lease_when_allowed(
     mock_open: MagicMock, repo_config: Repository
 ) -> None:
@@ -145,6 +188,19 @@ def test_checkout_requires_clean_tree(mock_open: MagicMock, repo_config: Reposit
     result = checkout_repo(repo_config, "main", Safety(require_clean_worktree=True))
     assert result["success"] is False
     assert result["policy_rule"] == "checkout.dirty.blocked"
+
+
+@patch("git_toolkit.git_wrapper._open_repo")
+def test_checkout_enforces_branch_naming_policy(mock_open: MagicMock, repo_config: Repository) -> None:
+    repo = _mock_repo()
+    mock_open.return_value = repo
+    safety = Safety(branch_name_pattern=r"(main|feature/[a-z0-9-]+)")
+
+    result = checkout_repo(repo_config, "invalid name", safety)
+
+    assert result["success"] is False
+    assert result["policy_rule"] == "branch.name.invalid"
+    repo.git.checkout.assert_not_called()
 
 
 @patch("git_toolkit.git_wrapper._open_repo")
