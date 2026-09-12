@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -152,7 +152,11 @@ def push_repo(
             }
         if dry_run:
             mode = "force-with-lease" if force else "normal"
-            return {"name": repo_config.name, "success": True, "message": f"[DRY-RUN] Would perform {mode} push"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": f"[DRY-RUN] Would perform {mode} push",
+            }
 
         args = ["--force-with-lease"] if force else []
         infos = repo.remotes.origin.push(*args)
@@ -168,7 +172,11 @@ def fetch_repo(repo_config: Repository, dry_run: bool = False) -> dict[str, Any]
     try:
         repo = _open_repo(repo_config)
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": "[DRY-RUN] Would fetch --prune"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": "[DRY-RUN] Would fetch --prune",
+            }
         repo.remotes.origin.fetch(prune=True)
         return {"name": repo_config.name, "success": True, "message": "Fetched origin"}
     except Exception as exc:
@@ -181,7 +189,11 @@ def pull_repo(repo_config: Repository, dry_run: bool = False) -> dict[str, Any]:
         if repo.is_dirty(untracked_files=True):
             return {"name": repo_config.name, "success": False, "message": "Working tree is dirty"}
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": "[DRY-RUN] Would pull --ff-only"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": "[DRY-RUN] Would pull --ff-only",
+            }
         repo.git.pull("--ff-only")
         return {"name": repo_config.name, "success": True, "message": "Fast-forward pull complete"}
     except Exception as exc:
@@ -194,15 +206,27 @@ def commit_repo(repo_config: Repository, message: str, dry_run: bool = False) ->
         if not repo.is_dirty(untracked_files=True):
             return {"name": repo_config.name, "success": False, "message": "Nothing to commit"}
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": f"[DRY-RUN] Would commit: {message}"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": f"[DRY-RUN] Would commit: {message}",
+            }
         repo.git.add("-A")
         commit = repo.index.commit(message)
-        return {"name": repo_config.name, "success": True, "message": f"Committed {commit.hexsha[:12]}"}
+        return {
+            "name": repo_config.name,
+            "success": True,
+            "message": f"Committed {commit.hexsha[:12]}",
+        }
     except Exception as exc:
         return {"name": repo_config.name, "success": False, "message": str(exc)}
 
 
-def sync_repo(repo_config: Repository, config: Config | None = None, dry_run: bool = False) -> dict[str, Any]:
+def sync_repo(
+    repo_config: Repository,
+    config: Config | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
     safety = config.safety if config else None
     try:
         repo = _open_repo(repo_config)
@@ -221,15 +245,31 @@ def sync_repo(repo_config: Repository, config: Config | None = None, dry_run: bo
                 "policy_rule": decision.rule,
             }
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": "[DRY-RUN] Would fetch and fast-forward"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": "[DRY-RUN] Would fetch and fast-forward",
+            }
         repo.remotes.origin.fetch(prune=True)
         tracking = repo.active_branch.tracking_branch()
         if tracking is None:
-            return {"name": repo_config.name, "success": False, "message": "Current branch has no upstream"}
+            return {
+                "name": repo_config.name,
+                "success": False,
+                "message": "Current branch has no upstream",
+            }
         repo.git.merge("--ff-only", tracking.name)
-        return {"name": repo_config.name, "success": True, "message": f"Synchronized with {tracking.name}"}
+        return {
+            "name": repo_config.name,
+            "success": True,
+            "message": f"Synchronized with {tracking.name}",
+        }
     except GitCommandError as exc:
-        return {"name": repo_config.name, "success": False, "message": f"Sync requires manual resolution: {exc}"}
+        return {
+            "name": repo_config.name,
+            "success": False,
+            "message": f"Sync requires manual resolution: {exc}",
+        }
     except Exception as exc:
         return {"name": repo_config.name, "success": False, "message": str(exc)}
 
@@ -255,7 +295,11 @@ def checkout_repo(
                 "policy_rule": decision.rule,
             }
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": f"[DRY-RUN] Would checkout {branch}"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": f"[DRY-RUN] Would checkout {branch}",
+            }
         repo.git.checkout(branch)
         return {"name": repo_config.name, "success": True, "message": f"Switched to {branch}"}
     except Exception as exc:
@@ -268,7 +312,11 @@ def merge_repo(repo_config: Repository, source: str, dry_run: bool = False) -> d
         if repo.is_dirty(untracked_files=True):
             return {"name": repo_config.name, "success": False, "message": "Working tree is dirty"}
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": f"[DRY-RUN] Would merge {source}"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": f"[DRY-RUN] Would merge {source}",
+            }
         repo.git.merge("--no-ff", source)
         return {"name": repo_config.name, "success": True, "message": f"Merged {source}"}
     except Exception as exc:
@@ -281,7 +329,11 @@ def rebase_repo(repo_config: Repository, onto: str, dry_run: bool = False) -> di
         if repo.is_dirty(untracked_files=True):
             return {"name": repo_config.name, "success": False, "message": "Working tree is dirty"}
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": f"[DRY-RUN] Would rebase onto {onto}"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": f"[DRY-RUN] Would rebase onto {onto}",
+            }
         repo.git.rebase(onto)
         return {"name": repo_config.name, "success": True, "message": f"Rebased onto {onto}"}
     except Exception as exc:
@@ -292,7 +344,11 @@ def tag_repo(repo_config: Repository, tag: str, dry_run: bool = False) -> dict[s
     try:
         repo = _open_repo(repo_config)
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": f"[DRY-RUN] Would create tag {tag}"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": f"[DRY-RUN] Would create tag {tag}",
+            }
         repo.create_tag(tag)
         return {"name": repo_config.name, "success": True, "message": f"Created tag {tag}"}
     except Exception as exc:
@@ -303,7 +359,11 @@ def update_submodules(repo_config: Repository, dry_run: bool = False) -> dict[st
     try:
         repo = _open_repo(repo_config)
         if dry_run:
-            return {"name": repo_config.name, "success": True, "message": "[DRY-RUN] Would update submodules"}
+            return {
+                "name": repo_config.name,
+                "success": True,
+                "message": "[DRY-RUN] Would update submodules",
+            }
         repo.git.submodule("update", "--init", "--recursive")
         return {"name": repo_config.name, "success": True, "message": "Submodules updated"}
     except Exception as exc:
@@ -332,12 +392,16 @@ def get_repo_stats(repo_config: Repository, health: Health | None = None) -> dic
         stats["commit_count"] = len(commits)
         stats["contributor_count"] = len({commit.author.email for commit in commits})
         if health:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             for branch in repo.branches:
                 age = (now - branch.commit.committed_datetime).days
                 if age > health.stale_branch_days:
                     stats["stale_branches"].append(
-                        {"name": branch.name, "days_old": age, "last_author": branch.commit.author.name}
+                        {
+                            "name": branch.name,
+                            "days_old": age,
+                            "last_author": branch.commit.author.name,
+                        }
                     )
             maximum = health.large_file_kb * 1024
             for entry in repo.tree().traverse():
