@@ -116,7 +116,8 @@ class PluginManager:
             "api_version": PLUGIN_API_VERSION,
             "local_plugins_enabled": self.allow_local_plugins,
             "plugins": [
-                getattr(plugin, "name", None) or plugin.__class__.__name__ for plugin in self.plugins
+                getattr(plugin, "name", None) or plugin.__class__.__name__
+                for plugin in self.plugins
             ],
             "errors": list(self.errors),
         }
