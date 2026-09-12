@@ -90,6 +90,10 @@ class Config(BaseModel):
     model_config = {"populate_by_name": True}
 
 
+def default_global_config_path() -> Path:
+    return Path.home() / ".git-toolkit" / "config.yml"
+
+
 def _read_yaml(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
@@ -122,19 +126,18 @@ def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
     return merged
 
 
+def _lookup_dotted(data: dict[str, Any], dotted_key: str) -> tuple[bool, Any]:
+    current: Any = data
+    for part in dotted_key.split("."):
+        if not isinstance(current, dict) or part not in current:
+            return False, None
+        current = current[part]
+    return True, current
+
+
 def load_config(file_path: Path, global_path: Path | None = None) -> Config:
-    """Load the effective configuration.
-
-    Precedence, lowest to highest:
-      1. model defaults
-      2. ~/.git-toolkit/config.yml
-      3. project configuration supplied by ``file_path``
-
-    Project scripts and project-local plugins are disabled by default because
-    both execute code from the checked-out repository. A trusted repository
-    must opt in through the ``security`` section.
-    """
-    global_path = global_path or (Path.home() / ".git-toolkit" / "config.yml")
+    """Load effective configuration using global then project precedence."""
+    global_path = global_path or default_global_config_path()
     try:
         global_data = _normalize(_read_yaml(global_path))
         project_data = _normalize(_read_yaml(file_path))
@@ -142,3 +145,53 @@ def load_config(file_path: Path, global_path: Path | None = None) -> Config:
         return Config(**effective)
     except Exception as exc:
         raise ValueError(f"Configuration error in {file_path}: {exc}") from exc
+
+
+def explain_config_value(
+    file_path: Path,
+    dotted_key: str,
+    global_path: Path | None = None,
+) -> tuple[Any, str]:
+    """Return an effective configuration value and the layer that supplied it."""
+    global_path = global_path or default_global_config_path()
+    global_data = _normalize(_read_yaml(global_path))
+    project_data = _normalize(_read_yaml(file_path))
+
+    project_found, _ = _lookup_dotted(project_data, dotted_key)
+    global_found, _ = _lookup_dotted(global_data, dotted_key)
+
+    config = load_config(file_path, global_path)
+    effective = config.model_dump(by_alias=False, exclude={"auth": {"tokens"}})
+    found, value = _lookup_dotted(effective, dotted_key)
+    if not found:
+        raise KeyError(f"Unknown configuration key: {dotted_key}")
+
+    if project_found:
+        source = str(file_path)
+    elif global_found:
+        source = str(global_path)
+    else:
+        source = "built-in default"
+    return value, source
+
+
+def initialize_project_config(file_path: Path, *, force: bool = False) -> Path:
+    """Create a conservative project configuration without executable project code."""
+    if file_path.exists() and not force:
+        raise FileExistsError(f"Configuration already exists: {file_path}")
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    template = {
+        "project": {"name": file_path.parent.name or "project"},
+        "repositories": [{"name": "main", "path": ".", "default_branch": "main"}],
+        "safety": {
+            "prevent_force_push": True,
+            "protect_branches": ["main", "master"],
+            "require_clean_worktree": True,
+        },
+        "security": {
+            "allow_project_scripts": False,
+            "allow_local_plugins": False,
+        },
+    }
+    file_path.write_text(yaml.safe_dump(template, sort_keys=False), encoding="utf-8")
+    return file_path
