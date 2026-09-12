@@ -4,7 +4,7 @@ import json
 import logging
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -29,7 +29,7 @@ class ToolkitLogger:
 
         try:
             LOG_DIR.mkdir(parents=True, exist_ok=True)
-            log_file = LOG_DIR / f"{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.log"
+            log_file = LOG_DIR / f"{datetime.now(UTC).strftime('%Y-%m-%d')}.log"
             file_handler = logging.FileHandler(log_file, encoding="utf-8")
             file_handler.setLevel(logging.DEBUG)
             file_handler.setFormatter(
@@ -88,7 +88,7 @@ def log_execution(
 
         history.append(
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "command": command,
                 "args": _scrub_args(args),
                 "status": status,
