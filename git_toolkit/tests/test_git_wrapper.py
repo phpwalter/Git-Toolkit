@@ -166,7 +166,7 @@ def test_force_push_uses_force_with_lease_when_allowed(
     config = Config(safety=Safety(prevent_force_push=False, protect_branches=["main"]))
     result = push_repo(repo_config, config=config, force=True)
     assert result["success"] is True
-    repo.remotes.origin.push.assert_called_once_with("--force-with-lease")
+    repo.remotes.origin.push.assert_called_once_with(force_with_lease=True)
 
 
 @patch("git_toolkit.git_wrapper._open_repo")
