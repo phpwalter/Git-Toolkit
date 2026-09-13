@@ -63,12 +63,7 @@ class PluginManager:
 
     def _load_entry_points(self) -> None:
         try:
-            points = importlib.metadata.entry_points()
-            selected = (
-                points.select(group=self.ENTRY_POINT_GROUP)
-                if hasattr(points, "select")
-                else points.get(self.ENTRY_POINT_GROUP, [])
-            )
+            selected = importlib.metadata.entry_points(group=self.ENTRY_POINT_GROUP)
             for entry_point in selected:
                 try:
                     self._accept(entry_point.load(), f"entry point {entry_point.name}")
