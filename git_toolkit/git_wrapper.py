@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from git import GitCommandError, InvalidGitRepositoryError, NoSuchPathError, Repo
+from git.objects.blob import Blob
 
 from .config import Config, Health, Repository, Safety
 from .logging import get_cache, set_cache
@@ -187,8 +188,10 @@ def push_repo(
                 "message": f"[DRY-RUN] Would perform {mode} push",
             }
 
-        args = ["--force-with-lease"] if force else []
-        infos = repo.remotes.origin.push(*args)
+        if force:
+            infos = repo.remotes.origin.push(force_with_lease=True)
+        else:
+            infos = repo.remotes.origin.push()
         failures = [info.summary for info in infos if info.flags & info.ERROR]
         if failures:
             return {"name": repo_config.name, "success": False, "message": "; ".join(failures)}
@@ -457,7 +460,7 @@ def get_repo_stats(repo_config: Repository, health: Health | None = None) -> dic
                     )
             maximum = health.large_file_kb * 1024
             for entry in repo.tree().traverse():
-                if entry.type == "blob" and entry.size > maximum:
+                if isinstance(entry, Blob) and entry.size > maximum:
                     stats["large_files"].append(
                         {"path": entry.path, "size_kb": round(entry.size / 1024, 2)}
                     )
