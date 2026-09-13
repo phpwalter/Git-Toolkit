@@ -28,17 +28,16 @@ class MockPlugin(Plugin):
 
 
 def _entry_points_with(plugin_class):
-    selected = MagicMock()
     entry = MagicMock()
     entry.name = "mock"
     entry.load.return_value = plugin_class
-    selected.select.return_value = [entry]
-    return selected
+    return [entry]
 
 
 def test_entry_point_plugin_loading(tmp_path: Path) -> None:
-    with patch("importlib.metadata.entry_points", return_value=_entry_points_with(MockPlugin)):
+    with patch("importlib.metadata.entry_points", return_value=_entry_points_with(MockPlugin)) as points:
         manager = PluginManager(local_plugin_dir=tmp_path / "none")
+    points.assert_called_once_with(group=PluginManager.ENTRY_POINT_GROUP)
     assert len(manager.plugins) == 1
     assert isinstance(manager.plugins[0], MockPlugin)
 
@@ -47,7 +46,10 @@ def test_incompatible_plugin_is_rejected(tmp_path: Path) -> None:
     class IncompatiblePlugin(MockPlugin):
         api_version = "999"
 
-    with patch("importlib.metadata.entry_points", return_value=_entry_points_with(IncompatiblePlugin)):
+    with patch(
+        "importlib.metadata.entry_points",
+        return_value=_entry_points_with(IncompatiblePlugin),
+    ):
         manager = PluginManager(local_plugin_dir=tmp_path / "none")
     assert manager.plugins == []
     assert "incompatible" in manager.errors[0]
@@ -57,8 +59,7 @@ def test_local_plugins_are_disabled_by_default(tmp_path: Path) -> None:
     plugin_dir = tmp_path / "plugins"
     plugin_dir.mkdir()
     (plugin_dir / "local.py").write_text("raise RuntimeError('must not execute')\n", encoding="utf-8")
-    with patch("importlib.metadata.entry_points") as entry_points:
-        entry_points.return_value.select.return_value = []
+    with patch("importlib.metadata.entry_points", return_value=[]):
         manager = PluginManager(local_plugin_dir=plugin_dir)
     assert manager.plugins == []
     assert manager.errors == []
@@ -77,15 +78,13 @@ def test_local_plugin_discovery_when_trusted(tmp_path: Path) -> None:
         "plugin = LocalPlugin\n",
         encoding="utf-8",
     )
-    with patch("importlib.metadata.entry_points") as entry_points:
-        entry_points.return_value.select.return_value = []
+    with patch("importlib.metadata.entry_points", return_value=[]):
         manager = PluginManager(local_plugin_dir=plugin_dir, allow_local_plugins=True)
     assert [plugin.name for plugin in manager.plugins] == ["local"]
 
 
 def test_plugin_command_and_hook_dispatch(tmp_path: Path) -> None:
-    with patch("importlib.metadata.entry_points") as entry_points:
-        entry_points.return_value.select.return_value = []
+    with patch("importlib.metadata.entry_points", return_value=[]):
         manager = PluginManager(local_plugin_dir=tmp_path / "none")
     plugin = MockPlugin()
     manager.plugins = [plugin]
@@ -104,8 +103,7 @@ def test_plugin_command_and_hook_dispatch(tmp_path: Path) -> None:
 
 
 def test_diagnostics_report_api_and_errors(tmp_path: Path) -> None:
-    with patch("importlib.metadata.entry_points") as entry_points:
-        entry_points.return_value.select.return_value = []
+    with patch("importlib.metadata.entry_points", return_value=[]):
         manager = PluginManager(local_plugin_dir=tmp_path / "none")
     manager.errors.append("example error")
     diagnostics = manager.diagnostics()
