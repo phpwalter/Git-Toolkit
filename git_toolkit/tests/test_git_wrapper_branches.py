@@ -41,7 +41,9 @@ def _mock_repo() -> MagicMock:
 
 def test_status_invalid_repository_and_tracking_counts() -> None:
     config = _repo_config()
-    with patch("git_toolkit.git_wrapper._open_repo", side_effect=InvalidGitRepositoryError("bad")):
+    with patch("git_toolkit.git_wrapper.get_cache", return_value=None), patch(
+        "git_toolkit.git_wrapper._open_repo", side_effect=InvalidGitRepositoryError("bad")
+    ):
         status = get_repo_status(config)
         assert status["exists"] is False
         assert status["error"] == "Invalid Git repository"
