@@ -2,34 +2,86 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  release:
+  verify-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-      - name: Install dependencies
+          python-version: "3.13"
+          cache: pip
+      - name: Install release tooling
         run: |
           python -m pip install --upgrade pip
-          pip install build python-semantic-release
-      - name: Python Semantic Release
-        uses: python-semantic-release/python-semantic-release@v8
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build package
-        run: python -m build
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v1
+          python -m pip install -e ".[dev]"
+          python -m pip install twine
+      - name: Verify tag/version identity
         if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PACKAGE_VERSION="$(python -c 'from git_toolkit.version import __version__; print(__version__)')"
+          test "$TAG_VERSION" = "$PACKAGE_VERSION"
+      - name: Quality gates
+        run: |
+          python -m ruff check git_toolkit --exclude git_toolkit/tests
+          python -m mypy git_toolkit --exclude "git_toolkit/tests/"
+          python -m bandit -r git_toolkit -ll -x git_toolkit/tests
+          python -m pytest --cov=git_toolkit --cov-report=term-missing --cov-fail-under=80
+          python -m pip_audit
+      - name: Build distributions
+        run: python -m build
+      - name: Validate distributions
+        run: python -m twine check dist/*
+      - name: Smoke install wheel
+        shell: bash
+        run: |
+          python -m venv /tmp/git-toolkit-release
+          /tmp/git-toolkit-release/bin/python -m pip install dist/*.whl
+          /tmp/git-toolkit-release/bin/git-toolkit --version
+          /tmp/git-toolkit-release/bin/git-toolkit --help >/dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-dist
+          path: dist/*
+
+  github-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: verify-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: dist
+      - uses: softprops/action-gh-release@v2
         with:
           files: dist/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+
+  pypi:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: verify-build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
