@@ -1,0 +1,51 @@
+name: Clean Install Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  clean-install:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Build wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build --wheel
+      - name: Create isolated environment
+        run: python -m venv .acceptance-venv
+      - name: Install and smoke test (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          .acceptance-venv/bin/python -m pip install dist/*.whl
+          .acceptance-venv/bin/git-toolkit --version
+          .acceptance-venv/bin/git-toolkit --help >/dev/null
+          mkdir acceptance-workspace
+          cd acceptance-workspace
+          ../.acceptance-venv/bin/git-toolkit config init
+          ../.acceptance-venv/bin/git-toolkit config validate
+      - name: Install and smoke test (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $wheel = Get-ChildItem dist/*.whl | Select-Object -First 1
+          .acceptance-venv/Scripts/python -m pip install $wheel.FullName
+          .acceptance-venv/Scripts/git-toolkit --version
+          .acceptance-venv/Scripts/git-toolkit --help | Out-Null
+          New-Item -ItemType Directory acceptance-workspace | Out-Null
+          Set-Location acceptance-workspace
+          ../.acceptance-venv/Scripts/git-toolkit config init
+          ../.acceptance-venv/Scripts/git-toolkit config validate
