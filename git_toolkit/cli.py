@@ -280,9 +280,15 @@ def _dispatch(
     if args.command == "clone":
         return _run_repo_operation(targets, lambda repo: clone_repo(repo, config))
     if args.command == "fetch":
-        return _run_repo_operation(targets, lambda repo: fetch_repo(repo, args.dry_run))
+        return _run_repo_operation(
+            targets,
+            lambda repo: fetch_repo(repo, args.dry_run, config.safety),
+        )
     if args.command == "pull":
-        return _run_repo_operation(targets, lambda repo: pull_repo(repo, args.dry_run))
+        return _run_repo_operation(
+            targets,
+            lambda repo: pull_repo(repo, args.dry_run, config.safety),
+        )
     if args.command == "sync":
         return _run_repo_operation(targets, lambda repo: sync_repo(repo, config, args.dry_run))
     if args.command == "push":
