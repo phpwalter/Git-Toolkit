@@ -68,6 +68,23 @@ def test_core_repository_commands(command: str, patched: str, kwargs: dict[str, 
     assert "ok" in capsys.readouterr().out
 
 
+def test_fetch_and_pull_receive_configured_safety_policy() -> None:
+    config = _config()
+    config.safety.allowed_remote_hosts = ["github.com"]
+    manager = _manager()
+    repo = config.repositories[0]
+
+    with patch("git_toolkit.cli.fetch_repo") as fetch:
+        fetch.return_value = {"name": "repo", "success": True, "message": "ok"}
+        assert _dispatch(_args("fetch", dry_run=True), config, manager, Path("project.yml")) == 0
+        fetch.assert_called_once_with(repo, True, config.safety)
+
+    with patch("git_toolkit.cli.pull_repo") as pull:
+        pull.return_value = {"name": "repo", "success": True, "message": "ok"}
+        assert _dispatch(_args("pull", dry_run=True), config, manager, Path("project.yml")) == 0
+        pull.assert_called_once_with(repo, True, config.safety)
+
+
 def test_workflow_dispatch_paths(capsys) -> None:
     manager = _manager()
     config = _config()
