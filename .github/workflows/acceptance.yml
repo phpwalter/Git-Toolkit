@@ -11,9 +11,10 @@ permissions:
 jobs:
   clean-install:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.11", "3.13"]
+        python-version: ["3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -31,21 +32,25 @@ jobs:
         shell: bash
         run: |
           .acceptance-venv/bin/python -m pip install dist/*.whl
+          .acceptance-venv/bin/python -c 'import git_toolkit; print(git_toolkit.__version__)'
           .acceptance-venv/bin/git-toolkit --version
           .acceptance-venv/bin/git-toolkit --help >/dev/null
           mkdir acceptance-workspace
           cd acceptance-workspace
           ../.acceptance-venv/bin/git-toolkit config init
           ../.acceptance-venv/bin/git-toolkit config validate
+          ../.acceptance-venv/bin/git-toolkit config show --format json >/dev/null
       - name: Install and smoke test (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $wheel = Get-ChildItem dist/*.whl | Select-Object -First 1
           .acceptance-venv/Scripts/python -m pip install $wheel.FullName
+          .acceptance-venv/Scripts/python -c "import git_toolkit; print(git_toolkit.__version__)"
           .acceptance-venv/Scripts/git-toolkit --version
           .acceptance-venv/Scripts/git-toolkit --help | Out-Null
           New-Item -ItemType Directory acceptance-workspace | Out-Null
           Set-Location acceptance-workspace
           ../.acceptance-venv/Scripts/git-toolkit config init
           ../.acceptance-venv/Scripts/git-toolkit config validate
+          ../.acceptance-venv/Scripts/git-toolkit config show --format json | Out-Null
