@@ -1,53 +1,73 @@
 from __future__ import annotations
 
+import argparse
 import re
 import tarfile
 import zipfile
 from pathlib import Path
 
-_VERSION_RE = re.compile(r"git_toolkit-(?P<version>[^/\\-]+(?:\.[^/\\-]+)*)")
+REQUIRED_WHEEL_MEMBERS = {
+    "git_toolkit/__init__.py",
+    "git_toolkit/cli.py",
+    "git_toolkit/config.py",
+    "git_toolkit/git_wrapper.py",
+    "git_toolkit/version.py",
+}
 
 
-def _version_from_name(name: str) -> str:
-    match = _VERSION_RE.search(name.replace("-py3-none-any.whl", "").replace(".tar.gz", ""))
-    if match is None:
-        raise ValueError(f"Could not determine package version from {name}")
-    return match.group("version")
+def _normalized_wheel_members(path: Path) -> set[str]:
+    with zipfile.ZipFile(path) as archive:
+        return {name for name in archive.namelist() if not name.endswith("/")}
 
 
-def verify_dist(dist: Path = Path("dist")) -> str:
-    wheels = sorted(dist.glob("*.whl"))
-    sdists = sorted(dist.glob("*.tar.gz"))
-    if len(wheels) != 1 or len(sdists) != 1:
-        raise ValueError("Expected exactly one wheel and one source distribution")
+def _normalized_sdist_members(path: Path) -> set[str]:
+    with tarfile.open(path, "r:gz") as archive:
+        names = {member.name for member in archive.getmembers() if member.isfile()}
+    return {name.split("/", 1)[1] for name in names if "/" in name}
 
-    wheel_version = _version_from_name(wheels[0].name)
-    sdist_version = _version_from_name(sdists[0].name)
-    if wheel_version != sdist_version:
-        raise ValueError(f"Artifact version mismatch: wheel={wheel_version}, sdist={sdist_version}")
 
-    with zipfile.ZipFile(wheels[0]) as archive:
-        names = set(archive.namelist())
-        if "git_toolkit/__init__.py" not in names:
-            raise ValueError("Wheel is missing git_toolkit/__init__.py")
-        entry_points = [name for name in names if name.endswith(".dist-info/entry_points.txt")]
-        if len(entry_points) != 1:
-            raise ValueError("Wheel must contain exactly one entry_points.txt")
-        text = archive.read(entry_points[0]).decode("utf-8")
-        if "git-toolkit = git_toolkit.cli:main" not in text:
-            raise ValueError("Wheel does not expose the git-toolkit CLI entry point")
+def verify_wheel(path: Path) -> list[str]:
+    members = _normalized_wheel_members(path)
+    errors = [f"wheel missing required member: {member}" for member in sorted(REQUIRED_WHEEL_MEMBERS - members)]
+    entry_points = [name for name in members if name.endswith(".dist-info/entry_points.txt")]
+    if len(entry_points) != 1:
+        errors.append("wheel must contain exactly one dist-info/entry_points.txt")
+    return errors
 
-    with tarfile.open(sdists[0], "r:gz") as archive:
-        names = archive.getnames()
-        if not any(name.endswith("/pyproject.toml") for name in names):
-            raise ValueError("Source distribution is missing pyproject.toml")
 
-    return wheel_version
+def verify_sdist(path: Path) -> list[str]:
+    members = _normalized_sdist_members(path)
+    required = {"pyproject.toml", "README.md", "git_toolkit/cli.py", "git_toolkit/version.py"}
+    return [f"sdist missing required member: {member}" for member in sorted(required - members)]
+
+
+def version_from_filename(path: Path) -> str | None:
+    match = re.search(r"git[_-]toolkit-([0-9][A-Za-z0-9.!+_-]*)", path.name)
+    return match.group(1).replace("_", "-") if match else None
 
 
 def main() -> None:
-    version = verify_dist()
-    print(f"distribution structure OK: {version}")
+    parser = argparse.ArgumentParser(description="Verify Git Toolkit distribution artifacts.")
+    parser.add_argument("dist", type=Path, nargs="?", default=Path("dist"))
+    args = parser.parse_args()
+
+    wheels = sorted(args.dist.glob("*.whl"))
+    sdists = sorted(args.dist.glob("*.tar.gz"))
+    errors: list[str] = []
+    if len(wheels) != 1:
+        errors.append(f"expected exactly one wheel, found {len(wheels)}")
+    if len(sdists) != 1:
+        errors.append(f"expected exactly one sdist, found {len(sdists)}")
+    if wheels:
+        errors.extend(verify_wheel(wheels[0]))
+    if sdists:
+        errors.extend(verify_sdist(sdists[0]))
+    if wheels and sdists and version_from_filename(wheels[0]) != version_from_filename(sdists[0]):
+        errors.append("wheel and sdist versions do not match")
+
+    if errors:
+        raise SystemExit("\n".join(errors))
+    print("distribution artifacts verified")
 
 
 if __name__ == "__main__":
