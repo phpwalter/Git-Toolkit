@@ -23,7 +23,11 @@ def evaluate_branch_mutation(branch: str, operation: str, safety: Safety | None)
             f"{operation}.protected_branch",
             f"{operation} is blocked on protected branch '{branch}'.",
         )
-    return BranchProtectionDecision(True, f"{operation}.protected_branch.allowed", "Operation preserves protected history")
+    return BranchProtectionDecision(
+        True,
+        f"{operation}.protected_branch.allowed",
+        "Operation preserves protected history",
+    )
 
 
 def require_unprotected(branch: str, operation: str, safety: Safety | None) -> None:
