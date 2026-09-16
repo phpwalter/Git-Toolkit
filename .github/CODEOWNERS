@@ -1,0 +1,15 @@
+# Default ownership
+* @phpwalter
+
+# Core runtime
+/git_toolkit/ @phpwalter
+
+# CI and repository governance
+/.github/ @phpwalter
+
+# Documentation and localization
+/docs/ @phpwalter
+/*.md @phpwalter
+
+# Experimental web surface
+/web/ @phpwalter

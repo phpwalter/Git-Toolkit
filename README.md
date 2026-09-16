@@ -1,294 +1,232 @@
-<!--
- file: README.md
- path: L:/var/www/Git-Toolkit/README.md
- version: 1.0.0
- date: 2026-03-13
- author: Walter Torres
- copyright: Copyright 2026, Git-Toolkit.
- license: MIT
- maintainer: Git-Toolkit Team
- status: dev
+# Git Toolkit
 
- Main README file for the Git Toolkit project. Provides an overview, features, quick start, and documentation links.
--->
+Git Toolkit is a deterministic Git workflow orchestration and policy-enforcement CLI for individual repositories and multi-repository workspaces.
 
-<!-- Badge Block -->
-![CI](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/ci.yml?label=ci&logo=githubactions&logoColor=white)
-![Release](https://img.shields.io/github/actions/workflow/status/phpwalter/Git-Toolkit/release.yml?label=release&logo=rocket&logoColor=white)
-![Version](https://img.shields.io/github/v/release/phpwalter/Git-Toolkit?label=version&logo=semantic-release&logoColor=white)
-![Coverage](https://img.shields.io/codecov/c/github/phpwalter/Git-Toolkit?logo=codecov&logoColor=white)
-![Security](https://img.shields.io/badge/security-passing-brightgreen?logo=auth0&logoColor=white)
-![License](https://img.shields.io/github/license/phpwalter/Git-Toolkit?logo=opensourceinitiative&logoColor=white)
-![Python](https://img.shields.io/pypi/pyversions/git-toolkit?logo=python&logoColor=white)
-![Last Commit](https://img.shields.io/github/last-commit/phpwalter/Git-Toolkit?label=%F0%9F%97%93%20Last%20Commit&color=007ec6)
-![Maintenance](https://img.shields.io/badge/%F0%9F%9B%A0%EF%B8%8F%20Maintenance-active-brightgreen)
+The project standardizes repetitive Git operations through version-controlled configuration while keeping Git itself authoritative. It is designed for development teams, release managers, DevOps workflows, and repositories that need repeatable Git behavior without replacing native Git semantics.
 
----
+**Current development version:** `0.9.0.dev0`
 
-![toolkit-logo-banner.png](./docs/assets/toolkit-logo-banner.png)
-# <img src="./docs/assets/toolkit-icon.png" alt="Description" width="30"/> README
+## Core capabilities
 
----
+- Repository status with branch, HEAD, dirty state, upstream, ahead/behind, staged/unstaged, untracked, and conflict information.
+- Core Git lifecycle: `clone`, `fetch`, `pull`, `push`, `checkout`, `commit`, `sync`, `merge`, `rebase`, `tag`, and submodule updates.
+- Multi-repository execution and group selection.
+- Declarative project configuration via `.git-toolkit.yml`.
+- Optional global configuration via `~/.git-toolkit/config.yml`.
+- Reusable workflows with conditions, retries, script timeouts, failure policy, and optional parallel execution.
+- Lifecycle hooks and Python plugins.
+- Project-local plugins under `.git-toolkit/plugins/` plus Python package entry-point plugins.
+- Dry-run support for mutating operations.
+- Repository analytics, execution history, and metadata caching.
+- Cross-platform CI targeting Linux, Windows, and macOS.
+- OS-keyring credential management without embedding credentials in Git remote URLs.
 
-**Git Toolkit** is a lightweight, per-project CLI utility for automating and standardizing Git workflows across development teams and repositories.
+## Installation
 
-Rather than being installed globally, Git Toolkit is added to each repository as a Git submodule. Each project defines its own Git commands, automation rules, and multi-repo workflows using a `.git-toolkit.yml` configuration file stored in version control.
-
-Built with **Python** using **GitPython**, and configured via **YAML**, Git Toolkit simplifies repetitive Git tasks, reduces human error, and promotes consistent practices across your team.
-
----
-## 📑 Table of Contents
-
-- [📜 About This Project](#-about-this-project)
-- [🚀 Features](#-features)
-  - [🧠 Workflow Automation](#-workflow-automation)
-  - [⚙️ Configuration & Extensibility](#️-configuration--extensibility)
-  - [🔐 Security & Authentication](#-security--authentication)
-  - [🛠 Compatibility & Platform Support](#-compatibility--platform-support)
-- [🚀 Quick Start](#-quick-start)
-- [🧪 Basic Usage](#-basic-usage)
-- [📁 Directory Structure](#-directory-structure)
-  - [🧩 User Project Structure](#-user-project-structure)
-  - [🛠 Git Toolkit Source Repository (Contributor View)](#-git-toolkit-source-repository-contributor-view)
-- [⚙️ Configuration (.git-toolkit.yml)](#️-configuration-git-toolkityml)
-- [⚡ Automatic Behavior](#-automatic-behavior)
-- [🔌 Extensibility](#-extensibility)
-- [✅ Use Cases](#-use-cases)
-- [🗂 Quick Reference](#-quick-reference)
-- [📚 Documentation](#-documentation)
-- [🛠 Requirements](#-requirements)
-- [📄 License](#-license)
-- [👤 Author](#-author)
-
----
-
-## 📜 About This Project
-
-See the [Project Charter](./CHARTER.md) for mission, scope, and long-term goals.
-
----
-
-## 🚀 Features
-
-### 🧠 Workflow Automation
-- 🔁 **Reusable Git commands** – Define high-level workflows using familiar Git operations: `clone`, `status`, `checkout`, `commit`, `push`, `submodule update`, etc.
-- 🧩 **Hooks system** – Lifecycle hooks like `pre_clone`, `post_push`, `pre_commit`, and more for customizing project behavior.
-- 🔄 **Multi-repo support** – Orchestrate actions across multiple repos (monorepos, microservices, or submodules).
-
-### ⚙️ Configuration & Extensibility
-- 🔧 **Per-project config** – `.git-toolkit.yml` stored in each repo.
-- 🌍 **Global config support** – Optional global config in `~/.git-toolkit/config.yml`.
-- 🔌 **Plugin support** – Extend functionality via Python entry points and drop-in scripts.
-- 🗣️ **Localization support** – Document workflows in `docs/<lang>/` for team-wide clarity.
-
-### 🔐 Security & Authentication
-- ✅ **Safe by default** – Prevent force pushes or branch deletion on protected branches.
-- 🔐 **Authentication options**:
-    - Git Credential Manager (default)
-    - Personal Access Token (PAT) via OS keyring
-    - *(Coming soon)* OAuth for GitHub, GitLab, and Bitbucket
-
-### 🛠 Compatibility & Platform Support
-- 🖥️ **Cross-platform** – Works on Linux, macOS, and Windows
-- 🧰 **CI/CD ready** – Enforce Git workflows in pipelines or local automation
-- ⚡ **Zero-touch startup** – Auto-discovers repos and runs common commands without manual setup
-
-
-## 🚀 Quick Start
-
-From your project directory:
+For development:
 
 ```bash
-git submodule add https://github.com/phpwalter/git-toolkit.git .git-toolkit
-cp .git-toolkit/.git-toolkit.example.yml .git-toolkit.yml
-````
+python -m pip install -e ".[dev]"
+```
 
-Then, install Python dependencies (if needed):
+For normal package use:
 
 ```bash
-pip install -r .git-toolkit/requirements.txt
+python -m pip install .
 ```
 
----
-
-## 🧪 Basic Usage
-
-Run toolkit commands from your project root:
+The command-line entry point is:
 
 ```bash
-.git-toolkit/git-toolkit <command>
+git-toolkit --help
 ```
 
-Example:
+## Configuration
 
-```bash
-.git-toolkit/git-toolkit release
-```
-
-To make this easier, you can symlink or wrap the command:
-
-```bash
-ln -s .git-toolkit/git-toolkit git-toolkit
-./git-toolkit status
-```
-
----
-
-## 📁 Directory Structure
-
-Git Toolkit has **two views** depending on the user:
-
-### 🧩 User Project Structure
-
-This is what your project looks like when Git Toolkit is used as a submodule:
-
-```
-your-project/
-├── .git/
-├── .git-toolkit/            # Git Toolkit submodule
-├── .git-toolkit.yml         # Project-specific Git Toolkit config
-├── src/
-└── ...
-```
-
-### 🛠 Git Toolkit Source Repository (Contributor View)
-
-If you're working on Git Toolkit itself (e.g. contributing or debugging):
-
-```
-.
-├── README.md
-├── PROPOSAL.md
-├── config_default.yaml
-├── git_toolkit/
-│   ├── cli.py, config.py, hooks.py, ...
-│   └── tests/
-│       └── test_*.py
-├── docs/
-│   ├── en/, es/, fr/         # Internationalized documentation
-│   └── ...
-└── .github/
-    ├── CONTRIBUTING.md
-    ├── CODE_OF_CONDUCT.md
-    ├── GOVERNANCE.md
-    ├── SECURITY.md
-    ├── SYNC_PROCESS.md
-    ├── DOCS_SYNC.md
-    ├── WORKFLOW.md
-    ├── ISSUE_TEMPLATE/
-    └── workflows/
-```
-
----
-
-
-## ⚙️ Configuration (`.git-toolkit.yml`)
-
-Each project defines its automation rules and repo structure using YAML.
-
-### Example
+Create `.git-toolkit.yml` in the project root:
 
 ```yaml
+project:
+  name: example
+
 repositories:
-  - name: main
+  - name: app
     path: .
-  - name: ui
-    path: ./packages/ui
-    default_branch: main
-
-commands:
-  status:
-    script: |
-      git -C {{repo.path}} status
-
-  release:
-    steps:
-      - tag: v{{ version }}
-      - push-tags: true
+    groups: [core]
 
 safety:
   prevent_force_push: true
   protect_branches:
     - main
-    - release/*
+    - master
+  require_clean_worktree: true
+
+workflows:
+  verify-and-sync:
+    failure_policy: stop
+    steps:
+      - name: status
+        command: status
+      - name: update
+        command: sync
+        if: repo.clean
+      - name: tests
+        script: python -m pytest
+        timeout: 300
+        retries: 1
 ```
 
----
+Configuration precedence is:
 
-## ⚡ Automatic Behavior
+```text
+built-in defaults
+       ↓
+~/.git-toolkit/config.yml
+       ↓
+project .git-toolkit.yml
+```
 
-Some behaviors are available **out of the box**, without requiring config:
+Inspect the effective configuration with:
 
-* If `.git-toolkit.yml` is missing, the toolkit will warn but attempt to run default logic.
-* Repository discovery may be automatic (e.g. by scanning subdirectories).
-* Common commands like `status`, `push`, and `pull` may be pre-defined unless overridden.
+```bash
+git-toolkit config show
+git-toolkit config validate
+```
 
-This allows you to start using Git Toolkit with **zero configuration**, then customize as needed.
+## Core commands
 
----
+```text
+git-toolkit status
+git-toolkit clone
+git-toolkit fetch
+git-toolkit pull
+git-toolkit sync
+git-toolkit checkout <branch>
+git-toolkit commit -m "message"
+git-toolkit push
+git-toolkit push --force-with-lease
+git-toolkit merge <source>
+git-toolkit rebase <onto>
+git-toolkit tag <tag>
+git-toolkit submodule update
+git-toolkit stats
+git-toolkit run <workflow>
+git-toolkit history
+git-toolkit clear-cache
+```
 
-## 🔌 Extensibility
+Most repository commands accept `--group <name>` to operate on a configured subset.
 
-You can extend Git Toolkit through:
+## Sync semantics
 
-* **Hooks**: Run pre/post scripts on events (e.g. pre-push, post-merge)
-* **Plugins**: Drop-in Python modules for advanced logic
-* **Script steps**: Run Bash, Python, or other scripts from YAML-defined workflows
+`git-toolkit sync` is intentionally conservative. It:
 
----
+1. requires a non-detached branch;
+2. requires a clean working tree when policy requires it;
+3. fetches and prunes `origin`;
+4. resolves the current upstream;
+5. performs a fast-forward-only merge.
 
-## ✅ Use Cases
+Divergent history is reported for explicit resolution rather than silently rebased or merged.
 
-* Automate version tagging and changelog generation
-* Standardize branch naming and protection
-* Manage multiple Git repositories with a single command
-* Enforce team-specific Git policies or commit formatting
-* Seamlessly integrate Git processes into your CI/CD pipeline
+## Push safety
 
----
+Git Toolkit distinguishes a normal push from a requested force update. When force is requested it uses `--force-with-lease`, never an unconditional `--force` operation from the supported CLI.
 
-## 🗂 Quick Reference
+Project policy may block force updates entirely or block them for protected branches. Hosting-provider policy remains authoritative: Git Toolkit does not bypass GitHub Push Protection, branch rules, required checks, or organization policy.
 
-| Context             | Folder Location    | Description                             |
-|---------------------|--------------------|-----------------------------------------|
-| **User Project**    | `.git-toolkit/`    | Toolkit submodule added to your repo    |
-|                     | `.git-toolkit.yml` | Project-level config file               |
-| **Toolkit Project** | `git_toolkit/`     | CLI code, hooks, plugin system          |
-|                     | `docs/<lang>/`     | Multilingual documentation              |
-|                     | `.github/`         | Community, CI/CD, governance, templates |
+## Credentials
 
----
+Git Toolkit does not inject PATs into HTTPS remote URLs. This avoids leaking credentials through logs, process output, exception messages, shell history, or repository remote configuration.
 
-## 📚 Documentation
+Git transport authentication is delegated to Git and the configured credential helper/Git Credential Manager. `git-toolkit auth` can manage host credentials in the operating-system keyring for explicit use and future provider adapters.
 
-More documentation coming soon. For now:
+Do not place credentials in `.git-toolkit.yml`.
 
-* Sample configuration *(coming soon)*
-* Extending Git Toolkit *(coming soon)*
-* Built-in command reference *(coming soon)*
+## Workflows
 
----
+Workflow steps may use built-in Git commands or project scripts. Supported conditions currently include:
 
-## 🛠 Requirements
+```text
+repo.clean
+repo.dirty
+repo.exists
+repo.detached
+branch == <name>
+```
 
-* Python 3.7+
-* [GitPython](https://gitpython.readthedocs.io/en/stable/)
+Steps may define:
 
----
+```yaml
+continue_on_error: false
+timeout: 300
+retries: 2
+```
 
-## 📄 License
+Workflows may run repository work in parallel:
 
-MIT License. See [`LICENSE`](LICENSE) for details.
+```bash
+git-toolkit run verify --parallel --workers 4
+```
 
----
+## Plugins
 
-## 👤 Author
+Plugins are discovered from:
 
-Created by [@phpwalter](https://github.com/phpwalter)
+- the `git_toolkit.plugins` Python entry-point group;
+- `.git-toolkit/plugins/*.py`.
 
-> If Git is your team's power tool, **Git Toolkit** is the workshop that makes using it safe, fast, and consistent.
+Local plugin modules expose `plugin` as either a `Plugin` instance or a `Plugin` subclass. Plugins must declare a compatible plugin API version.
 
----
+List loaded plugins with:
 
-_Last updated: 2025-07-16_<br>
-_Next review: 2026-07-01_
+```bash
+git-toolkit plugins list
+```
+
+## Runtime state
+
+Logs, execution history, and cache data live under `.git-toolkit/` and are runtime artifacts. They are ignored by Git and must not be committed.
+
+## Experimental web shell
+
+The `web/` directory is experimental and is not part of the supported 1.0 interface. Optional dependencies can be installed with:
+
+```bash
+python -m pip install -e ".[web]"
+uvicorn web.main:app --reload
+```
+
+The CLI remains the product surface until the core architecture and release gates are stable.
+
+## Quality gates
+
+The stabilization line requires:
+
+- Linux, Windows, and macOS CI;
+- Python 3.11, 3.12, and 3.13 coverage;
+- Ruff linting;
+- mypy type checking;
+- Bandit source scanning;
+- dependency auditing;
+- package build verification;
+- CLI smoke testing;
+- minimum automated coverage of 80%.
+
+Policy/security-critical paths should exceed the repository-wide minimum.
+
+## Documentation
+
+- [Architecture](docs/en/ARCHITECTURE.md)
+- [Functional Requirements](docs/en/functional_requirements.md)
+- [Technical Specifications](docs/en/Technical_specifications.md)
+- [Developer Guide](docs/en/developer_guide.md)
+- [How-To Guide](docs/en/how-to-guide.md)
+- [Roadmap](ROADMAP.md)
+- [Milestones](MILESTONES.md)
+- [Security Policy](.github/SECURITY.md)
+- [Contribution Guide](.github/CONTRIBUTING.md)
+
+## License
+
+MIT. See [LICENSE](LICENSE).

@@ -1,165 +1,179 @@
-<!--
- file: functional_requirements.md
- path: L:/var/www/Git-Toolkit/docs/en/functional_requirements.md
- version: 1.0.0
- date: 2026-03-13
- author: Walter Torres
- copyright: Copyright 2026, Git-Toolkit.
- license: MIT
- maintainer: Git-Toolkit Team
- status: dev
+# Functional Requirements — Git Toolkit
 
- Specifies the functional and non-functional requirements for the Git Toolkit project.
--->
+**Status:** Active specification for the 0.9 stabilization line and 1.0 release gate.
 
-![toolkit-logo-banner.png](../assets/toolkit-logo-banner.png)
-# <img src="../assets/toolkit-icon.png" alt="Description" width="30"/> Functional Requirements Document – Git Toolkit
+## 1. Purpose
 
-## 1. Introduction
+Git Toolkit provides deterministic Git workflow orchestration and policy enforcement for individual repositories and multi-repository workspaces. The supported 1.0 product surface is the CLI. The web shell is experimental.
 
-### 1.1. Purpose
-This Functional Requirements Document (FRD) specifies the functional and non-functional requirements for the **Git Toolkit** project. It serves as a foundational document for development, testing, and stakeholder communication, ensuring a shared understanding of the system's capabilities and expected behavior.
+## 2. Supported environment
 
-### 1.2. Scope
-The Git Toolkit is a lightweight, per-project CLI utility designed to automate and standardize Git workflows. This document covers the requirements for its core CLI, configuration system, extensibility mechanisms (hooks and plugins), authentication, and multi-repository management capabilities.
+- Python 3.11, 3.12, and 3.13.
+- Standard Git installations.
+- Windows, macOS, and Linux.
+- Interactive developer environments and CI/CD systems.
 
-**In-Scope:**
-*   Core Git operations via a unified CLI.
-*   Declarative, per-project configuration via `.git-toolkit.yml`.
-*   Lifecycle hooks for pre/post Git actions.
-*   Python-based plugin system for custom logic.
-*   Authentication via Git Credential Manager and Personal Access Tokens.
-*   Orchestration of Git operations across multiple repositories.
-*   Enforcement of Git policies (e.g., branch protection, naming conventions).
-*   Cross-platform compatibility (Linux, macOS, Windows).
-*   CI/CD integration capabilities.
+## 3. Core CLI requirements
 
-**Out-of-Scope (for current MVP):**
-*   OAuth web flows for Git hosting providers (planned for future).
-*   Graphical User Interface (GUI).
-*   Support for non-Git Version Control Systems (VCS).
-*   Advanced analytics and reporting features.
+The system SHALL provide first-class commands for:
 
-### 1.3. Definitions, Acronyms, and Abbreviations
-*   **CLI**: Command Line Interface
-*   **FRD**: Functional Requirements Document
-*   **GCM**: Git Credential Manager
-*   **PAT**: Personal Access Token
-*   **VCS**: Version Control System
-*   **YAML**: YAML Ain't Markup Language (configuration file format)
+- `status`
+- `clone`
+- `fetch`
+- `pull`
+- `checkout`
+- `commit`
+- `push`
+- `sync`
+- `merge`
+- `rebase`
+- `tag`
+- `submodule update`
+- `stats`
+- `run`
+- `auth`
+- `config`
+- `plugins`
+- `history`
+- `clear-cache`
 
-### 1.4. References
-*   [README.md](../../README.md)
-*   [PROPOSAL.md](../../PROPOSAL.md)
-*   [MILESTONES.md](../../MILESTONES.md)
-*   [INTEGRATION.md](../../INTEGRATION.md)
-*   [SECURITY.md](../../.github/SECURITY.md)
-*   [CONTRIBUTING.md](../../.github/CONTRIBUTING.md)
-*   [Developer Guide](developer_guide.md)
+Configured project commands SHALL also be executable by name when their execution requirements are satisfied.
 
----
+## 4. Repository-state requirements
 
-## 2. Overall Description
+`status` SHALL report enough information for safe automation, including:
 
-### 2.1. Product Vision
-The Git Toolkit aims to be the go-to solution for development teams seeking to standardize and automate their Git workflows on a per-project basis. By providing a flexible, extensible, and version-controlled CLI, it reduces human error, promotes consistent practices, and streamlines repetitive Git tasks across diverse development environments.
+- repository existence;
+- active branch or detached HEAD;
+- HEAD SHA;
+- upstream branch;
+- ahead/behind counts;
+- dirty state;
+- staged and unstaged state;
+- untracked-file count;
+- conflict state.
 
-### 2.2. User Classes and Characteristics
-*   **Developers**: Primary users who interact with the CLI daily to perform Git operations, often benefiting from simplified, project-specific commands and automated checks. They require ease of use and clear feedback.
-*   **DevOps Teams**: Utilize Git Toolkit to automate tasks, enforce Git policies within CI/CD pipelines, and manage multi-repository setups. They require reliability, extensibility, and robust integration capabilities.
-*   **Release Managers**: Leverage the toolkit for automated version tagging, changelog generation, and ensuring release readiness. They require accuracy, consistency, and policy enforcement.
-*   **Open Source Maintainers**: Use the toolkit to document, share, and enforce project-specific Git behaviors with contributors, ensuring consistency and reducing onboarding friction. They require clear documentation and extensibility.
+The implementation SHALL use Git repository semantics rather than relying solely on the presence of a `.git/` directory.
 
-### 2.3. Operating Environment
-The Git Toolkit is designed to operate in various environments:
-*   **Operating Systems**: Linux, macOS, Windows.
-*   **Python Versions**: Python 3.7+.
-*   **Git Repositories**: Any standard Git repository, typically managed as a submodule within a larger project.
-*   **CI/CD Systems**: Compatible with popular CI/CD platforms (e.g., GitHub Actions, GitLab CI, Jenkins).
+## 5. Configuration requirements
 
----
+Configuration SHALL resolve deterministically in this order, lowest precedence first:
 
-## 3. Specific Requirements
+1. built-in defaults;
+2. `~/.git-toolkit/config.yml`;
+3. project `.git-toolkit.yml`.
 
-### 3.1. Functional Requirements
+The system SHALL validate the effective configuration and SHALL provide commands to inspect it.
 
-#### 3.1.1. CLI Commands
-*   **FR-CLI-001**: The system SHALL provide a command-line interface (`git-toolkit`) for executing Git operations.
-*   **FR-CLI-002**: The system SHALL support core Git operations such as `clone`, `status`, `checkout`, `commit`, `push`, `pull`, and `submodule update`.
-*   **FR-CLI-003**: The system SHALL allow users to define custom commands within `.git-toolkit.yml` that encapsulate one or more Git operations or scripts.
-*   **FR-CLI-004**: The system SHALL execute custom commands by referencing their defined name (e.g., `git-toolkit release`).
-*   **FR-CLI-005**: The system SHALL provide clear help messages for all built-in and custom commands.
+Version-controlled configuration SHALL NOT be treated as a source of runtime credentials.
 
-#### 3.1.2. Configuration Management
-*   **FR-CONF-001**: The system SHALL load its configuration from a `.git-toolkit.yml` file located in the project root.
-*   **FR-CONF-002**: The system SHALL support defining multiple Git repositories within the `.git-toolkit.yml` file, each with a name and path.
-*   **FR-CONF-003**: The system SHALL allow configuration of default branches for specified repositories.
-*   **FR-CONF-004**: The system SHALL provide a mechanism to define global configuration settings (e.g., in `~/.git-toolkit/config.yml`).
-*   **FR-CONF-005**: The system SHALL validate the `.git-toolkit.yml` schema and report errors clearly.
-*   **FR-CONF-006**: The system SHALL provide default behaviors for common commands if `.git-toolkit.yml` is missing or incomplete.
+## 6. Git-operation safety requirements
 
-#### 3.1.3. Workflow Automation (Hooks & Scripts)
-*   **FR-HOOK-001**: The system SHALL support a lifecycle hooks system (e.g., `pre_clone`, `post_push`, `pre_commit`, `post_merge`).
-*   **FR-HOOK-002**: The system SHALL allow users to define scripts (Bash, Python, etc.) to be executed at specific hook points.
-*   **FR-HOOK-003**: The system SHALL provide context (e.g., repository information) to scripts executed via hooks.
-*   **FR-HOOK-004**: The system SHALL halt the Git operation if a `pre-` hook fails.
+The system SHALL:
 
-#### 3.1.4. Extensibility (Plugins)
-*   **FR-PLUG-001**: The system SHALL support a plugin architecture to extend its functionality via Python modules.
-*   **FR-PLUG-002**: Plugins SHALL be able to register new commands and implement custom hook logic.
-*   **FR-PLUG-003**: The system SHALL provide a mechanism for discovering and loading local plugins.
+- use fast-forward-only behavior for deterministic pull/sync operations unless an explicit merge/rebase operation is requested;
+- refuse unsafe operations on detached HEAD where appropriate;
+- enforce configured clean-worktree requirements;
+- distinguish normal push from history-rewriting push;
+- use `--force-with-lease`, not unconditional `--force`, for supported history-rewriting pushes;
+- allow policy to prohibit force push globally;
+- prohibit force push to configured protected branches;
+- return an explicit policy rule, reason, and remediation for policy denials where supported.
 
-#### 3.1.5. Authentication
-*   **FR-AUTH-001**: The system SHALL integrate with Git Credential Manager (GCM) for secure authentication.
-*   **FR-AUTH-002**: The system SHALL support authentication using Personal Access Tokens (PATs) stored securely (e.g., via OS keyring or environment variables).
-*   **FR-AUTH-003**: The system SHALL provide clear error messages for authentication failures.
+Hosting-provider policy remains authoritative. Git Toolkit SHALL NOT attempt to bypass repository rules, secret scanning, required checks, or organization policy.
 
-#### 3.1.6. Multi-Repository Management
-*   **FR-MULTI-001**: The system SHALL be able to execute commands across multiple repositories defined in `.git-toolkit.yml`.
-*   **FR-MULTI-002**: The system SHALL provide mechanisms to iterate over defined repositories when executing commands or scripts.
+## 7. Workflow requirements
 
-#### 3.1.7. Policy Enforcement
-*   **FR-POLICY-001**: The system SHALL be able to prevent force pushes to protected branches.
-*   **FR-POLICY-002**: The system SHALL allow definition of protected branches in `.git-toolkit.yml`.
-*   **FR-POLICY-003**: The system SHALL support validation of branch naming conventions (e.g., via hooks or custom commands).
+The workflow engine SHALL be implemented once and consumed by the CLI.
 
-### 3.2. Non-Functional Requirements
+Workflows SHALL support:
 
-#### 3.2.1. Performance
-*   **NFR-PERF-001**: The system SHALL execute Git operations with minimal overhead compared to native Git commands.
-*   **NFR-PERF-002**: The system SHALL load configurations and execute commands efficiently, aiming for response times under 1 second for typical operations.
+- ordered steps;
+- built-in Git steps;
+- trusted script steps;
+- repository selection;
+- optional parallel repository execution;
+- branch and repository-state conditions;
+- retries;
+- script timeouts;
+- stop/continue failure policy;
+- per-step `continue_on_error`;
+- optional webhook notification.
 
-#### 3.2.3. Usability
-*   **NFR-USAB-001**: The system SHALL provide a clear and intuitive command-line interface.
-*   **NFR-USAB-002**: The system SHALL provide comprehensive and easy-to-understand documentation for setup, usage, and extension.
-*   **NFR-USAB-003**: The system SHALL provide helpful error messages and debugging information.
+Future workflow DAG/output-passing features are not required for 1.0 unless promoted into the active release gate.
 
-#### 3.2.4. Reliability
-*   **NFR-REL-001**: The system SHALL execute Git operations reliably and consistently across supported platforms.
-*   **NFR-REL-002**: The system SHALL gracefully handle invalid configurations or unexpected Git states, providing informative feedback.
-*   **NFR-REL-003**: The system SHALL maintain a test coverage of at least 80% for core modules.
+## 8. Script and hook trust requirements
 
-#### 3.2.5. Maintainability
-*   **NFR-MAINT-001**: The system's codebase SHALL adhere to Python PEP 8 style guidelines.
-*   **NFR-MAINT-002**: The system's architecture SHALL be modular to facilitate future enhancements and bug fixes.
-*   **NFR-MAINT-003**: The system SHALL provide clear internal documentation (code comments, design docs).
+Project scripts and project hook scripts execute checked-out repository content and SHALL therefore be disabled by default.
 
-#### 3.2.6. Compatibility
-*   **NFR-COMP-001**: The system SHALL be cross-platform, supporting Linux, macOS, and Windows.
-*   **NFR-COMP-002**: The system SHALL be compatible with standard Git installations.
-*   **NFR-COMP-003**: The system SHALL be CI/CD ready, allowing for easy integration into automated pipelines.
+A trusted repository MAY explicitly opt in with:
 
----
+```yaml
+security:
+  allow_project_scripts: true
+```
 
-## 4. Appendices
+Pre-hooks SHALL be able to block the associated operation when they fail.
 
-### 4.1. Glossary
-(To be expanded as needed with project-specific terms)
+## 9. Plugin requirements
 
-### 4.2. Open Issues
-(To be linked to GitHub issues or similar tracking system)
+The system SHALL support:
 
----
+- Python package entry-point plugins;
+- project-local plugins only after explicit trust opt-in;
+- plugin API version compatibility checks;
+- command registration;
+- hook participation;
+- plugin diagnostics.
 
-_Last updated: 2025-07-17_<br>
-_Next review: 2026-07-01_
+Project-local plugins SHALL be disabled by default.
+
+## 10. Authentication requirements
+
+The system SHALL NOT embed credentials in Git remote URLs.
+
+Git transport authentication SHALL be delegated to Git/Git Credential Manager/credential helpers until provider-specific adapters are introduced.
+
+Git Toolkit MAY store explicitly managed host credentials in the operating-system keyring. Credential values SHALL NOT be emitted by status or inspection commands.
+
+## 11. Observability requirements
+
+The system SHALL provide:
+
+- execution history;
+- runtime logging;
+- bounded metadata caching;
+- secret-aware argument scrubbing for execution history.
+
+Runtime logs, cache, history, coverage data, and package-build metadata SHALL NOT be committed to the repository.
+
+## 12. Quality requirements
+
+Before `1.0.0`:
+
+- Linux, Windows, and macOS CI SHALL pass;
+- supported Python versions SHALL pass;
+- linting SHALL pass;
+- type checking SHALL pass;
+- source security scanning SHALL pass;
+- dependency audit SHALL pass;
+- package build SHALL pass;
+- CLI smoke test SHALL pass;
+- automated code coverage SHALL be at least 80% repository-wide;
+- policy/security-critical paths SHOULD approach complete branch coverage.
+
+## 13. Documentation requirements
+
+Documentation SHALL distinguish implemented, experimental, planned, and deprecated behavior. User-facing documentation SHALL not describe planned functionality as currently supported.
+
+The architecture, README, security/support guidance, roadmap, and release requirements SHALL agree before the 1.0 release.
+
+## 14. Explicitly experimental/post-1.0
+
+The following are not supported 1.0 guarantees:
+
+- full GUI/web management;
+- browser OAuth flows;
+- non-Git VCS support;
+- organization-wide advanced analytics;
+- workflow dependency DAGs and cross-step output passing.
