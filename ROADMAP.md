@@ -1,124 +1,146 @@
-<!--
- file: ROADMAP.md
- path: L:/var/www/Git-Toolkit/ROADMAP.md
- version: 1.0.0
- date: 2026-03-13
- author: Walter Torres
- copyright: Copyright 2026, Git-Toolkit.
- license: MIT
- maintainer: Git-Toolkit Team
- status: dev
+# Git Toolkit Roadmap
 
- Outlines the strategic direction and planned evolution of the Git Toolkit project.
--->
+**Current line:** `0.9.0.dev0`  
+**Primary objective:** converge implementation, policy, tests, packaging, and documentation into a trustworthy `1.0.0` release.
 
-![toolkit-logo-banner.png](../docs/assets/toolkit-logo-banner.png)
-# <img src="../docs/assets/toolkit-icon.png" alt="Description" width="30"/> Roadmap – Git Toolkit
+## Product direction
 
-**Project:** Git Toolkit
-**Maintainer:** Walter Torres ([@phpwalter](https://github.com/phpwalter))
-**Execution Model:** Solo Contributor, Public OSS
-**Last Updated:** 2026-03-25
+Git Toolkit is a deterministic Git workflow orchestration and policy-enforcement CLI for individual repositories and multi-repository workspaces. The CLI is the supported 1.0 product surface. Web/GUI work remains experimental until the core release contract is stable.
 
----
+## 0.9 Stabilization
 
-## 🚧 Overview
+### Repository hygiene
 
-This roadmap outlines the strategic direction and planned evolution of the Git Toolkit project. It provides a high-level view of upcoming features, improvements, and milestones, guiding development efforts and informing the community about the project's future.
+- [x] Remove committed coverage output.
+- [x] Remove committed runtime history and logs.
+- [x] Remove generated `*.egg-info` metadata.
+- [x] Expand `.gitignore` for build, test, runtime, IDE, and secret-bearing local files.
 
-For detailed objectives, definitions of done, and acceptance criteria for each milestone, please refer to the [MILESTONES.md](./MILESTONES.md) document.
+### Versioning and packaging
 
----
+- [x] Establish `git_toolkit/version.py` as the runtime version source.
+- [x] Align package metadata on `0.9.0.dev0`.
+- [x] Require Python 3.11+.
+- [x] Separate experimental web dependencies from the core package.
 
-## 📅 High-Level Phases
+### Core Git lifecycle
 
-The development of Git Toolkit is structured into several phases, each building upon the previous one to deliver increasing value and functionality.
+- [x] Rich repository status model.
+- [x] Clone.
+- [x] Fetch/prune.
+- [x] Fast-forward-only pull.
+- [x] Checkout with dirty-tree policy.
+- [x] Commit.
+- [x] Push.
+- [x] Force-with-lease request with policy enforcement.
+- [x] Deterministic sync.
+- [x] Merge.
+- [x] Rebase.
+- [x] Tag.
+- [x] Submodule update.
 
-### Phase 1: Foundation & Core Automation (v0.1.x)
+### Policy and safety
 
-**Focus:** Establishing the core CLI, configuration system, and basic Git automation capabilities.
+- [x] Dedicated structured policy decision engine.
+- [x] Default force-push prevention.
+- [x] Protected-branch force-push blocking.
+- [x] Clean-worktree requirement for sensitive operations.
+- [x] Policy rule/reason/remediation metadata.
+- [x] No unconditional force-push option in the supported CLI.
+- [x] Hosting-provider rules remain authoritative.
+- [ ] Add branch-name policy enforcement.
+- [ ] Add remote allow/deny policy.
 
-*   **Core CLI Commands**: Implement essential Git operations (`clone`, `status`, `push`, `checkout`, `submodule update`).
-*   **Per-Project Configuration**: Develop robust loading and parsing of `.git-toolkit.yml`.
-*   **Initial Hook System**: Introduce lifecycle hooks for pre/post Git actions.
-*   **Basic Authentication**: Integrate Git Credential Manager and Personal Access Token support.
+### Configuration
 
-**Corresponding Milestone:** [v0.1.0 "Hooks"](./MILESTONES.md#%EF%B8%8F-v010-hooks)
+- [x] Built-in defaults.
+- [x] Global config at `~/.git-toolkit/config.yml`.
+- [x] Project config at `.git-toolkit.yml`.
+- [x] Deterministic global → project merge.
+- [x] Effective-config inspection and validation commands.
+- [x] Config-defined commands are executable from the CLI.
+- [x] Version-controlled `auth.tokens` is ignored by runtime credential handling.
+- [x] Project scripts are disabled by default and require explicit trust opt-in.
+- [x] Project-local plugins are disabled by default and require explicit trust opt-in.
+- [ ] Add explicit CLI/environment override reporting to `config show`.
+- [ ] Add `config explain <path>` provenance reporting.
 
----
+### Authentication
 
-### Phase 2: CI/CD & Release Automation (v0.2.x - v0.3.x)
+- [x] Stop embedding credentials in HTTPS remote URLs.
+- [x] Keep explicit OS-keyring credential lifecycle commands.
+- [x] Delegate transport authentication to Git/GCM/credential helpers.
+- [ ] Add provider-specific credential adapters without remote mutation.
+- [ ] Add OAuth only after the CLI 1.0 contract is stable.
 
-**Focus:** Enhancing CI/CD integration, automating release processes, and ensuring project quality and stability.
+### Workflows
 
-*   **CI/CD Readiness**: Ensure seamless execution within GitHub Actions and other CI environments.
-*   **Automated Releases**: Implement semantic versioning, automated tagging, and changelog generation.
-*   **Quality Assurance**: Increase test coverage, enforce linting, and integrate security scanning.
-*   **Multi-Repo Support**: Improve orchestration and management of multiple repositories.
+- [x] One workflow execution engine.
+- [x] Built-in Git workflow steps.
+- [x] Trusted script steps.
+- [x] Conditions.
+- [x] Retries.
+- [x] Script timeouts.
+- [x] Failure policy.
+- [x] Optional repository parallelism.
+- [x] Webhook notification.
+- [ ] Dependency DAGs (`depends_on`).
+- [ ] Structured step outputs and output passing.
+- [ ] Explicit rollback/compensation hooks.
 
-**Corresponding Milestones:**
-*   [v0.2.0 "CI"](./MILESTONES.md#%EF%B8%8F-v020-ci)
-*   [v0.2.1 "Releases"](./MILESTONES.md#%EF%B8%8F-v021-releases)
-*   [v0.3.0 "Quality"](./MILESTONES.md#%EF%B8%8F-v030-quality)
+### Plugins and hooks
 
----
+- [x] Package entry-point plugin discovery.
+- [x] Project-local plugin discovery behind explicit trust.
+- [x] Plugin API compatibility checks.
+- [x] Plugin diagnostics.
+- [x] Plugin hook participation.
+- [ ] Add plugin isolation guidance and capability declarations.
 
-### Phase 3: Extensibility & Community (v1.0.0 - v1.6.x)
+### CI and quality
 
-**Focus:** Expanding the toolkit's extensibility, fostering community contributions, and establishing sustainable development practices.
+- [x] Linux CI.
+- [x] Windows CI.
+- [x] macOS CI.
+- [x] Python 3.11–3.13 matrix.
+- [x] Ruff.
+- [x] mypy.
+- [x] Bandit.
+- [x] dependency audit.
+- [x] package build verification.
+- [x] CLI smoke test.
+- [x] 80% minimum coverage gate.
+- [x] Direct policy-engine unit coverage.
+- [ ] Raise policy/security critical paths toward 100% coverage.
+- [ ] Add documentation-link validation.
+- [ ] Add explicit secret-scanning regression test data rules.
 
-*   **Plugin System Enhancement**: Mature the plugin architecture for broader extensibility.
-*   **Advanced Workflow Customization**: Provide more sophisticated options for defining complex Git workflows.
-*   **Community Engagement**: Establish a regular release cadence and improve contribution pathways.
-*   **Security & Authentication**: Mature host-specific credential management and secure storage.
+### Documentation and governance
 
-**Corresponding Milestones:**
-*   [v1.0.0 "Monthly"](./MILESTONES.md#%EF%B8%8F-v100-monthly)
-*   [v1.1.0 "Extensibility"](./MILESTONES.md#%EF%B8%8F-v110-extensibility)
-*   [v1.2.0 "Safety"](./MILESTONES.md#%EF%B8%8F-v120-safety)
-*   [v1.3.0 "Analytics"](./MILESTONES.md#%EF%B8%8F-v130-analytics)
-*   [v1.4.0 "Workflows"](./MILESTONES.md#%EF%B8%8F-v140-workflows)
-*   [v1.5.0 "Collaboration"](./MILESTONES.md#%F0%9F%A4%9D-v150-collaboration)
-*   [v1.6.0 "Security"](./MILESTONES.md#%F0%9F%94%92-v160-security)
+- [x] Architecture specification.
+- [x] Functional requirements reconciled to the 0.9/1.0 contract.
+- [x] Support policy.
+- [x] CODEOWNERS.
+- [x] README aligned with implemented behavior.
+- [x] Experimental web boundary documented.
+- [ ] Reconcile remaining historical milestone/technical-guide language with the 0.9 implementation.
+- [ ] Complete localized-document parity after English source documents stabilize.
 
----
+## 1.0 Release Gate
 
-### Phase 4: Observability, Reliability & Performance (v1.7.0 and Beyond)
+`1.0.0` is permitted only when all of the following are true:
 
-**Focus:** Enhancing the toolkit's visibility, traceability, and robust error handling while optimizing performance to support larger teams and more critical workflows.
+1. Supported behavior and documentation agree.
+2. Linux, Windows, and macOS CI are green.
+3. Supported Python versions are green.
+4. Package build and installed CLI smoke tests pass.
+5. No committed runtime/build artifacts remain.
+6. No credentials exist in repository history introduced by the release line.
+7. Minimum repository coverage is 80% and safety-critical paths have substantially higher coverage.
+8. Core Git operations fail safely on dirty, detached, divergent, or unauthorized states.
+9. Workflow execution has deterministic stop/continue semantics.
+10. Experimental web behavior is not represented as a supported 1.0 capability.
 
-*   **Structured Logging**: Implement comprehensive and configurable logging for easier debugging.
-*   **Execution History**: Maintain a searchable audit log of all toolkit actions.
-*   **Enhanced Error Context**: Provide clearer diagnostic information and recovery steps on failure.
-*   **Metadata Caching**: Speed up repetitive operations like status and statistics.
-*   **Optimized Parallelism**: Improve multi-repo execution efficiency with configurable resources.
+## Post-1.0
 
-**Corresponding Milestones:**
-*   [v1.7.0 "Observability"](./MILESTONES.md#%F0%9F%94%8D-v170-observability)
-*   [v1.8.0 "Performance"](./MILESTONES.md#%E2%9A%A1-v180-performance)
-
----
-
-## 🔮 Future Considerations (Beyond 1.0)
-
-These items are currently out of scope for the initial MVP but are under consideration for future development:
-
-*   **OAuth Support**: Integration with GitHub, GitLab, and Bitbucket OAuth for enhanced authentication.
-*   **GUI Interface**: A graphical user interface for easier management of Git Toolkit configurations and commands.
-*   **PyPI Package Distribution**: Simplified installation via `pip install git-toolkit`.
-*   **Support for Non-Git VCS**: Exploring compatibility with other version control systems (e.g., Mercurial, SVN).
-*   **Advanced Reporting**: Detailed analytics and reporting on Git workflow adherence and efficiency.
-
----
-
-## 🔗 Related Documents
-
-*   [PROPOSAL.md](../PROPOSAL.md) – Project vision, problem statement, and initial scope.
-*   [MILESTONES.md](./MILESTONES.md) – Detailed objectives and timelines for each development phase.
-*   [GOVERNANCE.md](./.github/GOVERNANCE.md) – Project governance model and decision-making processes.
-*   [CONTRIBUTING.md](./.github/CONTRIBUTING.md) – Guidelines for contributing to the project.
-
----
-
-**Maintainer Note:**
-This roadmap is a living document and may evolve based on community feedback, project priorities, and resource availability. Updates will be communicated through official project channels.
+After 1.0, priority moves to richer policy modeling, workflow DAGs, provider authentication adapters, organization-level reporting, and eventually a supported web/GUI surface. Non-Git VCS support remains exploratory and is not part of the near-term product definition.

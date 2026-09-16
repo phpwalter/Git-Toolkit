@@ -1,27 +1,22 @@
-import pytest
-import os
 from git_toolkit.auth import get_auth_url, get_pat_from_env
 
-def test_get_auth_url_no_pat():
+
+def test_get_auth_url_never_embeds_pat() -> None:
     url = "https://github.com/user/repo.git"
     assert get_auth_url(url, None) == url
-    assert get_auth_url(url, "") == url
+    assert get_auth_url(url, "secret-token") == url
 
-def test_get_auth_url_with_pat():
-    url = "https://github.com/user/repo.git"
-    pat = "ghp_12345"
-    expected = "https://ghp_12345@github.com/user/repo.git"
-    assert get_auth_url(url, pat) == expected
 
-def test_get_auth_url_ssh():
+def test_get_auth_url_preserves_ssh() -> None:
     url = "git@github.com:user/repo.git"
-    pat = "ghp_12345"
-    assert get_auth_url(url, pat) == url
+    assert get_auth_url(url, "secret-token") == url
 
-def test_get_pat_from_env(monkeypatch):
-    monkeypatch.setenv("GIT_TOOLKIT_PAT", "ghp_test_token")
-    assert get_pat_from_env() == "ghp_test_token"
 
-def test_get_pat_from_env_missing(monkeypatch):
+def test_get_pat_from_env(monkeypatch) -> None:
+    monkeypatch.setenv("GIT_TOOLKIT_PAT", "test-token")
+    assert get_pat_from_env() == "test-token"
+
+
+def test_get_pat_from_env_missing(monkeypatch) -> None:
     monkeypatch.delenv("GIT_TOOLKIT_PAT", raising=False)
     assert get_pat_from_env() is None
