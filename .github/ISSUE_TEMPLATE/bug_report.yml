@@ -1,0 +1,67 @@
+name: Bug report
+description: Report reproducible incorrect Git Toolkit behavior
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not use this form for sensitive security vulnerabilities. Use private vulnerability reporting instead.
+  - type: input
+    id: version
+    attributes:
+      label: Git Toolkit version or commit
+      placeholder: 0.9.0.dev0 or commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - Windows
+        - macOS
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: 3.11.x, 3.12.x, or 3.13.x
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest deterministic reproduction you can.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant configuration
+      description: Remove credentials, tokens, private URLs, and other secrets.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety checks
+      options:
+        - label: I removed credentials, tokens, private repository contents, and other secrets.
+          required: true
+        - label: This is not a sensitive security vulnerability.
+          required: true
