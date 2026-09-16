@@ -1,0 +1,28 @@
+name: Repository Hygiene
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Verify tracked repository hygiene
+        run: python tools/verify_repository_hygiene.py
+      - name: Verify clean checkout state
+        shell: bash
+        run: |
+          test -z "$(git status --porcelain)"
