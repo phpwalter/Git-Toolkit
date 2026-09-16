@@ -22,13 +22,29 @@ def evaluate_commit_message(message: str, policy: CommitMessagePolicy | None = N
     policy = policy or CommitMessagePolicy()
     subject = message.splitlines()[0].strip() if message.strip() else ""
     if len(subject) < policy.min_length:
-        return CommitMessageDecision(False, "commit.message.too_short", "Commit subject is too short.")
+        return CommitMessageDecision(
+            False,
+            "commit.message.too_short",
+            "Commit subject is too short.",
+        )
     if len(subject) > policy.max_subject_length:
-        return CommitMessageDecision(False, "commit.message.too_long", "Commit subject exceeds the configured maximum length.")
+        return CommitMessageDecision(
+            False,
+            "commit.message.too_long",
+            "Commit subject exceeds the configured maximum length.",
+        )
     try:
         matches = re.fullmatch(policy.pattern, subject) is not None
     except re.error as exc:
-        return CommitMessageDecision(False, "commit.message.invalid_policy", f"Invalid commit-message pattern: {exc}")
+        return CommitMessageDecision(
+            False,
+            "commit.message.invalid_policy",
+            f"Invalid commit-message pattern: {exc}",
+        )
     if not matches:
-        return CommitMessageDecision(False, "commit.message.invalid", "Commit subject does not satisfy the configured pattern.")
+        return CommitMessageDecision(
+            False,
+            "commit.message.invalid",
+            "Commit subject does not satisfy the configured pattern.",
+        )
     return CommitMessageDecision(True, "commit.message.valid", "Commit message is valid.")
