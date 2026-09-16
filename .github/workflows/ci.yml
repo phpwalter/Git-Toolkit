@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, 16-core-stabilization-and-1.0-readiness]
 
 permissions:
   contents: read
