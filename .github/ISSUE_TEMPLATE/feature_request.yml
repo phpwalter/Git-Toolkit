@@ -1,0 +1,54 @@
+name: Feature request
+description: Propose a scoped Git Toolkit capability or policy change
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the user, workflow, governance, or reliability problem without prescribing implementation first.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Required outcome
+      description: State the observable result and acceptance criteria.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Proposed release scope
+      options:
+        - 1.0 blocker
+        - 1.x follow-up
+        - Post-1.0 / exploratory
+        - Unsure
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Affected boundaries
+      options:
+        - label: CLI or configuration contract
+        - label: Git/repository mutation
+        - label: Security or credential handling
+        - label: Shell/script/plugin execution
+        - label: CI/release/package workflow
+        - label: Cross-platform compatibility
+        - label: Documentation only
+  - type: textarea
+    id: tests
+    attributes:
+      label: Verification approach
+      description: Describe the tests or deterministic checks that should prove the feature works.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or tradeoffs
+      description: Include simpler approaches or compatibility implications when known.
