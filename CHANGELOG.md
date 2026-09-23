@@ -8,6 +8,14 @@ The project follows Semantic Versioning and keeps unreleased work under `Unrelea
 
 ### Added
 
+### Changed
+
+### Security
+
+## 1.0.0 - 2026-09-23
+
+### Added
+
 - Deterministic Git workflow orchestration across configured repositories.
 - Rich repository status including dirty state and ahead/behind tracking.
 - Core Git lifecycle commands: clone, fetch, pull, sync, checkout, commit, push, merge, rebase, tag, and submodule update.
@@ -22,7 +30,7 @@ The project follows Semantic Versioning and keeps unreleased work under `Unrelea
 
 ### Changed
 
-- Canonical development version is `0.9.0.dev0` pending the 1.0 release cut.
+- Version finalized as `1.0.0`.
 - Python 3.11 is the supported minimum.
 - The CLI is the supported 1.0 product surface; the web package is experimental.
 
@@ -32,7 +40,3 @@ The project follows Semantic Versioning and keeps unreleased work under `Unrelea
 - Added explicit trust boundaries around project code execution.
 - Restricted force-push support to force-with-lease and policy enforcement.
 - Added dependency and static security scanning to CI.
-
-## 1.0.0
-
-This section will be finalized by the release-cut branch after all 1.0 readiness gates are integrated and green.
