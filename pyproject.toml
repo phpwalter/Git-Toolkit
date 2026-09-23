@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "git-toolkit"
-version = "0.9.0.dev0"
+version = "1.0.0"
 description = "Deterministic Git workflow orchestration and policy enforcement for repositories and multi-repository workspaces."
 readme = "README.md"
 requires-python = ">=3.11"
